@@ -43,10 +43,13 @@ const activateApi = async(req, res, next) => {
 }
 
 const addApi = async(req, res, next) => {
-    let api = req.body.api
-    let code = req.body.code
-    let status = req.body.status
+    console.log(req.body);
 
+    let name = req.body.name;
+    let api = req.body.api;
+    let code = req.body.code;
+    
+    let status = true ? req.body.status == "active" : false;
     console.log(`Api : ${api} & code : ${code} & status : ${status}`)
 
     res.status(200).json({

@@ -6,6 +6,6 @@ apiRoutes.get('/apis', controller.getApis);
 apiRoutes.get('/api/:id', controller.getApi);
 apiRoutes.get('/api/activate', controller.activateApi);
 apiRoutes.get('/api/deactivate', controller.deActivateApi);
-apiRoutes.post('/network/:id', controller.addApi);
+apiRoutes.post('/api', controller.addApi);
 
 export default apiRoutes;
