@@ -7,6 +7,6 @@ mnoRoutes.get('/network/list', controller.listNetwork);
 mnoRoutes.get('/network/:id', controller.getNetwork);
 mnoRoutes.put('/network/:id', controller.updateNetwork);
 mnoRoutes.delete('/network/:id', controller.deleteNetwork);
-mnoRoutes.post('/network/:id', controller.addNetwork);
+mnoRoutes.post('/network', controller.addNetwork);
 
 export default mnoRoutes;

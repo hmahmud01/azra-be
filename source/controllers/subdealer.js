@@ -35,7 +35,7 @@ const deleteSubDealer = async(req, res, next) => {
 
 const addSubDealer = async(req, res, next) => {
     let name = req.body.name
-    let phone = req.body.phone
+    let phone = req.body.mobile
     let area = req.body.area
 
     console.log(`subdealer : ${name} and phone : ${phone}`)
