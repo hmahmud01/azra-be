@@ -37,7 +37,7 @@ const addAgent = async(req, res, next) => {
     let name = req.body.name
     let phone = req.body.phone
     let manger = req.body.manager
-    let area = req.body.area
+    let area = req.body.city
 
     console.log(`agent : ${name} and phone : ${phone}`)
     res.status(200).json({

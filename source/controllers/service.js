@@ -1,3 +1,6 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const getServices = async(req, res, next) => {
     let result = [
         {id: 1, service: "TopUp", mno: "GP"},

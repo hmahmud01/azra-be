@@ -35,7 +35,7 @@ const deleteDealer = async(req, res, next) => {
 
 const addDealer = async(req, res, next) => {
     let name = req.body.name
-    let phone = req.body.phone
+    let phone = req.body.mobile
     let area = req.body.area
 
     console.log(`dealer : ${name} and phone : ${phone}`)

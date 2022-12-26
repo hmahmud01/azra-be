@@ -36,7 +36,7 @@ const deleteCircle = async(req, res, next) => {
 
 const addCircle = async(req, res, next) => {
     let name = req.body.name
-    let ctry = req.body.ctry
+    let ctry = req.body.country
 
     console.log("name : ", name, "ctry : ", ctry)
     let response = "creating the data";

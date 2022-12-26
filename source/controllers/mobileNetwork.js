@@ -1,3 +1,6 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const getNetworks = async(req, res, next) => {
     let result = [
         {id: 1, mno: "GP", ctry: "BD"},
@@ -53,8 +56,8 @@ const deleteNetwork = async(req, res, next) => {
 }
 
 const addNetwork = async(req, res, next) => {
-    let mno = "Teletalk"
-    let ctry = "BD"
+    let mno = req.body.mno
+    let ctry = req.body.country
 
     console.log("mno : ", mno, "ctry : ", ctry);
     let response = `data creating for ${mno}`

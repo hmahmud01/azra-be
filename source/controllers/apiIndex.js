@@ -1,3 +1,6 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const sdata = [
     {'id': 1, 'api': "ZOLO", 'code': "ZLO", "status": true},
     {'id': 2, 'api': "Etisalat", 'code': "ETS", "status": false},

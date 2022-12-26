@@ -7,6 +7,6 @@ serviceRoutes.get('/service/list', controller.listService);
 serviceRoutes.get('/service/:id', controller.getService);
 serviceRoutes.put('/service/:id', controller.updateService);
 serviceRoutes.delete('/service/:id', controller.deleteService);
-serviceRoutes.post('/service/:id', controller.addService);
+serviceRoutes.post('/service', controller.addService);
 
 export default serviceRoutes;
