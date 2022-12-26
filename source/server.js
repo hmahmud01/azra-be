@@ -32,6 +32,7 @@ app.use(bodyParser.json());
 
 // app.use(corsMiddleware);
 
+
 app.use('/', countryRoutes);
 app.use('/', circleRoutes);
 app.use('/', apiRoutes);

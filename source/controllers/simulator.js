@@ -30,6 +30,7 @@ const submitData = async(req, res, next) => {
             );
             const data = await res.json();
             console.log(data);
+            
             console.log(data.items[0].balance);
             if (data.items[0].balance >= amount){
                 console.log("TEST API WORKING");
@@ -44,6 +45,7 @@ const submitData = async(req, res, next) => {
             );
             const data = await res.json();
             console.log(data);  
+
             console.log(data.items[0].balance);
             if (data.items[0].balance >= amount){
                 console.log("ETS API WORKING");
@@ -51,12 +53,14 @@ const submitData = async(req, res, next) => {
             }else{
                 console.log("ETS DIDN'T WORK")
             }
+
         }else if(activeApi[i].code == "ZLO"){
             const res = await fetch(
                 'http://127.0.0.1:8090/api/collections/zolobalance/records'
             );
             const data = await res.json();
             console.log(data);
+
             console.log(data.items[0].balance);
             if (data.items[0].balance >= amount){
                 console.log("ZOLO API WORKING");
