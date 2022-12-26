@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -38,3 +39,5 @@ next-env.d.ts
 /pb_data/
 /pb_migrations/
 pocketbase.exe
+
+/prisma/migrations

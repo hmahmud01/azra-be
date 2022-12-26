@@ -21,16 +21,17 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
-//CORS middleware
-var corsMiddleware = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'localhost'); //replace localhost with actual host
-    res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, PATCH, POST, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization');
 
-    next();
-}
+// var corsMiddleware = function(req, res, next) {
+//     res.header('Access-Control-Allow-Origin', 'localhost:3001');
+//     res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, PATCH, POST, DELETE');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization');
 
-app.use(corsMiddleware);
+//     next();
+// }
+
+// app.use(corsMiddleware);
+
 
 app.use('/', countryRoutes);
 app.use('/', circleRoutes);
