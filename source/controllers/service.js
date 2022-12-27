@@ -7,6 +7,12 @@ const getServices = async(req, res, next) => {
         {id: 2, service: "DataLoad", mno: "BanglaLink"}
     ]
 
+    result = await prisma.teleService.findMany({
+        include: {mobile: true}
+    })
+
+    console.log(result);
+
     res.status(200).json({
         message: result
     })
@@ -52,9 +58,20 @@ const addService = async(req, res, next) => {
     let service = req.body.service
     let mno = req.body.mno
 
-    console.log(`service : ${service} and mno : ${mno}`)
+    const teleservice = await prisma.teleService.create({
+        data: {
+            name: service,
+            mobile: {
+                connect: {
+                    id: parseInt(mno)
+                }
+            }
+        }
+    })
+
+    console.log(teleservice)
     res.status(200).json({
-        message: "adding data" 
+        message: `added data: ${teleservice}`
     })
 }
 

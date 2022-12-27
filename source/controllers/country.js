@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getCountries = async(req, res, next) => {
-    let countries = await prisma.country.findMany();
+    let countries = await prisma.nation.findMany();
     console.log(countries);
 
     return res.status(200).json({
@@ -17,7 +17,7 @@ const listCountry = async(req, res, next) => {
         {id: 3, name: "Pakistan"}
     ]
 
-    result = await prisma.country.findMany();
+    result = await prisma.nation.findMany();
 
     return res.status(200).json({
         message: result
@@ -66,7 +66,7 @@ const addCountry = async(req, res, next) => {
         short: short,
         code: code
     }
-    const country = await prisma.country.create({ data: data });
+    const country = await prisma.nation.create({ data: data });
     console.log(country);
     let response = `creating the data ${country}`;
 

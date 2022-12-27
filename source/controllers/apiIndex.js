@@ -12,6 +12,8 @@ const getApis = async(req, res, next) => {
         {id: 2, api: "Etisalat", code: "ETS", status: false}
     ]
 
+    result = await prisma.api.findMany();
+
     res.status(200).json({
         message: result
     })
@@ -51,12 +53,22 @@ const addApi = async(req, res, next) => {
     let name = req.body.name;
     let api = req.body.api;
     let code = req.body.code;
-    
     let status = true ? req.body.status == "active" : false;
+
+    let data = {
+        name: name,
+        code: code,
+        status: status
+    }
+
+    const apiObj = await prisma.api.create({
+        data: data
+    })
+
     console.log(`Api : ${api} & code : ${code} & status : ${status}`)
 
     res.status(200).json({
-        message: "data Added"
+        message: `Data added : ${apiObj}`
     })
 }
 

@@ -8,21 +8,70 @@ datasource db {
 }
 
 model User {
-  id   Int    @default(autoincrement()) @id
+  id   Int    @id @default(autoincrement())
   name String
 }
 
 model Country {
-  id      Int       @default(autoincrement()) @id
-  name    String
-  short   String
-  code    String
-  Network Network[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  short     String
+  code      String
+  createdAt DateTime @default(now())
+  Network   Network? @relation(fields: [networkId], references: [id])
+  networkId Int?     @unique
 }
 
 model Network {
-  id        Int     @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   name      String
-  country   Country @relation(fields: [countryId], references: [id])
-  countryId Int
+  createdAt DateTime @default(now())
+  country   Country?
+  service   Service? @relation(fields: [serviceId], references: [id])
+  serviceId Int?     @unique
+}
+
+model Service {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  Network   Network?
+}
+
+model Nation {
+  id     Int      @id @default(autoincrement())
+  name   String
+  short  String
+  code   String
+  Mobile Mobile[]
+}
+
+model Mobile {
+  id          Int           @id @default(autoincrement())
+  name        String
+  createAt    DateTime      @default(now())
+  nation      Nation        @relation(fields: [nationId], references: [id])
+  nationId    Int
+  TeleService TeleService[]
+}
+
+model TeleService {
+  id       Int      @id @default(autoincrement())
+  name     String
+  createAt DateTime @default(now())
+  mobile   Mobile   @relation(fields: [mobileId], references: [id])
+  mobileId Int
+}
+
+model Api {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String
+  status    Boolean
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  BASIC
+  ADMIN
 }

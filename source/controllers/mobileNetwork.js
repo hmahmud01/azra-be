@@ -8,8 +8,11 @@ const getNetworks = async(req, res, next) => {
         {id: 3, mno: "Airtel", ctry: "IND"}
     ]
 
+    const networks = await prisma.mobile.findMany({ include: {nation: true} });
+    console.log(networks); 
+
     res.status(200).json({
-        message: result
+        message: networks
     })
 }
 
@@ -19,6 +22,8 @@ const listNetwork = async(req, res, next) => {
         {id: 2, name: "Banglalink", country: 1},
         {id: 3, name: "Airtel", country: 2},
     ]
+
+    result = await prisma.mobile.findMany();
 
     res.status(200).json({
         message: result
@@ -59,11 +64,33 @@ const addNetwork = async(req, res, next) => {
     let mno = req.body.mno
     let ctry = req.body.country
 
+    const country = await prisma.nation.findFirst({
+        where: {
+            id: parseInt(ctry)
+        }
+    })
+
+    console.log(country);
+
     console.log("mno : ", mno, "ctry : ", ctry);
     let response = `data creating for ${mno}`
 
+    const network = await prisma.mobile.create({
+        data: {
+            name: mno,
+            nation: {
+                connect: {
+                    id: parseInt(ctry)
+                }
+            }
+        },
+        include: { nation: true}
+    })
+
+    console.log(network, {depth: Infinity})
+
     res.status(200).json({
-        message: response
+        message: network
     })
 }
 
