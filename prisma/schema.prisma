@@ -64,11 +64,22 @@ model TeleService {
 }
 
 model Api {
+  id             Int              @id @default(autoincrement())
+  name           String
+  code           String
+  status         Boolean
+  createdAt      DateTime         @default(now())
+  ApiTransaction ApiTransaction[]
+}
+
+model ApiTransaction {
   id        Int      @id @default(autoincrement())
-  name      String
-  code      String
-  status    Boolean
+  phone     String
+  amount    Int
+  agent     String
   createdAt DateTime @default(now())
+  api       Api      @relation(fields: [apiId], references: [id])
+  apiId     Int
 }
 
 enum Role {

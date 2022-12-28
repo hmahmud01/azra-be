@@ -13,6 +13,9 @@ import serviceRoutes from './routes/service.js';
 import mnoRoutes from './routes/mobilenetwork.js';
 import simulatorRoutes from './routes/simulator.js';
 
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const app = express();
 
 app.use(morgan('dev'));
@@ -42,6 +45,9 @@ app.use('/', subDealerRoutes);
 app.use('/', serviceRoutes);
 app.use('/', mnoRoutes);
 app.use('/', simulatorRoutes);
+
+const trx = await prisma.apiTransaction.findMany({ include: {api: true} });
+console.log(trx); 
 
 app.use((req, res, next) => {
     const error = new Error('not found');

@@ -30,18 +30,33 @@ const getApi = async(req, res, next) => {
 }
 
 const deActivateApi = async(req, res, next) => {
-    let id = req.params.id
+    let id = parseInt(req.params.id)
     console.log(`deactivating the api with id of ${id}`)
 
+    const updateapi = await prisma.api.update({
+        where: { id: id },
+        data: {
+            status: false,
+        }
+    });
+
+    console.log(updateapi);
     res.status(200).json({
         message: `deactivated ${id}`
     })
 }
 
 const activateApi = async(req, res, next) => {
-    let id = req.params.id
+    let id = parseInt(req.params.id)
     console.log(`activating the api with id of ${id}`)
+    const updateapi = await prisma.api.update({
+        where: { id: id },
+        data: {
+            status: true,
+        }
+    });
 
+    console.log(updateapi);
     res.status(200).json({
         message: `activated ${id}`
     })
