@@ -47,7 +47,7 @@ app.use('/', mnoRoutes);
 app.use('/', simulatorRoutes);
 
 const trx = await prisma.apiTransaction.findMany({ include: {api: true} });
-console.log(trx); 
+// console.log(trx); 
 
 app.use((req, res, next) => {
     const error = new Error('not found');

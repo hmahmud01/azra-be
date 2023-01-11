@@ -1,5 +1,6 @@
 commands:
 1. npm i --save-dev install prisma
+2. npx prisma init
 2. update data url for evn
 3. npx prisma migrate dev --name init
 4. npm i @prisma/client

@@ -12,6 +12,16 @@ model User {
   name String
 }
 
+model LockedBalance {
+  id               Int             @id @default(autoincrement())
+  currentBalance   Float
+  amountLocked     Float
+  trx_id           ApiTransaction? @relation(fields: [apiTransactionId], references: [id])
+  lockedStatus     Boolean
+  createdAt        DateTime        @default(now())
+  apiTransactionId Int?
+}
+
 model Country {
   id        Int      @id @default(autoincrement())
   name      String
@@ -73,13 +83,25 @@ model Api {
 }
 
 model ApiTransaction {
-  id        Int      @id @default(autoincrement())
-  phone     String
-  amount    Int
-  agent     String
-  createdAt DateTime @default(now())
-  api       Api      @relation(fields: [apiId], references: [id])
-  apiId     Int
+  id                   Int                    @id @default(autoincrement())
+  phone                String
+  amount               Int
+  agent                String
+  createdAt            DateTime               @default(now())
+  api                  Api                    @relation(fields: [apiId], references: [id])
+  apiId                Int
+  TransactionRecordApi TransactionRecordApi[]
+  LockedBalance        LockedBalance[]
+}
+
+// This will track the record for a transaction which api has been called and if that is success or failed
+model TransactionRecordApi {
+  id               Int            @id @default(autoincrement())
+  transaction      ApiTransaction @relation(fields: [apiTransactionId], references: [id])
+  apiTransactionId Int
+  status           Boolean
+  statement        String
+  createdAt        DateTime       @default(now())
 }
 
 enum Role {
