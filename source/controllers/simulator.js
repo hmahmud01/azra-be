@@ -3,11 +3,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const submitData = async(req, res, next) => {
-    // AGENT BALANCE INFO TO CHECK FROM DATABASE
-
-    const agent_balance_info = await prisma.lockedBalance.findMany({ include: {trx_id: true} });
-
-    console.log(agent_balance_info);
     const apicreds = await prisma.api.findMany({
         where: {
             status: true
@@ -16,36 +11,53 @@ const submitData = async(req, res, next) => {
 
     let mobile = req.body.mobile
     let amount = req.body.amount
+    let country = req.body.country
+    let network = req.body.network
+    let service = req.body.service
 
     let trx_data = {}
     let trx_api_id = 0
     let trx_status = false
 
-    let agent_balance = 600.0;
+    let agent_balance = 800.0;
+    console.log("Amount to be recharge for : ", amount);
 
-    for (let i=0; i< agent_balance_info.length; i++){
-        if (agent_balance_info[i].lockedStatus)
-            agent_balance -= agent_balance_info[i].amountLocked
+    let transaction_data = {
+        phone: mobile,
+        amount: parseFloat(amount),
+        agent: "Anonymous",
+        rechargeStatus: true,
+        country: {
+            connect: {
+                id: country
+            }
+        },
+        mobile: {
+            connect: {
+                id: network
+            }
+        },
+        service: {
+            connect: {
+                id: service
+            }
+        }
     }
 
-    console.log("Amount to be recharge for : ", amount);
-    console.log("actual balance", agent_balance);
+    let locked_number_data = {
+        phone: mobile,
+        status: true
+    }
+
 
     if (agent_balance > amount){
-        console.log("BALANCE RECHARGE INITIATE");
-        console.log("Balance Lock here");
+        const transaction = await prisma.transaction.create({
+            data: transaction_data
+        })
 
-        let locked_data = {
-            currentBalance: 200.0,
-            amountLocked: parseFloat(amount),
-            lockedStatus: true
-        }
-
-        const locked_trx = await prisma.lockedBalance.create({
-            data: locked_data,
-        });
-
-        console.log(locked_trx);
+        const lockedNumber = await prisma.lockedNumber.create({
+            data: locked_number_data
+        })
 
         for (let i=0; i<apicreds.length; i++){
             if(apicreds[i].code == "TST"){
@@ -63,9 +75,11 @@ const submitData = async(req, res, next) => {
                     const response = await res.json();
                     console.log(response.items[0].message);
                     trx_data = {
-                        phone: mobile,
-                        amount: parseInt(amount),
-                        agent: "Anonymous",
+                        trx : {
+                            connect: {
+                                id: transaction.id
+                            }
+                        },
                         api:{
                             connect:{
                                 id: apicreds[i].id
@@ -94,9 +108,11 @@ const submitData = async(req, res, next) => {
                     const response = await res.json();
                     console.log(response.items[0].message);
                     trx_data = {
-                        phone: mobile,
-                        amount: parseInt(amount),
-                        agent: "Anonymous",
+                        trx : {
+                            connect: {
+                                id: transaction.id
+                            }
+                        },
                         api:{
                             connect:{
                                 id: apicreds[i].id
@@ -125,9 +141,11 @@ const submitData = async(req, res, next) => {
                     const response = await res.json();
                     console.log(response.items[0].message);
                     trx_data = {
-                        phone: mobile,
-                        amount: parseInt(amount),
-                        agent: "Anonymous",
+                        trx : {
+                            connect: {
+                                id: transaction.id
+                            }
+                        },
                         api:{
                             connect:{
                                 id: apicreds[i].id
@@ -142,53 +160,54 @@ const submitData = async(req, res, next) => {
                 }
             }
         }
-        console.log(trx_data);
-        console.log(trx_api_id);
-        console.log(trx_status);
+        console.log("Transaction Data : ", trx_data);
+        console.log("Api ID: ", trx_api_id);
+        console.log("Transaction Status : ", trx_status);
 
         if(trx_status){
             const trx = await prisma.apiTransaction.create({
                 data: trx_data,
             })
 
-            console.log(trx);
+            lockedNumber.u
+            const record = await prisma.transactionRecordApi.create({
+                data: {
+                    transaction:{
+                        connect: {
+                            id: trx.id
+                        }
+                    },
+                    status: true,
+                    statement: "Successfully recharged"
+                }
+            })
 
-            let unlocked_data = {
-                currentBalance: 200.0,
-                amountLocked: parseFloat(amount),
-                lockedStatus: false,
-                trx_id: {
-                    connect: {
-                        id: trx.id
+            console.log("Add a entry of success recharge balance and adjust the agents real balance");
+        }else{
+            const transaction = await prisma.transaction.create({
+                data: {
+                    phone: mobile,
+                    amount: parseFloat(amount),
+                    agent: "Anonymous",
+                    rechargeStatus: false,
+                    country: {
+                        connect: {
+                            id: country
+                        }
+                    },
+                    mobile: {
+                        connect: {
+                            id: network
+                        }
+                    },
+                    service: {
+                        connect: {
+                            id: service
+                        }
                     }
                 }
-            }
-
-            const unlocked_trx = await prisma.lockedBalance.update({
-                where: {
-                    id: locked_trx.id
-                },
-                data: unlocked_data
             })
-
-            console.log("Balance Unlocking");
-            console.log("Updated locked balance status : ", unlocked_trx);
-            console.log("NEGATE THE recharge amount from agents Real Balance");
-        }else{
             console.log("Balance Unavailable");
-            let unlocked_data = {
-                currentBalance: 200.0,
-                amountLocked: parseFloat(amount),
-                lockedStatus: false,
-            }
-
-            const unlocked_trx = await prisma.lockedBalance.update({
-                where: {
-                    id: locked_trx.id
-                },
-                data: unlocked_data
-            })
-            console.log("unlocking balance only no negate from the agent balance");
         }
     }else{
         console.log("INSUFFICIENT AGENT BALANCE, RECHARGE FAILED !!!");

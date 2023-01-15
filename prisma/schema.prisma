@@ -49,11 +49,12 @@ model Service {
 }
 
 model Nation {
-  id     Int      @id @default(autoincrement())
-  name   String
-  short  String
-  code   String
-  Mobile Mobile[]
+  id          Int           @id @default(autoincrement())
+  name        String
+  short       String
+  code        String
+  Mobile      Mobile[]
+  Transaction Transaction[]
 }
 
 model Mobile {
@@ -63,14 +64,16 @@ model Mobile {
   nation      Nation        @relation(fields: [nationId], references: [id])
   nationId    Int
   TeleService TeleService[]
+  Transaction Transaction[]
 }
 
 model TeleService {
-  id       Int      @id @default(autoincrement())
-  name     String
-  createAt DateTime @default(now())
-  mobile   Mobile   @relation(fields: [mobileId], references: [id])
-  mobileId Int
+  id          Int           @id @default(autoincrement())
+  name        String
+  createAt    DateTime      @default(now())
+  mobile      Mobile        @relation(fields: [mobileId], references: [id])
+  mobileId    Int
+  Transaction Transaction[]
 }
 
 model Api {
@@ -82,16 +85,41 @@ model Api {
   ApiTransaction ApiTransaction[]
 }
 
+model LockedNumber {
+  id               Int             @id @default(autoincrement())
+  phone            String
+  status           Boolean
+  trx              ApiTransaction? @relation(fields: [apiTransactionId], references: [id])
+  createdAt        DateTime        @default(now())
+  apiTransactionId Int?
+}
+
+model Transaction {
+  id             Int              @id @default(autoincrement())
+  phone          String
+  amount         Float
+  agent          String
+  rechargeStatus Boolean
+  country        Nation?          @relation(fields: [nationId], references: [id])
+  mobile         Mobile?          @relation(fields: [mobileId], references: [id])
+  service        TeleService?     @relation(fields: [teleServiceId], references: [id])
+  createdAt      DateTime         @default(now())
+  nationId       Int?
+  mobileId       Int?
+  teleServiceId  Int?
+  ApiTransaction ApiTransaction[]
+}
+
 model ApiTransaction {
   id                   Int                    @id @default(autoincrement())
-  phone                String
-  amount               Int
-  agent                String
+  trx                  Transaction            @relation(fields: [transactionId], references: [id])
   createdAt            DateTime               @default(now())
   api                  Api                    @relation(fields: [apiId], references: [id])
   apiId                Int
   TransactionRecordApi TransactionRecordApi[]
   LockedBalance        LockedBalance[]
+  transactionId        Int
+  LockedNumber         LockedNumber[]
 }
 
 // This will track the record for a transaction which api has been called and if that is success or failed
