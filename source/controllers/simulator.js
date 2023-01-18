@@ -13,11 +13,13 @@ const agentBalance = async(req, res, next) => {
     let pendingRecharge = 0.00
 
     for(let i = 0; i<lockedbalances.length; i++){
-        pendingRecharge += lockedbalances[i]
+        pendingRecharge += lockedbalances[i].amountLocked
     }
 
+    console.log(`Pending Balance: ${pendingRecharge}`);
     let actualbalance = mainBalance - pendingRecharge
 
+    console.log(`Actual Balance ${actualbalance}`);
     res.status(200).json({
         balance: actualbalance
     })
@@ -44,6 +46,8 @@ const submitData = async(req, res, next) => {
     let agent_balance = 800.0;
     console.log("Amount to be recharge for : ", amount);
 
+    // find locked balances
+
     let transaction_data = {
         phone: mobile,
         amount: parseFloat(amount),
@@ -68,6 +72,7 @@ const submitData = async(req, res, next) => {
 
 
     if (agent_balance > amount){
+        
         const transaction = await prisma.transaction.create({
             data: transaction_data
         })
@@ -308,5 +313,5 @@ const allTransactions = async(req, res, next) => {
     })
 }
 
-export default {submitData, allTransactions};
+export default {submitData, allTransactions, agentBalance};
 
