@@ -8,8 +8,29 @@ datasource db {
 }
 
 model User {
-  id   Int    @id @default(autoincrement())
-  name String
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  RefreshToken RefreshToken[]
+  Profile      Profile[]
+}
+
+model Profile {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+}
+
+model RefreshToken {
+  id          Int      @id @default(autoincrement())
+  hashedToken String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  udpatedAt   DateTime @updatedAt
 }
 
 model LockedBalance {
@@ -22,38 +43,13 @@ model LockedBalance {
   apiTransactionId Int?
 }
 
-model Country {
-  id        Int      @id @default(autoincrement())
-  name      String
-  short     String
-  code      String
-  createdAt DateTime @default(now())
-  Network   Network? @relation(fields: [networkId], references: [id])
-  networkId Int?     @unique
-}
-
-model Network {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  country   Country?
-  service   Service? @relation(fields: [serviceId], references: [id])
-  serviceId Int?     @unique
-}
-
-model Service {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  Network   Network?
-}
-
 model Nation {
-  id     Int      @id @default(autoincrement())
-  name   String
-  short  String
-  code   String
-  Mobile Mobile[]
+  id          Int           @id @default(autoincrement())
+  name        String
+  short       String
+  code        String
+  Mobile      Mobile[]
+  Transaction Transaction[]
 }
 
 model Mobile {
@@ -63,14 +59,16 @@ model Mobile {
   nation      Nation        @relation(fields: [nationId], references: [id])
   nationId    Int
   TeleService TeleService[]
+  Transaction Transaction[]
 }
 
 model TeleService {
-  id       Int      @id @default(autoincrement())
-  name     String
-  createAt DateTime @default(now())
-  mobile   Mobile   @relation(fields: [mobileId], references: [id])
-  mobileId Int
+  id          Int           @id @default(autoincrement())
+  name        String
+  createAt    DateTime      @default(now())
+  mobile      Mobile        @relation(fields: [mobileId], references: [id])
+  mobileId    Int
+  Transaction Transaction[]
 }
 
 model Api {
@@ -82,16 +80,41 @@ model Api {
   ApiTransaction ApiTransaction[]
 }
 
+model LockedNumber {
+  id            Int         @id @default(autoincrement())
+  phone         String
+  status        Boolean
+  createdAt     DateTime    @default(now())
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+}
+
+model Transaction {
+  id             Int              @id @default(autoincrement())
+  phone          String
+  amount         Float
+  agent          String
+  rechargeStatus Boolean
+  country        Nation?          @relation(fields: [nationId], references: [id])
+  mobile         Mobile?          @relation(fields: [mobileId], references: [id])
+  service        TeleService?     @relation(fields: [teleServiceId], references: [id])
+  createdAt      DateTime         @default(now())
+  nationId       Int?
+  mobileId       Int?
+  teleServiceId  Int?
+  ApiTransaction ApiTransaction[]
+  LockedNumber   LockedNumber[]
+}
+
 model ApiTransaction {
   id                   Int                    @id @default(autoincrement())
-  phone                String
-  amount               Int
-  agent                String
+  trx                  Transaction            @relation(fields: [transactionId], references: [id])
   createdAt            DateTime               @default(now())
   api                  Api                    @relation(fields: [apiId], references: [id])
   apiId                Int
   TransactionRecordApi TransactionRecordApi[]
   LockedBalance        LockedBalance[]
+  transactionId        Int
 }
 
 // This will track the record for a transaction which api has been called and if that is success or failed

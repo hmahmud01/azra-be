@@ -12,6 +12,8 @@ import subDealerRoutes from './routes/subdealer.js';
 import serviceRoutes from './routes/service.js';
 import mnoRoutes from './routes/mobilenetwork.js';
 import simulatorRoutes from './routes/simulator.js';
+import authRoute from './authsrc/auth/auth.routes.js';
+import usersRoute from './authsrc/users/users.routes.js';
 
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
@@ -45,6 +47,8 @@ app.use('/', subDealerRoutes);
 app.use('/', serviceRoutes);
 app.use('/', mnoRoutes);
 app.use('/', simulatorRoutes);
+app.use('/', authRoute);
+app.use('/', usersRoute);
 
 const trx = await prisma.apiTransaction.findMany({ include: {api: true} });
 // console.log(trx); 
