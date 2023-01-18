@@ -2,6 +2,25 @@ import fetch from "node-fetch";
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+const asyncTest = async(req, res, next) => {
+    let responseurl = "localhost:3000/asyncurl";
+
+    res.status(200).json({
+        msg: "Response URL provided",
+        url: responseurl
+    });
+}
+
+const asyncURL = async(req, res, next) => {
+    let response = "Recharge success"
+    setTimeout(
+        res.status(200).json({
+            status: 200,
+            msg: "SUCCESS"
+        })
+    , 2000)
+}
+
 const submitData = async(req, res, next) => {
     const agent_balance_info = await prisma.lockedBalance.findMany({ include: {trx_id: true} });
 
@@ -228,5 +247,5 @@ const allTransactions = async(req, res, next) => {
     })
 }
 
-export default {submitData, allTransactions};
+export default {submitData, allTransactions, asyncTest, asyncURL};
 
