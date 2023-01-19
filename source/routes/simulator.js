@@ -5,5 +5,7 @@ const simulatorRoutes = express.Router();
 simulatorRoutes.get('/agentbalance', controller.agentBalance);
 simulatorRoutes.post('/submitdata', controller.submitData);
 simulatorRoutes.get('/alltrx', controller.allTransactions);
+simulatorRoutes.post('/asynctest', controller.asyncTest);
+simulatorRoutes.post('/asyncurl', controller.asyncURL);
 
 export default simulatorRoutes;
