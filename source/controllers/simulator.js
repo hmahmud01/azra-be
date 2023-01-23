@@ -38,6 +38,7 @@ const asyncTest = async(req, res, next) => {
 
 const asyncURL = async(req, res, next) => {
     let response = "Recharge success"
+
     res.status(200).json({
         status: 200,
         msg: "SUCCESS"
@@ -47,7 +48,7 @@ const asyncURL = async(req, res, next) => {
 const submitData = async(req, res, next) => {
     const agent_balance_info = await prisma.lockedBalance.findMany({ include: {trx_id: true} });
 
-    console.log(agent_balance_info);
+    // console.log(agent_balance_info);
     const apicreds = await prisma.api.findMany({
         where: {
             status: true
@@ -250,28 +251,31 @@ const submitData = async(req, res, next) => {
                         })
                         .then(response => response.json())
                         .then(response => {
+                            console.log(response.url);
                             return fetch(response.url, {method: 'POST'});
                         })
                         .then(response => response.json())
-                        .then(response =>{
+                        .then(response => {
                             console.log(response);
-                            if(response.msg == 'SUCCESS'){
-                                trx_data = {
-                                    trx : {
-                                        connect: {
-                                            id: transaction.id
-                                        }
-                                    },
-                                    api:{
-                                        connect:{
-                                            id: apicreds[i].id
-                                        }
+                            console.log(trx_status, " before trx ");
+                            trx_data = {
+                                trx : {
+                                    connect: {
+                                        id: transaction.id
+                                    }
+                                },
+                                api:{
+                                    connect:{
+                                        id: apicreds[i].id
                                     }
                                 }
-                                trx_api_id = apicreds[i].id
-                                trx_status = true
                             }
+                            trx_api_id = apicreds[i].id
+                            trx_status = true
+                            console.log(trx_status, " after trx ");
+                            console.log(trx_data);
                         })
+                        break;
                     }else{
                         console.log("DU SIM API DIDNT WORK");
                     }
@@ -383,7 +387,7 @@ const submitData = async(req, res, next) => {
 }
 
 const allTransactions = async(req, res, next) => {
-    const trx = await prisma.apiTransaction.findMany({ include: {api: true} });
+    const trx = await prisma.apiTransaction.findMany({ include: {api: true, trx: true} });
     console.log(trx); 
 
     res.status(200).json({
