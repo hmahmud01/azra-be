@@ -17,6 +17,23 @@ model User {
   Profile      Profile[]
 }
 
+model UserBalance {
+  id                 Int              @id @default(autoincrement())
+  balance            Float
+  previousBalance    Float
+  agentTrx           AgentTransaction @relation(fields: [agentTransactionId], references: [id])
+  createdAt          DateTime         @default(now())
+  agentTransactionId Int
+}
+
+model AgentTransaction {
+  id               Int           @id @default(autoincrement())
+  transferedAmount Float
+  createdAt        DateTime      @default(now())
+  updateAt         DateTime      @updatedAt
+  UserBalance      UserBalance[]
+}
+
 model Profile {
   id     Int  @id @default(autoincrement())
   user   User @relation(fields: [userId], references: [id])
