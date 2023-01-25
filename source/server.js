@@ -36,6 +36,10 @@ app.use(bodyParser.json());
 // }
 
 // app.use(corsMiddleware);
+// https://dev.to/mihaiandrei97/jwt-authentication-using-prisma-and-express-37nk
+
+
+
 
 
 app.use('/', countryRoutes);
