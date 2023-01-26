@@ -10,6 +10,8 @@ const lockedbalances = await prisma.lockedBalance.findMany({
     }
 })
 
+
+
 let pendingRecharge = 0.00
 
 for(let i = 0; i<lockedbalances.length; i++){
@@ -25,17 +27,6 @@ const agentBalance = async(req, res, next) => {
     res.status(200).json({
         balance: actualbalance
     })
-}
-
-async function f() {
-
-    let promise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve("done!"), 1000)
-    });
-  
-    let result = await promise;
-  
-    alert(result);
 }
 
 const asyncTest = async(req, res, next) => {
@@ -65,9 +56,25 @@ const asyncURL = async(req, res, next) => {
 
 const submitData = async(req, res, next) => {
 
-    const agent_balance_info = await prisma.lockedBalance.findMany({ include: {trx_id: true} });
+    const lockedbalances = await prisma.lockedBalance.findMany({
+        where: {
+            lockedStatus: true
+        }
+    })
+    
+    
+    
+    let pendingRecharge = 0.00
+    
+    for(let i = 0; i<lockedbalances.length; i++){
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+    
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalanceagent = mainBalance - pendingRecharge
+    
+    console.log(`Actual Balance ${actualbalanceagent}`);
 
-    // console.log(agent_balance_info);
     const apicreds = await prisma.api.findMany({
         where: {
             status: true
@@ -133,7 +140,7 @@ const submitData = async(req, res, next) => {
                 }
             }
         }
-        if (actualbalance > amount){
+        if (actualbalanceagent > amount){
         
             const transaction = await prisma.transaction.create({
                 data: transaction_data

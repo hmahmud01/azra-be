@@ -66,5 +66,7 @@ app.use((req, res, next) => {
 
 const httpServer = http.createServer(app);
 
+console.log(process.env.JWT_ACCESS_SECRET);
+
 const PORT = process.env.PORT ?? 3000
 httpServer.listen(PORT, () => console.log(`The Server is running on port ${PORT}`));

@@ -8,7 +8,7 @@ import { hashToken } from '../utls/hashToken.js';
 export function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
   return db.refreshToken.create({
     data: {
-      id: jti,
+      // id: jti,
       hashedToken: hashToken(refreshToken),
       userId
     },
