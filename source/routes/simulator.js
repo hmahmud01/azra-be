@@ -7,5 +7,6 @@ simulatorRoutes.post('/submitdata', controller.submitData);
 simulatorRoutes.get('/alltrx', controller.allTransactions);
 simulatorRoutes.post('/asynctest', controller.asyncTest);
 simulatorRoutes.post('/asyncurl', controller.asyncURL);
+simulatorRoutes.get('/allagenttrx', controller.allagentTrx)
 
 export default simulatorRoutes;

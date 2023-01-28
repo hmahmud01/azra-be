@@ -2,13 +2,27 @@ import fetch from "node-fetch";
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+// AGENT ID is 6 - currently under used from DATABASE
+const uid = 6
 
-let mainBalance = 950.0
+let mainBalance = 0.00;
+const agentTrx = await prisma.agentTransaction.findMany({
+    where: {
+        userId: uid
+    }
+})
+
+for (let i = 0; i<agentTrx.length; i++){
+    mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
+}
+console.log(`main balance from trasaction calculation , ${mainBalance}`)
 const lockedbalances = await prisma.lockedBalance.findMany({
     where: {
         lockedStatus: true
     }
 })
+
+
 
 let pendingRecharge = 0.00
 
@@ -38,24 +52,48 @@ const asyncTest = async(req, res, next) => {
 
 const asyncURL = async(req, res, next) => {
     let response = "Recharge success"
-
-    res.status(200).json({
+    let data = {
         status: 200,
         msg: "SUCCESS"
+    }
+    console.log(data);
+    let promise = new Promise((resolve, reject) => {
+        setTimeout(() => resolve(data), 120000)
     })
+
+    let result = await promise;
+    console.log(result);
+    res.status(200).json(result);
 }
 
 const submitData = async(req, res, next) => {
-    const agent_balance_info = await prisma.lockedBalance.findMany({ include: {trx_id: true} });
 
-    // console.log(agent_balance_info);
+    const lockedbalances = await prisma.lockedBalance.findMany({
+        where: {
+            userId: uid,
+            lockedStatus: true
+        }
+    })
+    
+    
+    let pendingRecharge = 0.00
+    
+    for(let i = 0; i<lockedbalances.length; i++){
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+    
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalanceagent = mainBalance - pendingRecharge
+    
+    console.log(`Actual Balance ${actualbalanceagent}`);
+
     const apicreds = await prisma.api.findMany({
         where: {
             status: true
         }
     });
 
-    let uid = req.body.userId
+    // let uid = req.body.userId
 
     let mobile = req.body.mobile
     let amount = req.body.amount
@@ -64,7 +102,7 @@ const submitData = async(req, res, next) => {
     let service = req.body.service
 
     let recharge_status_func = {
-        status : true,
+        status: true,
         uid: uid
     }
 
@@ -114,7 +152,19 @@ const submitData = async(req, res, next) => {
                 }
             }
         }
-        if (actualbalance > amount){
+        if (actualbalanceagent > amount){
+
+            const transfer = await prisma.agentTransaction.create({
+                data: {
+                    user: {
+                        connect: {
+                            id: uid
+                        }
+                    },
+                    transferedAmount: 0.00,
+                    deductedAmount: parseFloat(amount)
+                }
+            })
         
             const transaction = await prisma.transaction.create({
                 data: transaction_data
@@ -122,7 +172,12 @@ const submitData = async(req, res, next) => {
     
             const lockedBalance = await prisma.lockedBalance.create({
                 data: {
-                    currentBalance: agent_balance,
+                    user: {
+                        connect:{
+                            id: uid
+                        }
+                    },
+                    currentBalance: actualbalanceagent,
                     amountLocked: parseFloat(amount),
                     lockedStatus: true
                 }
@@ -176,7 +231,7 @@ const submitData = async(req, res, next) => {
                         console.log("TEST API DIDN't WORK");
                     }
                     
-                }else if(apicreds[i].code == "ETS"){
+                }else if(apicreds[i].code == "ETS"){    
                     const res = await fetch(
                         'http://127.0.0.1:8090/api/collections/etisalatbalance/records'
                     );
@@ -241,18 +296,20 @@ const submitData = async(req, res, next) => {
                     }else{
                         console.log("ZOLO DIDN'T WORK");
                     }
-                }else if (apicreds[i].code == "DU"){
+                }else if(apicreds[i].code == "DU"){
                     console.log("INSIDE DU SIM");
-                    
+
                     let balance = 1000.00
+
+                    console.log(`Available balance for DU Sim : ${balance}`);
                     if(balance >= amount){
-                        fetch('http://localhost:3000/asynctest', {
+                        await fetch('http://localhost:3000/asynctest', {
                             method: 'POST'
                         })
                         .then(response => response.json())
-                        .then(response => {
+                        .then(async response => {
                             console.log(response.url);
-                            return fetch(response.url, {method: 'POST'});
+                            return await fetch(response.url, {method: 'POST'});
                         })
                         .then(response => response.json())
                         .then(response => {
@@ -324,6 +381,8 @@ const submitData = async(req, res, next) => {
                         statement: "Successfully recharged"
                     }
                 })
+
+                
                 console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                 console.log("Add a entry of success recharge balance and adjust the agents real balance");
             }else{
@@ -350,6 +409,20 @@ const submitData = async(req, res, next) => {
                         }
                     }
                 })
+
+                const transfer = await prisma.agentTransaction.create({
+                    data: {
+                        user: {
+                            connect: {
+                                id: uid
+                            }
+                        },
+                        transferedAmount: parseFloat(amount),
+                        deductedAmount: 0.00
+                    }
+                })
+
+                console.log("transaction returned");
     
                 const updateNumber = await prisma.lockedNumber.update({
                     where: {
@@ -395,5 +468,22 @@ const allTransactions = async(req, res, next) => {
     })
 }
 
-export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL};
+const allagentTrx = async(req, res, next) => {
+    const atrx = await prisma.agentTransaction.findMany(
+        {
+            where: {
+                userId: uid
+            },
+            include: {
+                user: true
+            }
+        }
+    )
+
+    res.status(200).json({
+        message: atrx
+    })
+}
+
+export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx};
 

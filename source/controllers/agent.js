@@ -1,3 +1,6 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const getAgents = async(req, res, next) => {
     let result = [
         {id: 1, name: "Mr. Y", manager: "Mr. X", area: "Location"},
@@ -45,4 +48,28 @@ const addAgent = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent};
+const balanceTransfer = async(req, res, next) => {
+    let amount = req.body.amount
+    let uid = req.body.uid
+
+    const transfer = await prisma.agentTransaction.create({
+        data: {
+            user: {
+                connect: {
+                    id: uid
+                }
+            },
+            transferedAmount: amount,
+            deductedAmount: 0.00
+        }
+    })
+    
+    console.log("transfer data, ", transfer);
+
+    res.status(200).json({
+        message: "transfer done",
+        data: transfer
+    })
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer};

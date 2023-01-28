@@ -8,27 +8,36 @@ datasource db {
 }
 
 model User {
-  id           Int            @default(autoincrement()) @id
-  email        String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  RefreshToken RefreshToken[]
-  Profile      Profile[]
+  id               Int                @default(autoincrement()) @id
+  email            String             @unique
+  password         String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  RefreshToken     RefreshToken[]
+  AgentTransaction AgentTransaction[]
+  LockedBalance    LockedBalance[]
+  Profile          Profile[]
+  type             String
 }
 
 model UserBalance {
-  id              Int      @default(autoincrement()) @id
-  balance         Float
-  previousBalance Float
-  agentTrx        Int
-  createAt        DateTime @default(now())
+  id                 Int              @default(autoincrement()) @id
+  balance            Float
+  previousBalance    Float
+  agentTrx           AgentTransaction @relation(fields: [agentTransactionId], references: [id])
+  createdAt          DateTime         @default(now())
+  agentTransactionId Int
 }
 
 model AgentTransaction {
-  id               Int      @default(autoincrement()) @id
+  id               Int           @default(autoincrement()) @id
+  user             User          @relation(fields: [userId], references: [id])
+  userId           Int
   transferedAmount Float
-  createdAt        DateTime @default(now())
+  deductedAmount   Float
+  createdAt        DateTime      @default(now())
+  updateAt         DateTime      @updatedAt
+  UserBalance      UserBalance[]
 }
 
 model Profile {
@@ -49,6 +58,8 @@ model RefreshToken {
 
 model LockedBalance {
   id               Int             @default(autoincrement()) @id
+  user             User            @relation(fields: [userId], references: [id])
+  userId           Int
   currentBalance   Float
   amountLocked     Float
   trx_id           ApiTransaction? @relation(fields: [apiTransactionId], references: [id])

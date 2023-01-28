@@ -7,5 +7,6 @@ agentRoutes.get('/agent/:id', controller.getAgent);
 agentRoutes.delete('/agent/:id', controller.deleteAgent);
 agentRoutes.put('/agent/:id', controller.updateAgent);
 agentRoutes.post('/agent', controller.addAgent);
+agentRoutes.post('/balancetransfer', controller.balanceTransfer);
 
 export default agentRoutes;

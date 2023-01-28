@@ -36,6 +36,10 @@ app.use(bodyParser.json());
 // }
 
 // app.use(corsMiddleware);
+// https://dev.to/mihaiandrei97/jwt-authentication-using-prisma-and-express-37nk
+
+
+
 
 
 app.use('/', countryRoutes);
@@ -61,6 +65,8 @@ app.use((req, res, next) => {
 });
 
 const httpServer = http.createServer(app);
+
+console.log(process.env.JWT_ACCESS_SECRET);
 
 const PORT = process.env.PORT ?? 3000
 httpServer.listen(PORT, () => console.log(`The Server is running on port ${PORT}`));

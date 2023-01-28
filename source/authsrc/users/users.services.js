@@ -9,11 +9,33 @@ export function findUserByEmail(email){
     })
 }
 
-export function createUserByEmailAndPassword(user){
+export async function createUserByEmailAndPassword(user){
     user.password = hashSync(user.password, 12);
-    return db.user.create({
+    const dbuser = await db.user.create({
         data: user
     })
+
+    console.log(dbuser)
+
+    const trx = {
+        user: {
+            connect: {
+                id: dbuser.id
+            }
+        },
+        transferedAmount: 0.00,
+        deductedAmount: 0.00
+    }
+
+    console.log(trx);
+
+    const agentTrx = await db.agentTransaction.create({
+        data: trx
+    })
+
+    console.log(`first trx from ${dbuser.id}`, agentTrx);
+
+    return dbuser;
 }
 
 export function findUserById(id){
