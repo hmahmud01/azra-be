@@ -56,14 +56,68 @@ const asyncURL = async(req, res, next) => {
         status: 200,
         msg: "SUCCESS"
     }
-    console.log(data);
+
+    let reuturn_data = data;
     let promise = new Promise((resolve, reject) => {
-        setTimeout(() => resolve(data), 120000)
+        setTimeout(() => resolve(reuturn_data = data), 200000)
     })
 
     let result = await promise;
-    console.log(result);
     res.status(200).json(result);
+}
+
+const asyncHit = async(req, res, next) => {
+    let i = 1
+    // let promise = new Promise((resolve) => {
+    //     console.log("promise counts ", i++)
+    //     setTimeout(() => resolve(
+    //         fetch('http://localhost:3000/asyncurl', {method: 'POST'})
+    //         .then(response => response.json())
+    //         .then(response => console.log(response.msg))
+    //     ), 30000)
+    // })
+
+    // let result = await promise;
+    // if(result == undefined){
+    //     asyncHit();
+    // }else{
+    //     console.log(result);
+    // }
+
+    let status = false
+
+    while(status == false){
+        await new Promise((resolve) => {
+            console.log("promise count ", i);
+            setTimeout(() => resolve(
+                fetch('http://localhost:3000/asyncurl', {method: 'POST'})
+                .then(response => response.json())
+                .then(response => {
+                    console.log(response);
+                    if( response.msg == "SUCCESS" ){
+                        status = true
+                    }
+                })
+            ), 30000)
+        })
+        i++;
+    }
+
+    
+
+    // fetch('http://localhost:3000/asynctest', {method: 'POST'})
+    //     .then(response => response.json())
+    //     .then(response => {
+    //         console.log("inside RESPONSE");
+    //         if(response.msg == "SUCCESS"){
+    //             console.log("inside RESPONSE SUCCESS");
+    //             console.log(`msg ${response.msg}`);
+    //             res.status(200).json(response)
+    //         }else{
+    //             console.log("inside RESPONSE FAILED");
+    //             asyncHit();
+    //         }
+    //     })
 }
 
 const submitData = async(req, res, next) => {
@@ -485,5 +539,5 @@ const allagentTrx = async(req, res, next) => {
     })
 }
 
-export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx};
+export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit};
 
