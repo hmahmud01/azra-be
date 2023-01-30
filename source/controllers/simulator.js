@@ -2,8 +2,20 @@ import fetch from "node-fetch";
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+// AGENT ID is 6 - currently under used from DATABASE
+const uid = 6
 
-let mainBalance = 1100.0
+let mainBalance = 0.00;
+const agentTrx = await prisma.agentTransaction.findMany({
+    where: {
+        userId: uid
+    }
+})
+
+for (let i = 0; i<agentTrx.length; i++){
+    mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
+}
+console.log(`main balance from trasaction calculation , ${mainBalance}`)
 const lockedbalances = await prisma.lockedBalance.findMany({
     where: {
         lockedStatus: true
@@ -30,7 +42,7 @@ const agentBalance = async(req, res, next) => {
 }
 
 const asyncTest = async(req, res, next) => {
-    let responseurl = "http://localhost:3000/asyncurl";
+    let responseurl = "http://localhost:3000/asynchit";
 
     res.status(200).json({
         msg: "Response URL provided",
@@ -39,29 +51,113 @@ const asyncTest = async(req, res, next) => {
 }
 
 const asyncURL = async(req, res, next) => {
-    let response = "Recharge success"
+    let response = "Recharge success";
+    let loopData = req.body.loop
     let data = {
         status: 200,
         msg: "SUCCESS"
     }
-    console.log(data);
+
+    let failedmsg = {
+        status: 500,
+        msg: "FAILED"
+    }
+
+    let reuturn_data = data;
     let promise = new Promise((resolve, reject) => {
-        setTimeout(() => resolve(data), 120000)
+        setTimeout(() => resolve(reuturn_data = data), 200000)
     })
 
-    let result = await promise;
-    console.log(result);
-    res.status(200).json(result);
+    let randomRepeater = Math.floor(Math.random() * 5);
+
+    // if(loopData == randomRepeater){
+    //     console.log("repeater matched with looper")
+    //     res.status(400).json(data);
+    // }else{
+    //     res.status(500).json(failedmsg);
+    // }
+
+    // let result = await promise;
+    res.status(400).json(data);
+}   
+
+const asyncHit = async(req, res, next) => {
+    // let i = 1
+
+    // let status = false
+
+    // while(status == false){
+    //     await new Promise((resolve) => {
+    //         console.log("promise count ", i);
+    //         setTimeout(() => resolve(
+    //             fetch('http://localhost:3000/asyncurl', {method: 'POST'})
+    //             .then(response => response.json())
+    //             .then(response => {
+    //                 console.log(response);
+    //                 if( response.msg == "SUCCESS" ){
+    //                     status = true
+    //                 }
+    //             })
+    //         ), 30000)
+    //     })
+    //     i++;
+    // }
+
+    console.log("asyn hit coming");
+
+    let retry = 5;
+    let respMsg = {}
+    for(retry; retry > 0; retry--){
+        console.log(retry);
+        let data = {
+            "loop": retry
+        }
+        await new Promise((resolve)=> {
+            setTimeout(() => resolve(
+                fetch('http://localhost:3000/asyncurl', 
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(response => {
+                        console.log(response);
+                        if (response.msg == 'SUCCESS'){
+                            respMsg = {
+                                msg: "SUCCESS"
+                            }
+                        } else {
+                            respMsg = {
+                                msg: "FAILED"
+                            }
+                        }
+                    })
+            ), 60000);
+        })
+        console.log(`controller retry ${retry}`)
+        if (respMsg.msg == "SUCCESS")
+            break;
+        
+    }
+
+    // const urlreq = 
+
+    // console.log("REQUEST DONE");
+
+    res.status(200).json(respMsg);
 }
 
 const submitData = async(req, res, next) => {
 
     const lockedbalances = await prisma.lockedBalance.findMany({
         where: {
+            userId: uid,
             lockedStatus: true
         }
     })
-    
     
     
     let pendingRecharge = 0.00
@@ -81,7 +177,7 @@ const submitData = async(req, res, next) => {
         }
     });
 
-    let uid = req.body.userId
+    // let uid = req.body.userId
 
     let mobile = req.body.mobile
     let amount = req.body.amount
@@ -141,6 +237,18 @@ const submitData = async(req, res, next) => {
             }
         }
         if (actualbalanceagent > amount){
+
+            const transfer = await prisma.agentTransaction.create({
+                data: {
+                    user: {
+                        connect: {
+                            id: uid
+                        }
+                    },
+                    transferedAmount: 0.00,
+                    deductedAmount: parseFloat(amount)
+                }
+            })
         
             const transaction = await prisma.transaction.create({
                 data: transaction_data
@@ -148,7 +256,12 @@ const submitData = async(req, res, next) => {
     
             const lockedBalance = await prisma.lockedBalance.create({
                 data: {
-                    currentBalance: agent_balance,
+                    user: {
+                        connect:{
+                            id: uid
+                        }
+                    },
+                    currentBalance: actualbalanceagent,
                     amountLocked: parseFloat(amount),
                     lockedStatus: true
                 }
@@ -352,6 +465,8 @@ const submitData = async(req, res, next) => {
                         statement: "Successfully recharged"
                     }
                 })
+
+                
                 console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                 console.log("Add a entry of success recharge balance and adjust the agents real balance");
             }else{
@@ -378,6 +493,20 @@ const submitData = async(req, res, next) => {
                         }
                     }
                 })
+
+                const transfer = await prisma.agentTransaction.create({
+                    data: {
+                        user: {
+                            connect: {
+                                id: uid
+                            }
+                        },
+                        transferedAmount: parseFloat(amount),
+                        deductedAmount: 0.00
+                    }
+                })
+
+                console.log("transaction returned");
     
                 const updateNumber = await prisma.lockedNumber.update({
                     where: {
@@ -423,5 +552,22 @@ const allTransactions = async(req, res, next) => {
     })
 }
 
-export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL};
+const allagentTrx = async(req, res, next) => {
+    const atrx = await prisma.agentTransaction.findMany(
+        {
+            where: {
+                userId: uid
+            },
+            include: {
+                user: true
+            }
+        }
+    )
+
+    res.status(200).json({
+        message: atrx
+    })
+}
+
+export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit};
 

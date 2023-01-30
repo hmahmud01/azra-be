@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  RefreshToken RefreshToken[]
-  Profile      Profile[]
+  id               Int                @default(autoincrement()) @id
+  email            String             @unique
+  password         String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  RefreshToken     RefreshToken[]
+  AgentTransaction AgentTransaction[]
+  LockedBalance    LockedBalance[]
+  Profile          Profile[]
+  type             String
 }
 
 model UserBalance {
-  id                 Int              @id @default(autoincrement())
+  id                 Int              @default(autoincrement()) @id
   balance            Float
   previousBalance    Float
   agentTrx           AgentTransaction @relation(fields: [agentTransactionId], references: [id])
@@ -27,21 +30,24 @@ model UserBalance {
 }
 
 model AgentTransaction {
-  id               Int           @id @default(autoincrement())
+  id               Int           @default(autoincrement()) @id
+  user             User          @relation(fields: [userId], references: [id])
+  userId           Int
   transferedAmount Float
+  deductedAmount   Float
   createdAt        DateTime      @default(now())
   updateAt         DateTime      @updatedAt
   UserBalance      UserBalance[]
 }
 
 model Profile {
-  id     Int  @id @default(autoincrement())
+  id     Int  @default(autoincrement()) @id
   user   User @relation(fields: [userId], references: [id])
   userId Int  @unique
 }
 
 model RefreshToken {
-  id          Int      @id @default(autoincrement())
+  id          Int      @default(autoincrement()) @id
   hashedToken String
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
@@ -51,7 +57,9 @@ model RefreshToken {
 }
 
 model LockedBalance {
-  id               Int             @id @default(autoincrement())
+  id               Int             @default(autoincrement()) @id
+  user             User            @relation(fields: [userId], references: [id])
+  userId           Int
   currentBalance   Float
   amountLocked     Float
   trx_id           ApiTransaction? @relation(fields: [apiTransactionId], references: [id])
@@ -61,7 +69,7 @@ model LockedBalance {
 }
 
 model Nation {
-  id          Int           @id @default(autoincrement())
+  id          Int           @default(autoincrement()) @id
   name        String
   short       String
   code        String
@@ -70,7 +78,7 @@ model Nation {
 }
 
 model Mobile {
-  id          Int           @id @default(autoincrement())
+  id          Int           @default(autoincrement()) @id
   name        String
   createAt    DateTime      @default(now())
   nation      Nation        @relation(fields: [nationId], references: [id])
@@ -80,7 +88,7 @@ model Mobile {
 }
 
 model TeleService {
-  id          Int           @id @default(autoincrement())
+  id          Int           @default(autoincrement()) @id
   name        String
   createAt    DateTime      @default(now())
   mobile      Mobile        @relation(fields: [mobileId], references: [id])
@@ -89,7 +97,7 @@ model TeleService {
 }
 
 model Api {
-  id             Int              @id @default(autoincrement())
+  id             Int              @default(autoincrement()) @id
   name           String
   code           String
   status         Boolean
@@ -98,7 +106,7 @@ model Api {
 }
 
 model LockedNumber {
-  id            Int         @id @default(autoincrement())
+  id            Int         @default(autoincrement()) @id
   phone         String
   status        Boolean
   createdAt     DateTime    @default(now())
@@ -107,7 +115,7 @@ model LockedNumber {
 }
 
 model Transaction {
-  id             Int              @id @default(autoincrement())
+  id             Int              @default(autoincrement()) @id
   phone          String
   amount         Float
   agent          String
@@ -124,7 +132,7 @@ model Transaction {
 }
 
 model ApiTransaction {
-  id                   Int                    @id @default(autoincrement())
+  id                   Int                    @default(autoincrement()) @id
   trx                  Transaction            @relation(fields: [transactionId], references: [id])
   createdAt            DateTime               @default(now())
   api                  Api                    @relation(fields: [apiId], references: [id])
@@ -136,7 +144,7 @@ model ApiTransaction {
 
 // This will track the record for a transaction which api has been called and if that is success or failed
 model TransactionRecordApi {
-  id               Int            @id @default(autoincrement())
+  id               Int            @default(autoincrement()) @id
   transaction      ApiTransaction @relation(fields: [apiTransactionId], references: [id])
   apiTransactionId Int
   status           Boolean
