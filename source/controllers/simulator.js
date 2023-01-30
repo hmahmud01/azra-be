@@ -42,7 +42,7 @@ const agentBalance = async(req, res, next) => {
 }
 
 const asyncTest = async(req, res, next) => {
-    let responseurl = "http://localhost:3000/asyncurl";
+    let responseurl = "http://localhost:3000/asynchit";
 
     res.status(200).json({
         msg: "Response URL provided",
@@ -51,10 +51,16 @@ const asyncTest = async(req, res, next) => {
 }
 
 const asyncURL = async(req, res, next) => {
-    let response = "Recharge success"
+    let response = "Recharge success";
+    let loopData = req.body.loop
     let data = {
         status: 200,
         msg: "SUCCESS"
+    }
+
+    let failedmsg = {
+        status: 500,
+        msg: "FAILED"
     }
 
     let reuturn_data = data;
@@ -62,62 +68,86 @@ const asyncURL = async(req, res, next) => {
         setTimeout(() => resolve(reuturn_data = data), 200000)
     })
 
-    let result = await promise;
-    res.status(200).json(result);
-}
+    let randomRepeater = Math.floor(Math.random() * 5);
 
-const asyncHit = async(req, res, next) => {
-    let i = 1
-    // let promise = new Promise((resolve) => {
-    //     console.log("promise counts ", i++)
-    //     setTimeout(() => resolve(
-    //         fetch('http://localhost:3000/asyncurl', {method: 'POST'})
-    //         .then(response => response.json())
-    //         .then(response => console.log(response.msg))
-    //     ), 30000)
-    // })
-
-    // let result = await promise;
-    // if(result == undefined){
-    //     asyncHit();
+    // if(loopData == randomRepeater){
+    //     console.log("repeater matched with looper")
+    //     res.status(400).json(data);
     // }else{
-    //     console.log(result);
+    //     res.status(500).json(failedmsg);
     // }
 
-    let status = false
+    // let result = await promise;
+    res.status(400).json(data);
+}   
 
-    while(status == false){
-        await new Promise((resolve) => {
-            console.log("promise count ", i);
+const asyncHit = async(req, res, next) => {
+    // let i = 1
+
+    // let status = false
+
+    // while(status == false){
+    //     await new Promise((resolve) => {
+    //         console.log("promise count ", i);
+    //         setTimeout(() => resolve(
+    //             fetch('http://localhost:3000/asyncurl', {method: 'POST'})
+    //             .then(response => response.json())
+    //             .then(response => {
+    //                 console.log(response);
+    //                 if( response.msg == "SUCCESS" ){
+    //                     status = true
+    //                 }
+    //             })
+    //         ), 30000)
+    //     })
+    //     i++;
+    // }
+
+    console.log("asyn hit coming");
+
+    let retry = 5;
+    let respMsg = {}
+    for(retry; retry > 0; retry--){
+        console.log(retry);
+        let data = {
+            "loop": retry
+        }
+        await new Promise((resolve)=> {
             setTimeout(() => resolve(
-                fetch('http://localhost:3000/asyncurl', {method: 'POST'})
-                .then(response => response.json())
-                .then(response => {
-                    console.log(response);
-                    if( response.msg == "SUCCESS" ){
-                        status = true
-                    }
-                })
-            ), 30000)
+                fetch('http://localhost:3000/asyncurl', 
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(response => {
+                        console.log(response);
+                        if (response.msg == 'SUCCESS'){
+                            respMsg = {
+                                msg: "SUCCESS"
+                            }
+                        } else {
+                            respMsg = {
+                                msg: "FAILED"
+                            }
+                        }
+                    })
+            ), 60000);
         })
-        i++;
+        console.log(`controller retry ${retry}`)
+        if (respMsg.msg == "SUCCESS")
+            break;
+        
     }
 
-    
+    // const urlreq = 
 
-    // fetch('http://localhost:3000/asynctest', {method: 'POST'})
-    //     .then(response => response.json())
-    //     .then(response => {
-    //         console.log("inside RESPONSE");
-    //         if(response.msg == "SUCCESS"){
-    //             console.log("inside RESPONSE SUCCESS");
-    //             console.log(`msg ${response.msg}`);
-    //             res.status(200).json(response)
-    //         }else{
-    //             console.log("inside RESPONSE FAILED");
-    //             asyncHit();
-    //         }
-    //     })
+    // console.log("REQUEST DONE");
+
+    res.status(200).json(respMsg);
 }
 
 const submitData = async(req, res, next) => {
