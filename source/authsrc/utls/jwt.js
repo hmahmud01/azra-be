@@ -10,7 +10,7 @@ function generateAccessToken(user) {
 export function generateRefreshToken(user, jti) {
   return jwt.sign({
     userId: user.id,
-    jti
+    // jti
   }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: '8h',
   });
@@ -18,7 +18,8 @@ export function generateRefreshToken(user, jti) {
 
 export function generateTokens(user, jti) {
   const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user, jti);
+  // const refreshToken = generateRefreshToken(user, jti);
+  const refreshToken = generateRefreshToken(user);
 
   return {
     accessToken,

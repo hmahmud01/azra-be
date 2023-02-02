@@ -3,7 +3,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // AGENT ID is 6 - currently under used from DATABASE
-const uid = 6
+// const uid = 6
+const uid = 9
 
 let mainBalance = 0.00;
 const agentTrx = await prisma.agentTransaction.findMany({
@@ -135,17 +136,13 @@ const asyncHit = async(req, res, next) => {
                             }
                         }
                     })
-            ), 60000);
+            ), 10000);
         })
         console.log(`controller retry ${retry}`)
         if (respMsg.msg == "SUCCESS")
             break;
         
     }
-
-    // const urlreq = 
-
-    // console.log("REQUEST DONE");
 
     res.status(200).json(respMsg);
 }
@@ -398,25 +395,29 @@ const submitData = async(req, res, next) => {
                         .then(response => response.json())
                         .then(response => {
                             console.log(response);
-                            console.log(trx_status, " before trx ");
-                            trx_data = {
-                                trx : {
-                                    connect: {
-                                        id: transaction.id
-                                    }
-                                },
-                                api:{
-                                    connect:{
-                                        id: apicreds[i].id
+                            if (response.msg == 'SUCCESS'){
+                                console.log(trx_status, " before trx ");
+                                trx_data = {
+                                    trx : {
+                                        connect: {
+                                            id: transaction.id
+                                        }
+                                    },
+                                    api:{
+                                        connect:{
+                                            id: apicreds[i].id
+                                        }
                                     }
                                 }
+                                trx_api_id = apicreds[i].id
+                                trx_status = true
+                                console.log(trx_status, " after trx ");
+                                console.log(trx_data);
                             }
-                            trx_api_id = apicreds[i].id
-                            trx_status = true
-                            console.log(trx_status, " after trx ");
-                            console.log(trx_data);
                         })
-                        break;
+                        if(trx_status == true){
+                            break;
+                        }
                     }else{
                         console.log("DU SIM API DIDNT WORK");
                     }
@@ -469,6 +470,12 @@ const submitData = async(req, res, next) => {
                 
                 console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                 console.log("Add a entry of success recharge balance and adjust the agents real balance");
+
+                // TODO
+                // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
+                // CREATE ENTRY ON AGENTEARNING TABLE
+                // GET API PERCENTAGE FROM APIPERCENT TABLE
+                // CREATE ENTRY ORGANIZATION EARNED TABLE
             }else{
                 const transaction = await prisma.transaction.create({
                     data: {
