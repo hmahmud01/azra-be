@@ -14,6 +14,7 @@ import mnoRoutes from './routes/mobilenetwork.js';
 import simulatorRoutes from './routes/simulator.js';
 import authRoute from './authsrc/auth/auth.routes.js';
 import usersRoute from './authsrc/users/users.routes.js';
+import agentReportRoutes from './routes/agentReport.js';
 
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
@@ -53,6 +54,7 @@ app.use('/', mnoRoutes);
 app.use('/', simulatorRoutes);
 app.use('/', authRoute);
 app.use('/', usersRoute);
+app.use('/', agentReportRoutes);
 
 const trx = await prisma.apiTransaction.findMany({ include: {api: true} });
 // console.log(trx); 
