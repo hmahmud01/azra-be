@@ -473,9 +473,54 @@ const submitData = async(req, res, next) => {
 
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
+                const percent = await prisma.agentPercentage.findFirst({
+                    where: {
+                        userId: uid
+                    }
+                })
+
+                let earned = amount / 100 * percent.percentage
+
+                const earnedData = {
+                    agent: {
+                        connect: {
+                            id: uid
+                        }
+                    },
+                    amount: earned,
+                    trx: {
+                        connect: {
+                            id: transaction.id
+                        }
+                    }
+                }
+
+                const agentEarning = await prisma.agentEarning.create({
+                    data: earnedData
+                })
                 // CREATE ENTRY ON AGENTEARNING TABLE
                 // GET API PERCENTAGE FROM APIPERCENT TABLE
+                const orgPercent = 2.0
+                let orgCut = amount / 100 * orgPercent
+                const orgEarnedData = {
+                    trx: {
+                        connect: {
+                            id: transaction.id
+                        }
+                    },
+                    api : {
+                        connect: {
+                            id: trx_api_id
+                        }
+                    },
+                    cutAmount: orgCut
+                }
+                const orgEarning = await prisma.organizationEarned.create({
+                    data: orgEarnedData
+                })
+
                 // CREATE ENTRY ORGANIZATION EARNED TABLE
+
             }else{
                 const transaction = await prisma.transaction.create({
                     data: {

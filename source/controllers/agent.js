@@ -72,4 +72,16 @@ const balanceTransfer = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer};
+const settleDebt = async(req, res, next)=> {
+    res.status(200).json({
+        message: "SUCCESS"
+    })
+}
+
+const assignPercent = async(req, res, next) => {
+    res.status(200).json({
+        message: "SUCCESS"
+    })
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent};
