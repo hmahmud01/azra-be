@@ -16,7 +16,7 @@ const authRoute = express.Router();
 //   createUserByEmailAndPassword,
 // } = require('../users/users.services');
 
-import {findUserByEmail, createUserByEmailAndPassword} from '../users/users.services.js';
+import {findUserByEmail, createUserByEmailAndPassword, findUserByPhone} from '../users/users.services.js';
 
 authRoute.post('/register', async (req, res, next) => {
   console.log("INSIDE AUTH ROUTE");
@@ -52,13 +52,13 @@ authRoute.post('/register', async (req, res, next) => {
 
 authRoute.post('/login', async (req, res, next) => {
     try {
-      const { email, password } = req.body;
-      if (!email || !password) {
+      const { phone, password } = req.body;
+      if (!phone || !password) {
         res.status(400);
         throw new Error('You must provide an email and a password.');
       }
   
-      const existingUser = await findUserByEmail(email);
+      const existingUser = await findUserByPhone(phone);
   
       if (!existingUser) {
         res.status(403);
@@ -75,9 +75,11 @@ authRoute.post('/login', async (req, res, next) => {
       const { accessToken, refreshToken } = generateTokens(existingUser, jti);
       await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
   
+      let uid  = existingUser.id
       res.json({
         accessToken,
-        refreshToken
+        refreshToken,
+        uid
       });
     } catch (err) {
       next(err);

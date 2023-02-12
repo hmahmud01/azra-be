@@ -49,14 +49,18 @@ const addAgent = async(req, res, next) => {
 }
 
 const balanceTransfer = async(req, res, next) => {
+    console.log("inside balacne")
     let amount = req.body.amount
     let uid = req.body.uid
+    let id = req.params.id
+
+    console.log(`Id is :${id}`)
 
     const transfer = await prisma.agentTransaction.create({
         data: {
             user: {
                 connect: {
-                    id: uid
+                    id: parseInt(id)
                 }
             },
             transferedAmount: amount,
@@ -66,6 +70,19 @@ const balanceTransfer = async(req, res, next) => {
     
     console.log("transfer data, ", transfer);
 
+    const settlement = await prisma.userAmountSettlement.create({
+        data: {
+            user: {
+                connect: {
+                    id: parseInt(id)
+                }
+            },
+            debit: 0.00,
+            credit: amount,
+            note: "User Credit Data"
+        }
+    })
+
     res.status(200).json({
         message: "transfer done",
         data: transfer
@@ -73,12 +90,46 @@ const balanceTransfer = async(req, res, next) => {
 }
 
 const settleDebt = async(req, res, next)=> {
+    const uid = req.body.uid
+    const amount = req.body.amount
+    let id = req.params.id
+
+    console.log(`Id is :${id}`)
+
+    const settlement = await prisma.userAmountSettlement.create({
+        data: {
+            user: {
+                connect: {
+                    id: parseInt(id)
+                }
+            },
+            debit: amount,
+            credit: 0.00,
+            note: "User Credit withdrawn"
+        }
+    })
+
     res.status(200).json({
         message: "SUCCESS"
     })
 }
 
 const assignPercent = async(req, res, next) => {
+    const uid = req.body.uid
+    const percent = req.body.percent
+    let id = req.params.id
+
+    console.log(`Id is :${id}`)
+
+    const percentAssign = await prisma.agentPercentage.update({
+        where: {
+            userId: parseInt(id)
+        },
+        data: {
+            percentage: percent
+        }
+    })
+
     res.status(200).json({
         message: "SUCCESS"
     })

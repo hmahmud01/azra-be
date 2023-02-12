@@ -9,6 +9,14 @@ export function findUserByEmail(email){
     })
 }
 
+export function findUserByPhone(phone){
+    return db.user.findUnique({
+        where: {
+            phone
+        }
+    })
+}
+
 export async function createUserByEmailAndPassword(user){
     user.password = hashSync(user.password, 12);
     const dbuser = await db.user.create({
@@ -33,7 +41,20 @@ export async function createUserByEmailAndPassword(user){
         data: trx
     })
 
-    console.log(`first trx from ${dbuser.id}`, agentTrx);
+    const openingPercent = {
+        user: {
+            connect: {
+                id: dbuser.id
+            }
+        },
+        percentage: 0.10
+    }
+
+    const agentPercent = await db.agentPercentage.create({
+        data: openingPercent
+    })
+
+    console.log(`first trx from ${dbuser.id}`, agentTrx, agentPercent);
 
     return dbuser;
 }
