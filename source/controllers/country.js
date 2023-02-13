@@ -12,12 +12,24 @@ const getCountries = async(req, res, next) => {
 
 const listCountry = async(req, res, next) => {
     let result = [
-        {id: 1, name: "Bangladesh"},
-        {id: 2, name: "India"},
-        {id: 3, name: "Pakistan"}
+        {id: 1, api: 2, apiList: [1,2], name: "Bangladesh", checked: true},
+        {id: 2, api: 2, apiList: [1,3], name: "India", checked: true},
+        {id: 3, api: 1, apiList: [2,3], name: "Pakistan", checked: true}
     ]
 
-    result = await prisma.nation.findMany();
+    let api_ctry = [
+        {id: 1, api: 1, name: "Bangladesh", checked: false},
+        {id: 2, api: 2, name: "India", checked: true},
+        {id: 3, api: 3, name: "Pakistan", checked: false}
+    ]
+
+    let ctry_api = [
+        {id: 1, ctry: 1, api:1, pri: 2},
+        {id: 2, ctry: 1, api:2, pri: 1},
+        {id: 3, ctry: 2, api:2, pri: 5},
+    ]
+
+    // result = await prisma.nation.findMany();
 
     return res.status(200).json({
         message: result
