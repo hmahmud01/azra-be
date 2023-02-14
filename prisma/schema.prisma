@@ -167,7 +167,8 @@ model ApiPercent {
   apiId     Int
   network   Mobile   @relation(fields: [mobileId], references: [id])
   mobileId  Int
-  createdAt DateTime
+  percent   Float
+  createdAt DateTime @default(now())
 }
 
 model ApiCountryPriority {
@@ -176,7 +177,7 @@ model ApiCountryPriority {
   nationId  Int
   api       Api      @relation(fields: [apiId], references: [id])
   apiId     Int
-  priority  Int
+  priority  Int      @default(1)
   createdAt DateTime @default(now())
 }
 

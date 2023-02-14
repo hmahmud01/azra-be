@@ -87,4 +87,86 @@ const addApi = async(req, res, next) => {
     })
 }
 
-export default {addApi, getApis, getApi, deActivateApi, activateApi}
+const assignPriority = async(req, res, next) => {
+   let dummydata = {
+        ctry: 1,
+        apiPriority: [ { apiId: 3, priority: 2 }, { apiId: 2, priority: 3 } ]
+      }
+    console.log(req.body);
+
+    let data = req.body;
+    let ctryId = data.ctry;
+    for (let i = 0; i<data.apiPriority.length; i++){
+        const priority = await prisma.apiCountryPriority.create({
+            data: {
+                ctry: {
+                    connect: {
+                        id: ctryId
+                    }
+                },
+                api: {
+                    connect: {
+                        id: data.apiPriority[i].apiId
+                    }
+                },
+                priority: data.apiPriority[i].priority
+            }
+        })
+    }
+
+
+    res.status(200).json({
+        message: "Priority Assignment Complete"
+    })
+}
+
+const assingPercentage = async(req, res, next) => {
+    const percent = await prisma.apiPercent.create({
+        data: {
+            api: {
+                connect:{
+                    id: req.body.api
+                }
+            },
+            network: {
+                connect: {
+                    id: req.body.network
+                }
+            },
+            percent: req.body.percentage
+        }
+    })
+
+    console.log(percent);
+    res.status(200).json({
+        message: "Percent Assignment COmplete"
+    })
+}
+
+const apiPriorityData = async(req, res, next) => {
+    console.log("inside priority Data");
+    let result = await prisma.apiCountryPriority.findMany({
+        include: {
+            api: true,
+            ctry: true,
+        }
+    });
+    res.status(200).json({
+        message: result
+    })
+}   
+
+const apiPercentageData = async(req, res, next) => {
+    console.log("inside Percentage Data");
+    let result =await prisma.apiPercent.findMany({
+        include:{
+            api: true,
+            network: true
+        }
+    }); 
+    res.status(200).json({
+        message: result
+    })
+}
+
+export default {addApi, getApis, getApi, deActivateApi, activateApi, assingPercentage, assignPriority, apiPriorityData, apiPercentageData}
