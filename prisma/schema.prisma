@@ -18,25 +18,59 @@ model User {
   RefreshToken         RefreshToken[]
   AgentTransaction     AgentTransaction[]
   LockedBalance        LockedBalance[]
-  Profile              Profile[]
   type                 String
   AgentPercentage      AgentPercentage[]
   AgentEarning         AgentEarning[]
   Transaction          Transaction[]
   UserAmountSettlement UserAmountSettlement[]
+  AgentProfile         AgentProfile[]
+  DealerProfile        DealerProfile[]
+  SubDealerProfile     SubDealerProfile[]
 }
 
-model Profile {
-  id      Int    @id @default(autoincrement())
-  f_name  String
-  l_name  String
-  age     Int?
-  email   String @unique
-  role    String
-  phone   String
-  address String
-  user    User   @relation(fields: [userId], references: [id])
-  userId  Int    @unique
+model DealerProfile {
+  id               Int                @id @default(autoincrement())
+  f_name           String
+  l_name           String
+  age              Int?
+  email            String             @unique
+  role             String
+  phone            String
+  address          String
+  user             User               @relation(fields: [userId], references: [id])
+  userId           Int
+  SubDealerProfile SubDealerProfile[]
+}
+
+model SubDealerProfile {
+  id              Int            @id @default(autoincrement())
+  f_name          String
+  l_name          String
+  age             Int?
+  email           String         @unique
+  role            String
+  phone           String
+  address         String
+  user            User           @relation(fields: [userId], references: [id])
+  userId          Int
+  dealerRef       DealerProfile  @relation(fields: [dealerProfileId], references: [id])
+  dealerProfileId Int
+  AgentProfile    AgentProfile[]
+}
+
+model AgentProfile {
+  id                 Int              @id @default(autoincrement())
+  f_name             String
+  l_name             String
+  age                Int?
+  email              String           @unique
+  role               String
+  phone              String
+  address            String
+  user               User             @relation(fields: [userId], references: [id])
+  userId             Int
+  subDealerRef       SubDealerProfile @relation(fields: [subDealerProfileId], references: [id])
+  subDealerProfileId Int
 }
 
 model RefreshToken {

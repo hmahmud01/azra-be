@@ -19,6 +19,8 @@ export function findUserByPhone(phone){
 
 export async function createUserByEmailAndPassword(user){
     user.password = hashSync(user.password, 12);
+
+    
     const dbuser = await db.user.create({
         data: user
     })

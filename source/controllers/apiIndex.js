@@ -144,29 +144,89 @@ const assingPercentage = async(req, res, next) => {
 }
 
 const apiPriorityData = async(req, res, next) => {
+
     console.log("inside priority Data");
+    let data = []
     let result = await prisma.apiCountryPriority.findMany({
         include: {
             api: true,
             ctry: true,
         }
     });
+
+    for (let i = 0; i< result.length; i++){
+        let store = {
+            id: result[i].id,
+            priority: result[i].priority,
+            apiId : result[i].apiId,
+            api: result[i].api.name,
+            ctry: result[i].ctry.name,
+            short: result[i].ctry.short,
+            ctryId: result[i].nationId,
+        }
+        data.push(store);
+    }
+
     res.status(200).json({
-        message: result
+        message: data
     })
 }   
 
 const apiPercentageData = async(req, res, next) => {
     console.log("inside Percentage Data");
+    let data = []
     let result =await prisma.apiPercent.findMany({
         include:{
             api: true,
             network: true
         }
     }); 
+
+    for (let i =0; i<result.length; i++){
+        let store = {
+            id: result[i].id,
+            percent: result[i].percent,
+            apiId: result[i].apiId,
+            api: result[i].api.name,
+            mobileId: result[i].mobileId,
+            networkName: result[i].network.name,
+        }
+        data.push(store)
+    }
     res.status(200).json({
-        message: result
+        message: data
     })
 }
 
-export default {addApi, getApis, getApi, deActivateApi, activateApi, assingPercentage, assignPriority, apiPriorityData, apiPercentageData}
+
+const updatePercentage = async(req, res, next) => {
+    const percent = await prisma.apiPercent.update({
+        where: {
+            id: req.body.id
+        },
+        data: {
+            percent: req.body.percentage
+        }
+    })
+
+    res.status(200).json({
+        message: percent
+    })
+}
+
+const updatePriority = async(req, res, next) => {
+    const priority = await prisma.apiCountryPriority.update({
+        where: {
+            id: req.body.id
+        },
+        data: {
+            priority: req.body.priority
+        }
+    })
+
+    res.status(200).json({
+        message: priority
+    })
+}
+
+export default {addApi, getApis, getApi, deActivateApi, activateApi, assingPercentage, assignPriority, apiPriorityData, apiPercentageData, updatePercentage, updatePriority}

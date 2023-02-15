@@ -11,5 +11,7 @@ apiRoutes.get('/apipercentage', controller.apiPercentageData);
 apiRoutes.get('/apipriority', controller.apiPriorityData);
 apiRoutes.post('/assign/percent', controller.assingPercentage);
 apiRoutes.post('/assign/priority', controller.assignPriority);
+apiRoutes.post('/update/priority', controller.updatePriority);
+apiRoutes.post('/update/percent', controller.updatePercentage);
 
 export default apiRoutes;

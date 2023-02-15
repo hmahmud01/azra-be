@@ -10,5 +10,8 @@ agentRoutes.post('/agent', controller.addAgent);
 agentRoutes.post('/balancetransfer/:id', controller.balanceTransfer);
 agentRoutes.post('/assignpercent/:id', controller.assignPercent);
 agentRoutes.post('/settledebt/:id', controller.settleDebt);
+agentRoutes.get('/data/transfer/:id', controller.transferData);
+agentRoutes.get('/data/withdrawal/:id', controller.withdrawData);
+agentRoutes.get('/data/percent/:id', controller.percentData);
 
 export default agentRoutes;

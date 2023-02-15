@@ -135,4 +135,47 @@ const assignPercent = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent};
+const transferData = async(req, res, next) => {
+    let id = req.params.id
+    // const data = await prisma.userBalance.findMany({});
+
+    // console.log(data);
+
+    console.log(`inside data transfer for ${id}`)
+}
+
+const withdrawData = async(req, res, next) => {
+    let id = req.params.id
+    console.log(id);
+    const data = await prisma.userAmountSettlement.findMany({
+        where: {
+            userId: parseInt(id)
+        }
+    })
+
+    console.log(`inside data withdraw for ${id}`)
+    console.log(data)
+
+    res.status(200).json({
+        message: data
+    })
+    
+}
+
+const percentData = async(req, res, next) => {
+    let id = req.params.id
+    console.log(id);
+    const data = await prisma.agentPercentage.findMany({
+        where: {
+            userId: parseInt(id)
+        }
+    })
+
+    console.log(`inside data percent for ${id}`)
+    console.log(data);
+    res.status(200).json({
+        message: data
+    })
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData};

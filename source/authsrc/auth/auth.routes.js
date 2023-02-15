@@ -1,9 +1,3 @@
-// const { v4: uuidv4 } = require('uuid');
-// const { generateTokens } = require('../../utils/jwt');
-// const {
-//   addRefreshTokenToWhitelist,
-// } = require('./auth.services');
-// const jwt = require('jsonwebtoken');
 import express from 'express';
 import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from '../utls/jwt.js';
@@ -11,15 +5,24 @@ import { addRefreshTokenToWhitelist } from './auth.services.js';
 import bcrypt from 'bcrypt';
 
 const authRoute = express.Router();
-// const {
-//   findUserByEmail,
-//   createUserByEmailAndPassword,
-// } = require('../users/users.services');
 
 import {findUserByEmail, createUserByEmailAndPassword, findUserByPhone} from '../users/users.services.js';
 
 authRoute.post('/register', async (req, res, next) => {
   console.log("INSIDE AUTH ROUTE");
+  console.log(req.body)
+
+  const dataTYPE = {
+    fname: 'frist',
+    lname: 'last',
+    email: 'hma@test.com',
+    phone: '2364',
+    password: '124',
+    type: 'agent',
+    address: 'addr',
+    ref: 11,
+    age: '23'
+  }
   try {
     const { email, phone, password } = req.body;
     if (!email || !password || !phone) {
@@ -27,14 +30,14 @@ authRoute.post('/register', async (req, res, next) => {
       throw new Error('You must provide an email and a password.');
     }
 
-    const existingUser = await findUserByEmail(email);
+    const existingUser = await findUserByEmail(phone);
 
     if (existingUser) {
       res.status(400);
       throw new Error('Email already in use.');
     }
 
-    const type = "agent"
+    
 
     const user = await createUserByEmailAndPassword({ email, phone , password , type});
     const jti = uuidv4();
