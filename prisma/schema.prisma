@@ -13,12 +13,14 @@ model User {
   email                String?                @unique
   phone                String                 @unique
   password             String
+  store                String?                @default("No Store")
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   RefreshToken         RefreshToken[]
   AgentTransaction     AgentTransaction[]
   LockedBalance        LockedBalance[]
   type                 String
+  status               Boolean                @default(true)
   AgentPercentage      AgentPercentage[]
   AgentEarning         AgentEarning[]
   Transaction          Transaction[]

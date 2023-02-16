@@ -48,6 +48,8 @@ const addAgent = async(req, res, next) => {
     })
 }
 
+
+
 const balanceTransfer = async(req, res, next) => {
     console.log("inside balacne")
     let amount = req.body.amount
@@ -135,16 +137,42 @@ const assignPercent = async(req, res, next) => {
     })
 }
 
+// remove adjusted amounts
+function excludeAmount(balance, keys) {
+    for (let key of keys) {
+      delete balance[key]
+    }
+    return balance
+}
+
 const transferData = async(req, res, next) => {
     let id = req.params.id
-    // const data = await prisma.userBalance.findMany({});
 
-    // console.log(data);
+    const data = await prisma.agentTransaction.findMany({
+        where: {
+            userId: parseInt(id)
+        }
+    })
+
+    const dataRe = excludeAmount(data, ['deductedAmount'])
 
     console.log(`inside data transfer for ${id}`)
+
+    res.status(200).json({
+        message: dataRe
+    })
+}
+
+// remove adjusted amounts
+function excludeCredit(withdrawal, keys) {
+    for (let key of keys) {
+      delete balance[key]
+    }
+    return withdrawal
 }
 
 const withdrawData = async(req, res, next) => {
+    console.log(req.params);
     let id = req.params.id
     console.log(id);
     const data = await prisma.userAmountSettlement.findMany({
@@ -153,16 +181,19 @@ const withdrawData = async(req, res, next) => {
         }
     })
 
+    const dataRe = excludeCredit(data, ['credit'])
+
     console.log(`inside data withdraw for ${id}`)
-    console.log(data)
+    console.log(dataRe)
 
     res.status(200).json({
-        message: data
+        message: dataRe
     })
     
 }
 
 const percentData = async(req, res, next) => {
+    console.log(req.params);
     let id = req.params.id
     console.log(id);
     const data = await prisma.agentPercentage.findMany({
@@ -178,4 +209,12 @@ const percentData = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData};
+const allUserList = async(req, res, next) => {
+    const data = await prisma.user.findMany();
+
+    res.status(200).json({
+        message: data
+    })
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList};

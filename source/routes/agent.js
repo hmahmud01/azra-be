@@ -3,6 +3,7 @@ import controller from '../controllers/agent.js'
 const agentRoutes = express.Router();
 
 agentRoutes.get('/agents', controller.getAgents);
+agentRoutes.get('/all', controller.allUserList);
 agentRoutes.get('/agent/:id', controller.getAgent);
 agentRoutes.delete('/agent/:id', controller.deleteAgent);
 agentRoutes.put('/agent/:id', controller.updateAgent);

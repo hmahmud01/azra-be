@@ -23,6 +23,7 @@ authRoute.post('/register', async (req, res, next) => {
     ref: 11,
     age: '23'
   }
+
   try {
     const { email, phone, password } = req.body;
     if (!email || !password || !phone) {
@@ -30,7 +31,7 @@ authRoute.post('/register', async (req, res, next) => {
       throw new Error('You must provide an email and a password.');
     }
 
-    const existingUser = await findUserByEmail(phone);
+    const existingUser = await findUserByPhone(phone);
 
     if (existingUser) {
       res.status(400);
@@ -39,7 +40,7 @@ authRoute.post('/register', async (req, res, next) => {
 
     
 
-    const user = await createUserByEmailAndPassword({ email, phone , password , type});
+    const user = await createUserByEmailAndPassword(req.body);
     const jti = uuidv4();
     const { accessToken, refreshToken } = generateTokens(user, jti);
     await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id });
