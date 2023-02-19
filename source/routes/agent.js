@@ -14,5 +14,7 @@ agentRoutes.post('/settledebt/:id', controller.settleDebt);
 agentRoutes.get('/data/transfer/:id', controller.transferData);
 agentRoutes.get('/data/withdrawal/:id', controller.withdrawData);
 agentRoutes.get('/data/percent/:id', controller.percentData);
+agentRoutes.get('/perc', controller.percTest);
+agentRoutes.get('/org', controller.orgTest);
 
 export default agentRoutes;

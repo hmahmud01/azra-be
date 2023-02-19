@@ -4,6 +4,8 @@ const prisma = new PrismaClient();
 
 // AGENT ID is 6 - currently under used from DATABASE
 // const uid = 6
+
+// pending balance, actual balance calculation area
 const uid = 9
 
 let mainBalance = 0.00;
@@ -23,8 +25,6 @@ const lockedbalances = await prisma.lockedBalance.findMany({
     }
 })
 
-
-
 let pendingRecharge = 0.00
 
 for(let i = 0; i<lockedbalances.length; i++){
@@ -35,6 +35,8 @@ console.log(`Pending Balance: ${pendingRecharge}`);
 let actualbalance = mainBalance - pendingRecharge
 
 console.log(`Actual Balance ${actualbalance}`);
+
+// pending balance, actual balance calculation area ENDS
 
 const agentBalance = async(req, res, next) => {
     res.status(200).json({
@@ -70,39 +72,10 @@ const asyncURL = async(req, res, next) => {
     })
 
     let randomRepeater = Math.floor(Math.random() * 5);
-
-    // if(loopData == randomRepeater){
-    //     console.log("repeater matched with looper")
-    //     res.status(400).json(data);
-    // }else{
-    //     res.status(500).json(failedmsg);
-    // }
-
-    // let result = await promise;
     res.status(400).json(data);
 }   
 
 const asyncHit = async(req, res, next) => {
-    // let i = 1
-
-    // let status = false
-
-    // while(status == false){
-    //     await new Promise((resolve) => {
-    //         console.log("promise count ", i);
-    //         setTimeout(() => resolve(
-    //             fetch('http://localhost:3000/asyncurl', {method: 'POST'})
-    //             .then(response => response.json())
-    //             .then(response => {
-    //                 console.log(response);
-    //                 if( response.msg == "SUCCESS" ){
-    //                     status = true
-    //                 }
-    //             })
-    //         ), 30000)
-    //     })
-    //     i++;
-    // }
 
     console.log("asyn hit coming");
 
@@ -149,9 +122,35 @@ const asyncHit = async(req, res, next) => {
 
 const submitData = async(req, res, next) => {
 
+    let userId = parseInt(req.body.userId)
+    let mobile = req.body.mobile
+    let amount = req.body.amount
+    let country = req.body.country
+    let network = req.body.network
+    let service = req.body.service
+
+    // FLAGS FOR TRX AND STATUS DATA
+    let trx_data = {}
+    let trx_api_id = 0
+    let trx_status = false
+
+    // BALANCE AND PREVIOUS LOCKED BALANCE CALCULATION
+
+    let mainBalance = 0.00;
+    const agentTrx = await prisma.agentTransaction.findMany({
+        where: {
+            userId: userId
+        }
+    })
+
+    for (let i = 0; i<agentTrx.length; i++){
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
+    }
+    console.log(`main balance from trasaction calculation , ${mainBalance}`)
+
     const lockedbalances = await prisma.lockedBalance.findMany({
         where: {
-            userId: uid,
+            userId: userId,
             lockedStatus: true
         }
     })
@@ -168,33 +167,36 @@ const submitData = async(req, res, next) => {
     
     console.log(`Actual Balance ${actualbalanceagent}`);
 
-    const apicreds = await prisma.api.findMany({
+    // BALANCE CALCULATION ENDS
+
+    // const apicreds = await prisma.api.findMany({
+    //     where: {
+    //         status: true
+    //     }
+    // });
+    
+    
+
+    const apis = await prisma.apiCountryPriority.findMany({
         where: {
-            status: true
+            nationId: country
+        },
+        include: {
+            api: true
         }
-    });
+    })
 
-    // let uid = req.body.userId
-
-    let mobile = req.body.mobile
-    let amount = req.body.amount
-    let country = req.body.country
-    let network = req.body.network
-    let service = req.body.service
-
-    let recharge_status_func = {
-        status: true,
-        uid: uid
+    let apicreds = []
+    for (let i = 0; i< apis.length; i++){
+        if(apis[i].api.status == true){
+            apicreds.push(apis[i])
+        }
     }
 
-    let trx_data = {}
-    let trx_api_id = 0
-    let trx_status = false
-
-    let agent_balance = 800.0;
+    console.log("Enlisted Apis to work with : ", apicreds);
     console.log("Amount to be recharge for : ", amount);
 
-    // find locked balances
+    // find locked number
     const lockedNumber = await prisma.lockedNumber.findMany({
         where: {
             phone: mobile,
@@ -216,6 +218,11 @@ const submitData = async(req, res, next) => {
             phone: mobile,
             amount: parseFloat(amount),
             agent: "Anonymous",
+            doneBy: {
+                connect: {
+                    id: userId
+                }
+            },
             rechargeStatus: true,
             country: {
                 connect: {
@@ -234,12 +241,12 @@ const submitData = async(req, res, next) => {
             }
         }
         if (actualbalanceagent > amount){
-
+            console.log("User Id : ", userId);
             const transfer = await prisma.agentTransaction.create({
                 data: {
                     user: {
                         connect: {
-                            id: uid
+                            id: userId
                         }
                     },
                     transferedAmount: 0.00,
@@ -255,7 +262,7 @@ const submitData = async(req, res, next) => {
                 data: {
                     user: {
                         connect:{
-                            id: uid
+                            id: userId
                         }
                     },
                     currentBalance: actualbalanceagent,
@@ -279,7 +286,7 @@ const submitData = async(req, res, next) => {
             console.log("TRANSACATION BUILT > BALANCE LOCKED > NUMBER LOCKED");
     
             for (let i=0; i<apicreds.length; i++){
-                if(apicreds[i].code == "TST"){
+                if(apicreds[i].api.code == "TST"){
                     const res = await fetch(
                         'http://127.0.0.1:8090/api/collections/testbalance/records'
                     );
@@ -301,18 +308,18 @@ const submitData = async(req, res, next) => {
                             },
                             api:{
                                 connect:{
-                                    id: apicreds[i].id
+                                    id: apicreds[i].api.id
                                 }
                             }
                         }
-                        trx_api_id = apicreds[i].id
+                        trx_api_id = apicreds[i].api.id
                         trx_status = true
                         break;
                     }else{
                         console.log("TEST API DIDN't WORK");
                     }
                     
-                }else if(apicreds[i].code == "ETS"){    
+                }else if(apicreds[i].api.code == "ETS"){    
                     const res = await fetch(
                         'http://127.0.0.1:8090/api/collections/etisalatbalance/records'
                     );
@@ -334,18 +341,18 @@ const submitData = async(req, res, next) => {
                             },
                             api:{
                                 connect:{
-                                    id: apicreds[i].id
+                                    id: apicreds[i].api.id
                                 }
                             }
                         }
-                        trx_api_id = apicreds[i].id
+                        trx_api_id = apicreds[i].api.id
                         trx_status = true
                         break;
                     }else{
                         console.log("ETS DIDN'T WORK")
                     }
         
-                }else if(apicreds[i].code == "ZLO"){
+                }else if(apicreds[i].api.code == "ZLO"){
                     const res = await fetch(
                         'http://127.0.0.1:8090/api/collections/zolobalance/records'
                     );
@@ -367,17 +374,17 @@ const submitData = async(req, res, next) => {
                             },
                             api:{
                                 connect:{
-                                    id: apicreds[i].id
+                                    id: apicreds[i].api.id
                                 }
                             }
                         }
-                        trx_api_id = apicreds[i].id
+                        trx_api_id = apicreds[i].api.id
                         trx_status = true
                         break;
                     }else{
                         console.log("ZOLO DIDN'T WORK");
                     }
-                }else if(apicreds[i].code == "DU"){
+                }else if(apicreds[i].api.code == "DU"){
                     console.log("INSIDE DU SIM");
 
                     let balance = 1000.00
@@ -405,11 +412,11 @@ const submitData = async(req, res, next) => {
                                     },
                                     api:{
                                         connect:{
-                                            id: apicreds[i].id
+                                            id: apicreds[i].api.id
                                         }
                                     }
                                 }
-                                trx_api_id = apicreds[i].id
+                                trx_api_id = apicreds[i].api.id
                                 trx_status = true
                                 console.log(trx_status, " after trx ");
                                 console.log(trx_data);
@@ -423,6 +430,8 @@ const submitData = async(req, res, next) => {
                     }
                 }
             }
+
+            // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);
             console.log("Api ID: ", trx_api_id);
             console.log("Transaction Status : ", trx_status);
@@ -475,16 +484,18 @@ const submitData = async(req, res, next) => {
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 const percent = await prisma.agentPercentage.findFirst({
                     where: {
-                        userId: uid
+                        userId: userId
                     }
                 })
+
+                console.log("Agent Percentage : ", percent.percentage);
 
                 let earned = amount / 100 * percent.percentage
 
                 const earnedData = {
                     agent: {
                         connect: {
-                            id: uid
+                            id: userId
                         }
                     },
                     amount: earned,
@@ -498,10 +509,23 @@ const submitData = async(req, res, next) => {
                 const agentEarning = await prisma.agentEarning.create({
                     data: earnedData
                 })
+
+                console.log("Agent Earned : ", agentEarning);
+
                 // CREATE ENTRY ON AGENTEARNING TABLE
                 // GET API PERCENTAGE FROM APIPERCENT TABLE
-                const orgPercent = 2.0
-                let orgCut = amount / 100 * orgPercent
+                // const orgPercent = 2.0
+
+                const orgPercent = await prisma.apiPercent.findFirst({
+                    where: {
+                        apiId: trx_api_id,
+                        mobileId: network
+                    }
+                })
+
+                console.log("Organization Percent : ", orgPercent);
+
+                let orgCut = amount / 100 * orgPercent.percent
                 const orgEarnedData = {
                     trx: {
                         connect: {
@@ -518,7 +542,7 @@ const submitData = async(req, res, next) => {
                 const orgEarning = await prisma.organizationEarned.create({
                     data: orgEarnedData
                 })
-
+                console.log("Organization earning : ", orgEarning);
                 // CREATE ENTRY ORGANIZATION EARNED TABLE
 
             }else{
@@ -527,6 +551,11 @@ const submitData = async(req, res, next) => {
                         phone: mobile,
                         amount: parseFloat(amount),
                         agent: "Anonymous",
+                        doneBy: {
+                            connect: {
+                                id: userId
+                            }
+                        },
                         rechargeStatus: false,
                         country: {
                             connect: {
@@ -550,7 +579,7 @@ const submitData = async(req, res, next) => {
                     data: {
                         user: {
                             connect: {
-                                id: uid
+                                id: userId
                             }
                         },
                         transferedAmount: parseFloat(amount),
@@ -605,10 +634,11 @@ const allTransactions = async(req, res, next) => {
 }
 
 const allagentTrx = async(req, res, next) => {
+    let userId = 11;
     const atrx = await prisma.agentTransaction.findMany(
         {
             where: {
-                userId: uid
+                userId: userId
             },
             include: {
                 user: true

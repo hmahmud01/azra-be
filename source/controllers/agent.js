@@ -7,8 +7,14 @@ const getAgents = async(req, res, next) => {
         {id: 2, name: "Mr. Z", manager: "Mr. X", area: "Location"},
     ]
 
+    const agents = await prisma.user.findMany({
+        where: {
+            type: "agent"
+        }
+    })
+
     res.status(200).json({
-        message: result
+        message: agents
     })
 }
 
@@ -166,7 +172,7 @@ const transferData = async(req, res, next) => {
 // remove adjusted amounts
 function excludeCredit(withdrawal, keys) {
     for (let key of keys) {
-      delete balance[key]
+      delete withdrawal[key]
     }
     return withdrawal
 }
@@ -217,4 +223,49 @@ const allUserList = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList};
+const percTest = async(req, res, next) => {
+    const data = await prisma.agentPercentage.findFirst({
+        where: {
+            userId: 11
+        }
+    })
+
+    res.status(200).json({
+        message: data
+    })
+}
+
+const orgTest = async(req, res, next) => {
+    const data = await prisma.apiPercent.findFirst({
+        where: {
+            apiId: 2,
+            mobileId: 3
+        }
+    })
+
+    let dummy = []
+
+    const apicreds = await prisma.apiCountryPriority.findMany({
+        where: {
+            nationId: 1
+        },
+        include: {
+            api: true
+        }
+    })
+
+    for (let i = 0; i< apicreds.length; i++){
+        if(apicreds[i].api.status == true){
+            dummy.push(apicreds[i])
+        }
+    }
+
+    res.status(200).json({
+        message: apicreds,
+        dummy: dummy
+    })
+
+
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest};
