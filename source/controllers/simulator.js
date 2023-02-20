@@ -176,7 +176,7 @@ const submitData = async(req, res, next) => {
     // });
     
     
-
+    // API LISTING AND SORTED ACCORDING TO PRIORITY
     const apis = await prisma.apiCountryPriority.findMany({
         where: {
             nationId: country
@@ -186,13 +186,18 @@ const submitData = async(req, res, next) => {
         }
     })
 
-    let apicreds = []
+    let apicredunsorted = []
     for (let i = 0; i< apis.length; i++){
         if(apis[i].api.status == true){
-            apicreds.push(apis[i])
+            apicredunsorted.push(apis[i])
         }
     }
 
+    let apicreds = apicredunsorted.sort(
+    (a1, a2) => (a1.priority < a2.priority) ? 1 : (a1.priority > a2.priority) ? -1 : 0);
+
+    // API LIST AND SORT DONE
+    
     console.log("Enlisted Apis to work with : ", apicreds);
     console.log("Amount to be recharge for : ", amount);
 
