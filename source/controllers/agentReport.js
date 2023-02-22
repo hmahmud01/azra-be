@@ -2,11 +2,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 
-const calculateDue = async({id}) => {
+const calculateDue = async(id) => {
     let total = 0;
     let debit = 0;
     let credit = 0;
-    console.log(id);    
+    // console.log(id);    
     const dues = await prisma.userAmountSettlement.findMany({
         where: {
             userId: id,
@@ -20,48 +20,87 @@ const calculateDue = async({id}) => {
     }
 
     total = debit-credit
-    return total;
+
+    console.log("remaing: ", total);
+    return {total: total};
 }
 
-const calculateEarning = ({id}) => {
+const calculateEarning = async(id) => {
     let total = 0;
-    return total;
+    let result = []
+    const earning = await prisma.agentEarning.findMany({
+        where: {
+            userId: id
+        }
+    })
+
+    for(let i=0; i<earning.length; i++){
+        total += earning[i].amount
+    }
+    return {earn: total};
 }
 
-const calculateSale = ({id}) => {
+const calculateSale = async(id) => {
     let total = 0;
-    return total;
+    let result = []
+    const trx = await prisma.transaction.findMany({
+        where: {
+            userId: id
+        }
+    })
+
+    for(let i= 0; i<trx.length; i++){
+        total+= trx[i].amount
+    }
+    return {sale: total};
 }
 
-const calculateBalance = ({id}) => {
+const calculateBalance = async(id) => {
     let total = 0;
-    return total;
+    let transfer = 0;
+    let deduct = 0;
+    const atrx = await prisma.agentTransaction.findMany({
+        where: {
+            userId: id
+        }
+    })
+
+    for (let i = 0; i<atrx.length; i++){
+        transfer += atrx[i].transferedAmount
+        deduct += atrx[i].deductedAmount
+    }
+
+    total = transfer - deduct
+
+    return {balance: total};
 }
 
 
 const agentReport = async(req, res, next) => {
     let result = []
     let dueval = 0
+    let saleval = 0
+    let earnval = 0
+    let balanceval = 0
     const agents = await prisma.user.findMany({
         where: {
             type: "agent"
         }
     })
 
-    console.log(agents);
+    // console.log(agents);
 
     for(let i = 0; i<agents.length; i++){
-        let dues = calculateDue(agents[i].id).then(res => console.log(res)).then(data => dueval = data);
-        let sale = calculateSale(agents[i].id);
-        let eraning = calculateEarning(agents[i].id);
-        let balance = calculateBalance(agents[i].id);
-        console.log(dueval);
+        let dues = await calculateDue(agents[i].id).then(res => {dueval = res.total});
+        let sale = await calculateSale(agents[i].id).then(res => {saleval = res.sale});
+        let eraning = await calculateEarning(agents[i].id).then(res => {earnval = res.earn});
+        let balance = await calculateBalance(agents[i].id).then(res => {balanceval = res.balance});
         let data = {
             recharge: 0,
-            dues: dues,
-            sale: sale,
-            earning: eraning,
-            balance: balance
+            dues: dueval,
+            sale: saleval,
+            earning: earnval,
+            balance: balanceval
         }
 
         agents[i].data = data;
@@ -84,8 +123,8 @@ const agentRecharge = async(req, res, next) => {
 
 const agentDues = async(req, res, next) => {
     const uid = parseInt(req.params.id)
-    console.log(uid);
     let result = []
+    let due = await calculateDue(uid);
     const dues = await prisma.userAmountSettlement.findMany({
         where: {
             userId: uid,
@@ -95,13 +134,15 @@ const agentDues = async(req, res, next) => {
         }
     })
     res.status(200).json({
-        message: dues
+        message: dues,
+        due: due.total
     })
 }
 
 const agentSale = async(req, res, next) => {
     const uid = parseInt(req.params.id)
     let result = []
+    let sale = await calculateSale(uid)
     const trx = await prisma.transaction.findMany({
         where: {
             userId: uid
@@ -111,13 +152,15 @@ const agentSale = async(req, res, next) => {
         }
     })
     res.status(200).json({
-        message: trx
+        message: trx,
+        sale: sale.sale
     })
 }
 
 const agentEarning = async(req, res, next) => {
     const uid = parseInt(req.params.id)
     let result = []
+    let earn = await calculateEarning(uid)
     const earning = await prisma.agentEarning.findMany({
         where: {
             userId: uid
@@ -128,12 +171,14 @@ const agentEarning = async(req, res, next) => {
         }
     })
     res.status(200).json({
-        message: earning
+        message: earning,
+        earn: earn.earn
     })
 }
 
 const agentBalance = async(req, res, next) => {
     const uid = parseInt(req.params.id)
+    let balance = await calculateBalance(uid)
     const atrx = await prisma.agentTransaction.findMany(
         {
             where: {
@@ -145,7 +190,8 @@ const agentBalance = async(req, res, next) => {
         }
     )
     res.status(200).json({
-        message: atrx
+        message: atrx,
+        balance: balance.balance
     })
 }
 

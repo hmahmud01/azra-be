@@ -2,14 +2,33 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const orgReport = async(req, res, next) => {
+    let earned = 0;
+    let recharge_count = 0;
+    let total_sales = 0;
+    let earned_record = []
     let result = await prisma.organizationEarned.findMany({
         include: {
             trx: true,
             api: true
         }
     });
+
+    for(let i = 0; i<result.length; i++){
+        let data = {
+            id: result[i].id,
+            transactionId: result[i].transactionId,
+            rechargeAmount: result[i].trx.amount,
+            apiId: result[i].apiId,
+            api: result[i].api.name,
+            cutAmount: result[i].cutAmount,
+            createdAt: result[i].createdAt
+        }
+        earned_record.push(data);
+        earned += result[i].cutAmount
+    }
     res.status(200).json({
-        message: result
+        message: earned_record,
+        total_earned: earned
     })
 }
 
@@ -47,4 +66,22 @@ const allTransactions = async(req, res, next) => {
     })
 }
 
-export default {orgReport, allTransactions};
+const trxDetail = async(req, res, next) => {
+    const tid = parseInt(req.params.id)
+    let result = await prisma.transaction.findFirst({
+        where: {
+            id: id
+        },
+        include:{
+            doneBy: true,
+            country: true,
+            mobile: true,
+            service: true
+        }
+    })
+    res.status(200).json({
+        message : result
+    })
+}
+
+export default {orgReport, allTransactions, trxDetail};
