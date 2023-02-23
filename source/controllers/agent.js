@@ -268,4 +268,109 @@ const orgTest = async(req, res, next) => {
 
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest};
+const calculateDue = async(id) => {
+    let total = 0;
+    let debit = 0;
+    let credit = 0; 
+    const dues = await prisma.userAmountSettlement.findMany({
+        where: {
+            userId: id,
+        }
+    })
+
+    for(let i=0; i<dues.length; i++){
+        debit += dues[i].debit
+        credit += dues[i].credit
+    }
+
+    total = debit-credit
+
+    console.log("remaing: ", total);
+    return {total: total};
+}
+
+const calculateEarning = async(id) => {
+    let total = 0;
+    let result = []
+    const earning = await prisma.agentEarning.findMany({
+        where: {
+            userId: id
+        }
+    })
+
+    for(let i=0; i<earning.length; i++){
+        total += earning[i].amount
+    }
+    return {earn: total};
+}
+
+const calculateSale = async(id) => {
+    let total = 0;
+    let count = 0;
+    const trx = await prisma.transaction.findMany({
+        where: {
+            userId: id
+        }
+    })
+
+    for(let i= 0; i<trx.length; i++){
+        if(trx[i].rechargeStatus == true){
+            total+= trx[i].amount  
+            count++  
+        }
+    }
+    return {sale: total, count: count};
+}
+
+const calculateBalance = async(id) => {
+    let total = 0;
+    let transfer = 0;
+    let deduct = 0;
+    const atrx = await prisma.agentTransaction.findMany({
+        where: {
+            userId: id
+        }
+    })
+
+    for (let i = 0; i<atrx.length; i++){
+        transfer += atrx[i].transferedAmount
+        deduct += atrx[i].deductedAmount
+    }
+
+    total = transfer - deduct
+
+    return {balance: total};
+}
+
+const information = async(req, res, next) => {
+    let id = req.params.id
+    let total_trx = 0
+    let total_recharged = 0
+    let balance = 0
+    let debt = 0
+    let percent = 0
+
+    const  percentage = await prisma.agentPercentage.findFirst({
+        where: {
+            userId: parseInt(id)
+        }
+    })
+
+    let dues = await calculateDue(parseInt(id)).then(res => {debt = res.total})
+    let totat = await calculateSale(parseInt(id)).then(res => {total_trx = res.sale; total_recharged = res.count})
+    let cbalance = await calculateBalance(parseInt(id)).then(res => {balance = res.balance})
+    percent = percentage.percentage
+    let data = {
+        dues: debt,
+        total_trx: total_trx,
+        total_recharged: total_recharged,
+        balance: balance,
+        percent: percent
+    }
+
+    res.status(200).json({
+        message: data
+    })
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest, information};

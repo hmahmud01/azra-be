@@ -3,7 +3,8 @@ const prisma = new PrismaClient();
 
 const orgReport = async(req, res, next) => {
     let earned = 0;
-    let recharge_count = 0;
+    let success_recharge_count = 0;
+    let failed_recharge_count = 0;
     let total_sales = 0;
     let earned_record = []
     let result = await prisma.organizationEarned.findMany({
@@ -26,9 +27,24 @@ const orgReport = async(req, res, next) => {
         earned_record.push(data);
         earned += result[i].cutAmount
     }
+
+    let trx = await prisma.transaction.findMany({})
+
+    for (let i=0; i<trx.length; i++){
+        if(trx[i].rechargeStatus == true){
+            success_recharge_count++;
+            total_sales += trx[i].amount
+        }else if(trx[i].rechargeStatus == false){
+            failed_recharge_count++;
+        }
+    }
+
     res.status(200).json({
         message: earned_record,
-        total_earned: earned
+        total_earned: earned,
+        success_recharge_count: success_recharge_count,
+        failed_recharge_count: failed_recharge_count,
+        total_sales: total_sales
     })
 }
 
@@ -70,7 +86,7 @@ const trxDetail = async(req, res, next) => {
     const tid = parseInt(req.params.id)
     let result = await prisma.transaction.findFirst({
         where: {
-            id: id
+            id: tid
         },
         include:{
             doneBy: true,

@@ -16,5 +16,6 @@ agentRoutes.get('/data/withdrawal/:id', controller.withdrawData);
 agentRoutes.get('/data/percent/:id', controller.percentData);
 agentRoutes.get('/perc', controller.percTest);
 agentRoutes.get('/org', controller.orgTest);
+agentRoutes.get('/user/information/:id', controller.information);
 
 export default agentRoutes;

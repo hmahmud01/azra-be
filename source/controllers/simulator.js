@@ -247,6 +247,12 @@ const submitData = async(req, res, next) => {
         }
         if (actualbalanceagent > amount){
             console.log("User Id : ", userId);
+            
+        
+            const transaction = await prisma.transaction.create({
+                data: transaction_data
+            })
+
             const transfer = await prisma.agentTransaction.create({
                 data: {
                     user: {
@@ -255,12 +261,13 @@ const submitData = async(req, res, next) => {
                         }
                     },
                     transferedAmount: 0.00,
-                    deductedAmount: parseFloat(amount)
+                    deductedAmount: parseFloat(amount),
+                    trx: {
+                        connect: {
+                            id: transaction.id
+                        }
+                    }
                 }
-            })
-        
-            const transaction = await prisma.transaction.create({
-                data: transaction_data
             })
     
             const lockedBalance = await prisma.lockedBalance.create({
@@ -551,34 +558,42 @@ const submitData = async(req, res, next) => {
                 // CREATE ENTRY ORGANIZATION EARNED TABLE
 
             }else{
-                const transaction = await prisma.transaction.create({
+                const upd_transaction = await prisma.transaction.update({
+                    where: {
+                        id: transaction.id,
+                    },
                     data: {
-                        phone: mobile,
-                        amount: parseFloat(amount),
-                        agent: "Anonymous",
-                        doneBy: {
-                            connect: {
-                                id: userId
-                            }
-                        },
-                        rechargeStatus: false,
-                        country: {
-                            connect: {
-                                id: country
-                            }
-                        },
-                        mobile: {
-                            connect: {
-                                id: network
-                            }
-                        },
-                        service: {
-                            connect: {
-                                id: service
-                            }
-                        }
+                        rechargeStatus: false
                     }
                 })
+                // const transaction = await prisma.transaction.create({
+                //     data: {
+                //         phone: mobile,
+                //         amount: parseFloat(amount),
+                //         agent: "Anonymous",
+                //         doneBy: {
+                //             connect: {
+                //                 id: userId
+                //             }
+                //         },
+                //         rechargeStatus: false,
+                //         country: {
+                //             connect: {
+                //                 id: country
+                //             }
+                //         },
+                //         mobile: {
+                //             connect: {
+                //                 id: network
+                //             }
+                //         },
+                //         service: {
+                //             connect: {
+                //                 id: service
+                //             }
+                //         }
+                //     }
+                // })
 
                 const transfer = await prisma.agentTransaction.create({
                     data: {
@@ -588,7 +603,12 @@ const submitData = async(req, res, next) => {
                             }
                         },
                         transferedAmount: parseFloat(amount),
-                        deductedAmount: 0.00
+                        deductedAmount: 0.00,
+                        trx: {
+                            connect: {
+                                id: transaction.id
+                            }
+                        }
                     }
                 })
 
