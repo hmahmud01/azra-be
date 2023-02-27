@@ -109,7 +109,7 @@ const asyncHit = async(req, res, next) => {
                             }
                         }
                     })
-            ), 10000);
+            ), 30000);
         })
         console.log(`controller retry ${retry}`)
         if (respMsg.msg == "SUCCESS")

@@ -42,7 +42,8 @@ const deActivateApi = async(req, res, next) => {
 
     console.log(updateapi);
     res.status(200).json({
-        message: `deactivated ${id}`
+        message: `deactivated ${id}`,
+        status: updateapi.status
     })
 }
 
@@ -58,7 +59,8 @@ const activateApi = async(req, res, next) => {
 
     console.log(updateapi);
     res.status(200).json({
-        message: `activated ${id}`
+        message: `activated ${id}`,
+        status: updateapi.status
     })
 }
 
