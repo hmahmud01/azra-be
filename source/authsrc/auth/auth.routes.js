@@ -55,6 +55,7 @@ authRoute.post('/register', async (req, res, next) => {
 });
 
 authRoute.post('/login', async (req, res, next) => {
+    console.log("checking")
     try {
       const { phone, password } = req.body;
       if (!phone || !password) {

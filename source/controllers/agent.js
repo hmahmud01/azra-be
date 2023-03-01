@@ -373,4 +373,107 @@ const information = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest, information};
+const adjustments = async(req, res, next) => {
+    let id = req.params.id
+    const adjustments = await prisma.transactionAdjustments.findMany({
+        include: {
+            trx: true
+        }
+    })
+
+    console.log(adjustments);
+
+    const adjustedVal = adjustments.filter((data) => {
+        return data ? data.trx.userId == parseInt(id) : {}
+    });
+
+    console.log(adjustedVal);
+
+    res.status(200).json({
+        message: adjustedVal
+    })
+}
+
+
+const trxRefund = async(req, res, next) => {
+    let tid = req.body.tid
+    let note = req.body.note
+    const transaction = await prisma.transaction.update({
+        where: {
+            id: tid
+        },
+        data: {
+            rechargeStatus: false
+        }
+    })
+
+    const trxProfit = await prisma.organizationEarned.findFirst({
+        where: {
+            transactionId: tid
+        }
+    })
+
+    const adjustment = await prisma.transactionAdjustments.create({
+        data: {
+            adjusted_profit: trxProfit.cutAmount,
+            trx: {
+                connect:{
+                    id: tid
+                }
+            },
+            refund_note: note
+        }
+    })
+
+    const agentBalanceUpdate = await prisma.agentTransaction.create({
+        data: {
+            user: {
+                connect: {
+                    id: transaction.userId
+                }
+            },
+            transferedAmount: transaction.amount,
+            deductedAmount: 0.00,
+            note: `Transaction has been refunded for trx no ${transaction.id} - Refund trx id - ${adjustment.id}`,
+            trx: {
+                connect: {
+                    id: transaction.id
+                }
+            }
+        }
+    })
+
+    const percent = await prisma.agentPercentage.findFirst({
+        where: {
+            userId: transaction.userId
+        }
+    })
+
+    let profitadjustment = transaction.amount * percent.percentage / 100
+    const earningadjustment = await prisma.agentEarning.create({
+        data: {
+            agent: {
+                connect: {
+                    id: transaction.userId
+                }
+            },
+            amount: -(profitadjustment),
+            trx: {
+                connect: {
+                    id: transaction.id
+                }
+            }
+        }
+    })
+
+    res.status(200).json({
+        message: `Refund for ${tid}`,
+        trxProfit: trxProfit,
+        trx: transaction,
+        adjustment: adjustment,
+        agentBalanceUpdate: agentBalanceUpdate,
+        earningadjustment: earningadjustment
+    })
+}
+
+export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest, information, adjustments, trxRefund};

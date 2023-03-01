@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-
 const calculateDue = async(id) => {
     let total = 0;
     let debit = 0;
@@ -77,6 +76,10 @@ const calculateBalance = async(id) => {
 
 
 const agentReport = async(req, res, next) => {
+    const ipAddress = req.socket.remoteAddress;
+    console.log("socket : ", ipAddress);
+    console.log("header ", req.headers['user-agent'])
+
     let result = []
     let dueval = 0
     let saleval = 0
@@ -87,8 +90,6 @@ const agentReport = async(req, res, next) => {
             type: "agent"
         }
     })
-
-    // console.log(agents);
 
     for(let i = 0; i<agents.length; i++){
         let dues = await calculateDue(agents[i].id).then(res => {dueval = res.total});
@@ -106,7 +107,7 @@ const agentReport = async(req, res, next) => {
         agents[i].data = data;
     }
 
-    console.log(agents);
+    // console.log(agents);
 
     res.status(200).json({
         message: agents

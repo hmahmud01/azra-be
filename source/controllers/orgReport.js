@@ -6,6 +6,8 @@ const orgReport = async(req, res, next) => {
     let success_recharge_count = 0;
     let failed_recharge_count = 0;
     let total_sales = 0;
+    let refunded_profit = 0;
+    let refund_sales = 0;
     let earned_record = []
     let result = await prisma.organizationEarned.findMany({
         include: {
@@ -14,6 +16,16 @@ const orgReport = async(req, res, next) => {
         }
     });
 
+    const refunds = await prisma.transactionAdjustments.findMany({
+        include: {
+            trx: true
+        }
+    })
+
+    for(let i=0; i<refunds.length; i++){
+        refunded_profit += refunds[i].adjusted_profit
+        refund_sales += refunds[i].trx.amount
+    }
     for(let i = 0; i<result.length; i++){
         let data = {
             id: result[i].id,
@@ -39,12 +51,21 @@ const orgReport = async(req, res, next) => {
         }
     }
 
+    let profit_adjustment = earned - refunded_profit
+    let sales_adjustment = total_sales - refund_sales
+
     res.status(200).json({
         message: earned_record,
         total_earned: earned,
         success_recharge_count: success_recharge_count,
         failed_recharge_count: failed_recharge_count,
-        total_sales: total_sales
+        total_sales: total_sales,
+        refunds: refunded_profit,
+        refund_sales: refund_sales,
+        adjustment: {
+            profit: profit_adjustment,
+            sales: sales_adjustment
+        }
     })
 }
 
@@ -73,7 +94,6 @@ const allTransactions = async(req, res, next) => {
             service: result[i].service.name,
             createdAt: result[i].createdAt
         }
-
         trx.push(data);
     }
 
@@ -122,6 +142,23 @@ const filterTrx = async(req, res, next) => {
         }
     });
 
+    const refunds = await prisma.transactionAdjustments.findMany({
+        where: {
+            createdAt: {
+                lte: new Date(data.end_date),
+                gte: new Date(data.start_date)
+            }
+        },
+        include: {
+            trx: true
+        }
+    })
+
+    for(let i=0; i<refunds.length; i++){
+        refunded_profit += refunds[i].adjusted_profit
+        refund_sales += refunds[i].trx.amount
+    }
+
     for(let i = 0; i<result.length; i++){
         let data = {
             id: result[i].id,
@@ -160,8 +197,36 @@ const filterTrx = async(req, res, next) => {
         success_recharge_count: success_recharge_count,
         failed_recharge_count: failed_recharge_count,
         total_sales: total_sales
-    })
-    
+    })   
 }
 
-export default {orgReport, allTransactions, trxDetail, filterTrx};
+const allAdjusmtments = async(req, res, next) => {
+    const data = []
+    const adjustments = await prisma.transactionAdjustments.findMany({
+        include: {
+            trx: true
+        }
+    });
+
+    for (let i=0; i<adjustments.length; i++){
+        let val = {
+            id: adjustments[i].id,
+            adjusted_profit: adjustments[i].adjusted_profit,
+            refund_note: adjustments[i].refund_note,
+            created_at: adjustments[i].createdAt,
+            trxId: adjustments[i].transactionId,
+            phone: adjustments[i].trx.phone,
+            amount: adjustments[i].trx.amount,
+            agent: adjustments[i].trx.agent 
+        }
+
+        data.push(val);
+    }
+
+    res.status(200).json({
+        message: data
+    })
+}
+
+
+export default {orgReport, allTransactions, trxDetail, filterTrx, allAdjusmtments};

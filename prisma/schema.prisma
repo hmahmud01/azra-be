@@ -101,6 +101,7 @@ model AgentTransaction {
   userId           Int
   transferedAmount Float
   deductedAmount   Float
+  note             String?
   createdAt        DateTime      @default(now())
   updateAt         DateTime      @updatedAt
   UserBalance      UserBalance[]
@@ -221,25 +222,55 @@ model ApiCountryPriority {
 }
 
 model Transaction {
-  id                 Int                  @id @default(autoincrement())
-  phone              String
-  amount             Float
-  agent              String?
-  doneBy             User                 @relation(fields: [userId], references: [id])
-  rechargeStatus     Boolean
-  country            Nation?              @relation(fields: [nationId], references: [id])
-  mobile             Mobile?              @relation(fields: [mobileId], references: [id])
-  service            TeleService?         @relation(fields: [teleServiceId], references: [id])
-  createdAt          DateTime             @default(now())
-  nationId           Int?
-  mobileId           Int?
-  teleServiceId      Int?
-  ApiTransaction     ApiTransaction[]
-  LockedNumber       LockedNumber[]
-  AgentEarning       AgentEarning[]
-  userId             Int
-  OrganizationEarned OrganizationEarned[]
-  AgentTransaction   AgentTransaction[]
+  id                     Int                      @id @default(autoincrement())
+  phone                  String
+  amount                 Float
+  agent                  String?
+  doneBy                 User                     @relation(fields: [userId], references: [id])
+  rechargeStatus         Boolean
+  country                Nation?                  @relation(fields: [nationId], references: [id])
+  mobile                 Mobile?                  @relation(fields: [mobileId], references: [id])
+  service                TeleService?             @relation(fields: [teleServiceId], references: [id])
+  createdAt              DateTime                 @default(now())
+  nationId               Int?
+  mobileId               Int?
+  teleServiceId          Int?
+  ApiTransaction         ApiTransaction[]
+  LockedNumber           LockedNumber[]
+  AgentEarning           AgentEarning[]
+  userId                 Int
+  OrganizationEarned     OrganizationEarned[]
+  AgentTransaction       AgentTransaction[]
+  TransactionResponse    TransactionResponse[]
+  TransactionSource      TransactionSource[]
+  TransactionAdjustments TransactionAdjustments[]
+}
+
+model TransactionResponse {
+  id            Int         @id @default(autoincrement())
+  response      Json
+  status        Boolean
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  createdAt     DateTime    @default(now())
+}
+
+model TransactionSource {
+  id            Int         @id @default(autoincrement())
+  ip_addr       String
+  device        String
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  createdAt     DateTime    @default(now())
+}
+
+model TransactionAdjustments {
+  id              Int         @id @default(autoincrement())
+  adjusted_profit Float
+  trx             Transaction @relation(fields: [transactionId], references: [id])
+  refund_note     String
+  createdAt       DateTime    @default(now())
+  transactionId   Int
 }
 
 model ApiTransaction {
