@@ -1,11 +1,9 @@
 import fetch from "node-fetch";
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-// AGENT ID is 6 - currently under used from DATABASE
-// const uid = 6
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-// pending balance, actual balance calculation area
 const uid = 9
 
 let mainBalance = 0.00;
@@ -113,14 +111,31 @@ const asyncHit = async(req, res, next) => {
         })
         console.log(`controller retry ${retry}`)
         if (respMsg.msg == "SUCCESS")
-            break;
-        
+            break;    
     }
-
     res.status(200).json(respMsg);
 }
 
+
+const saveResponse = async(response, trxId) => {
+    const trxResp = await prisma.transactionResponse.create({
+        data: {
+            trx: {
+                connect: {
+                    id: trxId
+                }
+            },
+            status: true,
+            response: response
+        }
+    })
+
+    return trxResp;
+}
+
 const submitData = async(req, res, next) => {
+    const ip_addr = req.socket.remoteAddress;
+    const device = req.headers['user-agent']
 
     let userId = parseInt(req.body.userId)
     let mobile = req.body.mobile
@@ -128,6 +143,12 @@ const submitData = async(req, res, next) => {
     let country = req.body.country
     let network = req.body.network
     let service = req.body.service
+
+    const operator_name = await prisma.mobile.findFirst({
+        where: {
+            id: parseInt(network)
+        }
+    })
 
     // FLAGS FOR TRX AND STATUS DATA
     let trx_data = {}
@@ -168,14 +189,7 @@ const submitData = async(req, res, next) => {
     console.log(`Actual Balance ${actualbalanceagent}`);
 
     // BALANCE CALCULATION ENDS
-
-    // const apicreds = await prisma.api.findMany({
-    //     where: {
-    //         status: true
-    //     }
-    // });
-    
-    
+        
     // API LISTING AND SORTED ACCORDING TO PRIORITY
     const apis = await prisma.apiCountryPriority.findMany({
         where: {
@@ -247,10 +261,21 @@ const submitData = async(req, res, next) => {
         }
         if (actualbalanceagent > amount){
             console.log("User Id : ", userId);
-            
-        
+    
             const transaction = await prisma.transaction.create({
                 data: transaction_data
+            })
+        
+            const trxSource = await prisma.transactionSource.create({
+                data: {
+                    ip_addr: ip_addr,
+                    device: device,
+                    trx: {
+                        connect: {
+                            id: transaction.id
+                        }
+                    }
+                }
             })
 
             const transfer = await prisma.agentTransaction.create({
@@ -440,6 +465,42 @@ const submitData = async(req, res, next) => {
                     }else{
                         console.log("DU SIM API DIDNT WORK");
                     }
+                }else if(apicreds[i].api.code == "LIV"){
+                    console.log("inside LIVE API")
+                    const apikey = ''
+                    const apiurl = ''
+                    const client_id = 'AZRATEST2023'
+                    const transaction_id = 'AZRATRX - 00'+transaction.id
+                    const msisdn = mobile
+                    const operator = operator_name.name
+                    const sendAmout = amount
+
+                    const send_data = {
+                        "client_id": client_id,
+                        "msisdn": msisdn,
+                        "operator": operator,
+                        "amount": parseInt(sendAmout),
+                        "transaction_id": transaction_id
+                    }
+
+                    console.log("sending Data : ", send_data)
+
+                    const apiCall = await fetch(apiurl, {
+                        method: 'POST',
+                        headers: {
+                            'x-api-key' : apikey,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(send_data),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("data from live : ", data)
+                        const resp = saveResponse(data, transaction.id);
+                        console.log(resp);
+                        trx_api_id = apicreds[i].api.id
+                        trx_status = true
+                    })  
                 }
             }
 
@@ -566,34 +627,6 @@ const submitData = async(req, res, next) => {
                         rechargeStatus: false
                     }
                 })
-                // const transaction = await prisma.transaction.create({
-                //     data: {
-                //         phone: mobile,
-                //         amount: parseFloat(amount),
-                //         agent: "Anonymous",
-                //         doneBy: {
-                //             connect: {
-                //                 id: userId
-                //             }
-                //         },
-                //         rechargeStatus: false,
-                //         country: {
-                //             connect: {
-                //                 id: country
-                //             }
-                //         },
-                //         mobile: {
-                //             connect: {
-                //                 id: network
-                //             }
-                //         },
-                //         service: {
-                //             connect: {
-                //                 id: service
-                //             }
-                //         }
-                //     }
-                // })
 
                 const transfer = await prisma.agentTransaction.create({
                     data: {
@@ -644,9 +677,6 @@ const submitData = async(req, res, next) => {
         }
     }
 
-    // res.status(200).json({
-    //     message: `data got for ${req.body.mobile}`
-    // })
 }
 
 const allTransactions = async(req, res, next) => {

@@ -2,19 +2,28 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getServices = async(req, res, next) => {
-    let result = [
-        {id: 1, service: "TopUp", mno: "GP"},
-        {id: 2, service: "DataLoad", mno: "BanglaLink"}
-    ]
+    let result = []
+    let services = []
 
     result = await prisma.teleService.findMany({
         include: {mobile: true}
     })
 
+    for(let i=0; i<result.length;i++){
+        let data = {
+            id: result[i].id,
+            name: result[i].name,
+            createAt: result[i].createAt,
+            network: result[i].mobile.name
+        }
+
+        services.push(data)
+    }
+
     console.log(result);
 
     res.status(200).json({
-        message: result
+        message: services
     })
 }
 

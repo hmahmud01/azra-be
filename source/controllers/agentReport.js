@@ -76,10 +76,6 @@ const calculateBalance = async(id) => {
 
 
 const agentReport = async(req, res, next) => {
-    const ipAddress = req.socket.remoteAddress;
-    console.log("socket : ", ipAddress);
-    console.log("header ", req.headers['user-agent'])
-
     let result = []
     let dueval = 0
     let saleval = 0

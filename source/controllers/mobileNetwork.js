@@ -2,17 +2,27 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getNetworks = async(req, res, next) => {
-    let result = [
-        {id: 1, mno: "GP", ctry: "BD"},
-        {id: 2, mno: "Banglalink", ctry: "BD"},
-        {id: 3, mno: "Airtel", ctry: "IND"}
-    ]
+
+    let result = []
 
     const networks = await prisma.mobile.findMany({ include: {nation: true} });
     console.log(networks); 
 
+    for (let i=0; i<networks.length; i++){
+        let data = {
+            id: networks[i].id,
+            name: networks[i].name,
+            createAt: networks[i].createAt,
+            ctry: networks[i].nation.name,
+            short: networks[i].nation.short
+        }
+
+        result.push(data)
+    }
+
+
     res.status(200).json({
-        message: networks
+        message: result
     })
 }
 
