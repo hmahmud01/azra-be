@@ -115,8 +115,21 @@ const trxDetail = async(req, res, next) => {
             service: true
         }
     })
+
+    let trx = {
+        id: result.id,
+        phone: result.phone,
+        amount: result.amount,
+        status: result.rechargeStatus,
+        agent_email: result.doneBy.email,
+        agent_phone: result.doneBy.phone,
+        store: result.doneBy.store,
+        ctry: result.country.name,
+        mno: result.mobile.name,
+        service: result.service.name
+    }
     res.status(200).json({
-        message : result
+        message : trx
     })
 }
 

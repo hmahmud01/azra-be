@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { Prisma, PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 const uid = 9
 
@@ -488,8 +488,8 @@ const submitData = async(req, res, next) => {
                     const apiCall = await fetch(apiurl, {
                         method: 'POST',
                         headers: {
-                            'x-api-key' : apikey,
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'x-api-key' : apikey
                         },
                         body: JSON.stringify(send_data),
                     })
@@ -500,7 +500,11 @@ const submitData = async(req, res, next) => {
                         console.log(resp);
                         trx_api_id = apicreds[i].api.id
                         trx_status = true
-                    })  
+                    }) 
+                    .catch(e => {
+                        console.log(e);
+                        console.log("LIVE DIDNT WORK");
+                    }) 
                 }
             }
 
