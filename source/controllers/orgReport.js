@@ -241,5 +241,34 @@ const allAdjusmtments = async(req, res, next) => {
     })
 }
 
+const systemLog = async(req, res, next) => {
+    const data = [
+        {
+            id: 1,
+            date: '27-1-2023',
+            type: 'Recharge',
+            detail: 'Recharge Has been made to 8801646442321 by agent 23 for the amount 230',
+        },
+        {
+            id: 2,
+            date: '28-02-2023',
+            type: 'Balance Transfer',
+            detail: 'Balance has been transferred to the agent of 2',
+        },
+        {
+            id: 3,
+            date: '28-02-2023',
+            type: 'Balance Refund',
+            detail: 'Balance Refund has been made to the number 8801646442321 for the amount 120',
+        }
+    ]
 
-export default {orgReport, allTransactions, trxDetail, filterTrx, allAdjusmtments};
+    const result = await prisma.systemLog.findMany();
+
+    res.status(200).json({
+        message: data
+    })
+}
+
+
+export default {orgReport, allTransactions, trxDetail, filterTrx, allAdjusmtments, systemLog};

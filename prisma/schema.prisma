@@ -304,6 +304,13 @@ model OrganizationEarned {
   createdAt     DateTime    @default(now())
 }
 
+model SystemLog {
+  id     Int      @id @default(autoincrement())
+  type   String
+  detail String
+  date   DateTime @default(now())
+}
+
 // USER ROLES
 enum Role {
   BASIC
