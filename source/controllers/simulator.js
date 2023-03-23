@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 const { MD5 } = pkg;
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-const uid = 11
+const uid = 20
 
 let mainBalance = 0.00;
 const agentTrx = await prisma.agentTransaction.findMany({
@@ -47,9 +47,6 @@ const agentBalance = async (req, res, next) => {
 }
 
 
-// AZRA API WORKS
-// [{"key":"client_id","value":"azrapay"},{"key":"x-api-key","value":"ae0f72d3a4fccf24e4f85bdc5d017cc9"}]
-
 
 const liveReq = async (send_data, apiurl) => {
     console.log("qs data to send in live", querystring.stringify(send_data));
@@ -58,8 +55,9 @@ const liveReq = async (send_data, apiurl) => {
 
     const key = MD5("test@pass").toString();
     console.log("API KEY : ", key);
-    const apikey = `x-api-key: e8bbe243dc9077045a6cc1f10520ab64`
-
+    const apikey = `x-api-key: `
+    
+    // ae0f72d3a4fccf24e4f85bdc5d017cc9
     curlReq.setOpt(Curl.option.URL, apiurl);
     curlReq.setOpt(Curl.option.TRANSFER_ENCODING, 1);
     curlReq.setOpt(Curl.option.MAXREDIRS, 2);
@@ -70,7 +68,7 @@ const liveReq = async (send_data, apiurl) => {
     curlReq.setOpt(Curl.option.CUSTOMREQUEST, 'POST');
     curlReq.setOpt(Curl.option.POSTFIELDS, JSON.stringify(send_data))
     curlReq.setOpt(Curl.option.HTTPHEADER, [
-        'x-api-key: ae0f72d3a4fccf24e4f85bdc5d017cc9',
+        'x-api-key: ',
         'Content-Type: application/json'
     ])
 
@@ -514,8 +512,8 @@ const submitData = async (req, res, next) => {
                 } else if (apicreds[i].api.code == "LIV") {
                     console.log("inside LIVE API")
                     const apiurl = 'http://103.4.145.82/service/API/Recharge/recharge-api.php'
-                    const apikey = 'e8bbe243dc9077045a6cc1f10520ab64'
-                    const client_id = 'speedpay'
+                    const apikey = ''
+                    const client_id = ''
                     const transaction_id = '00' + transaction.id
                     const msisdn = mobile
                     const operator = operator_name.name
@@ -533,45 +531,57 @@ const submitData = async (req, res, next) => {
 
                     console.log("sending Data : ", send_data)
 
-                    // const apiCall = await fetch(apiurl, {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'x-api-key' : apikey,
-                    //         'Content-Type': 'application/json'  
-                    //     },
-                    //     body: JSON.stringify(send_data),
-                    // })
-                    // .then(response => response.json())
-                    // .then(data => {
-                    //     console.log("data from live : ", data)
-                    //     const resp = saveResponse(data, transaction.id);
-                    //     console.log(resp);
-                    //     trx_api_id = apicreds[i].api.id
-                    //     trx_status = true
-                    // }) 
-                    // .catch(e => {
-                    //     console.log(e);
-                    //     console.log("LIVE DIDNT WORK");
-                    // }) 
-
-                    await liveReq(send_data, apiurl);
-                    console.log(trx_status, " before trx ");
-                    trx_data = {
-                        trx: {
-                            connect: {
-                                id: transaction.id
-                            }
+                    const apiCall = await fetch(apiurl, {
+                        method: 'POST',
+                        headers: {
+                            'x-api-key' : apikey,
+                            'Content-Type': 'application/json'  
                         },
-                        api: {
-                            connect: {
-                                id: apicreds[i].api.id
+                        body: JSON.stringify(send_data),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("data from live : ", data)
+                        const resp = saveResponse(data, transaction.id);
+                        console.log(resp);
+                        trx_api_id = apicreds[i].api.id
+                        trx_status = true
+                        trx_data = {
+                            trx: {
+                                connect: {
+                                    id: transaction.id
+                                }
+                            },
+                            api: {
+                                connect: {
+                                    id: apicreds[i].api.id
+                                }
                             }
                         }
-                    }
-                    trx_api_id = apicreds[i].api.id
-                    trx_status = true
-                    console.log(trx_status, " after trx ");
-                    console.log(trx_data);
+                    }) 
+                    .catch(e => {
+                        console.log(e);
+                        console.log("LIVE DIDNT WORK");
+                    }) 
+
+                    // await liveReq(send_data, apiurl);
+                    // console.log(trx_status, " before trx ");
+                    // trx_data = {
+                    //     trx: {
+                    //         connect: {
+                    //             id: transaction.id
+                    //         }
+                    //     },
+                    //     api: {
+                    //         connect: {
+                    //             id: apicreds[i].api.id
+                    //         }
+                    //     }
+                    // }
+                    // trx_api_id = apicreds[i].api.id
+                    // trx_status = true
+                    // console.log(trx_status, " after trx ");
+                    // console.log(trx_data);
                 }
             }
 
@@ -585,7 +595,7 @@ const submitData = async (req, res, next) => {
                 const syslog = await prisma.systemLog.create({
                     data: {
                         type: "Recharge",
-                        detail: syslog
+                        detail: logmsg
                     }
                 })
                 const apitrx = await prisma.apiTransaction.create({
@@ -703,7 +713,7 @@ const submitData = async (req, res, next) => {
                 const syslog = await prisma.systemLog.create({
                     data: {
                         type: "Recharge",
-                        detail: syslog
+                        detail: logmsg
                     }
                 })
                 const upd_transaction = await prisma.transaction.update({

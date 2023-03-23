@@ -59,7 +59,6 @@ const addAgent = async(req, res, next) => {
 const balanceTransfer = async(req, res, next) => {
     console.log("inside balacne")
     let amount = req.body.amount
-    let uid = req.body.uid
     let id = req.params.id
 
     console.log(`Id is :${id}`)
@@ -91,6 +90,14 @@ const balanceTransfer = async(req, res, next) => {
         }
     })
 
+    const logmsg = `Amount ${amount} has been transferred to ${id}'s account`
+    const syslog = await prisma.systemLog.create({
+        data: {
+            type: "Transfer",
+            detail: logmsg
+        }
+    })
+
     res.status(200).json({
         message: "transfer done",
         data: transfer
@@ -114,6 +121,14 @@ const settleDebt = async(req, res, next)=> {
             debit: amount,
             credit: 0.00,
             note: "User Credit withdrawn"
+        }
+    })
+
+    const logmsg = `Withdrawal has been made from the user ${id} for the amount of %${amount}`
+    const syslog = await prisma.systemLog.create({
+        data: {
+            type: "Withdrawal",
+            detail: logmsg
         }
     })
 
@@ -463,6 +478,17 @@ const trxRefund = async(req, res, next) => {
                     id: transaction.id
                 }
             }
+        }
+    })
+
+    // TODO
+    // CREATE A SYSTEM LOG HERE
+
+    const logmsg = `TRX-${tid} has been refunded for manual refund status`
+    const syslog = await prisma.systemLog.create({
+        data: {
+            type: "Refund",
+            detail: logmsg
         }
     })
 

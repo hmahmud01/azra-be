@@ -16,6 +16,8 @@ import authRoute from './authsrc/auth/auth.routes.js';
 import usersRoute from './authsrc/users/users.routes.js';
 import agentReportRoutes from './routes/agentReport.js';
 import orgReportRoutes from './routes/orgReport.js';
+import dealerReportRoutes from './routes/dealerReport.js';
+import subDealerReportRoutes from './routes/subDealerReport.js';
 
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
@@ -41,9 +43,6 @@ app.use(bodyParser.json());
 // https://dev.to/mihaiandrei97/jwt-authentication-using-prisma-and-express-37nk
 
 
-
-
-
 app.use('/', countryRoutes);
 app.use('/', circleRoutes);
 app.use('/', apiRoutes);
@@ -57,6 +56,8 @@ app.use('/', authRoute);
 app.use('/', usersRoute);
 app.use('/', agentReportRoutes);
 app.use('/', orgReportRoutes);
+app.use('/', subDealerReportRoutes);
+app.use('/', dealerReportRoutes);
 
 const trx = await prisma.apiTransaction.findMany({ include: {api: true} });
 // console.log(trx); 

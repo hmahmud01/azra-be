@@ -5,14 +5,12 @@ const calculateDue = async(id) => {
     let total = 0;
     let debit = 0;
     let credit = 0;
-    // console.log(id);    
     const dues = await prisma.userAmountSettlement.findMany({
         where: {
             userId: id,
         }
     })
-
-    // console.log(dues);
+    
     for(let i=0; i<dues.length; i++){
         debit += dues[i].debit
         credit += dues[i].credit

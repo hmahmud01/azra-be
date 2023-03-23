@@ -116,6 +116,12 @@ const trxDetail = async(req, res, next) => {
         }
     })
 
+    const source = await prisma.transactionSource.findFirst({
+        where: {
+            transactionId: tid
+        }
+    })
+
     let trx = {
         id: result.id,
         phone: result.phone,
@@ -126,8 +132,11 @@ const trxDetail = async(req, res, next) => {
         store: result.doneBy.store,
         ctry: result.country.name,
         mno: result.mobile.name,
-        service: result.service.name
+        service: result.service.name,
+        device: source.device,
+        ip_addr: source.ip_addr
     }
+
     res.status(200).json({
         message : trx
     })
@@ -242,31 +251,10 @@ const allAdjusmtments = async(req, res, next) => {
 }
 
 const systemLog = async(req, res, next) => {
-    const data = [
-        {
-            id: 1,
-            date: '27-1-2023',
-            type: 'Recharge',
-            detail: 'Recharge Has been made to 8801646442321 by agent 23 for the amount 230',
-        },
-        {
-            id: 2,
-            date: '28-02-2023',
-            type: 'Balance Transfer',
-            detail: 'Balance has been transferred to the agent of 2',
-        },
-        {
-            id: 3,
-            date: '28-02-2023',
-            type: 'Balance Refund',
-            detail: 'Balance Refund has been made to the number 8801646442321 for the amount 120',
-        }
-    ]
-
     const result = await prisma.systemLog.findMany();
 
     res.status(200).json({
-        message: data
+        message: result
     })
 }
 
