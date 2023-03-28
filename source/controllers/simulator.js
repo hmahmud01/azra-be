@@ -512,8 +512,8 @@ const submitData = async (req, res, next) => {
                 } else if (apicreds[i].api.code == "LIV") {
                     console.log("inside LIVE API")
                     const apiurl = 'http://103.4.145.82/service/API/Recharge/recharge-api.php'
-                    const apikey = ''
-                    const client_id = ''
+                    const apikey = 'e8bbe243dc9077045a6cc1f10520ab64'
+                    const client_id = 'speedpay'
                     const transaction_id = '00' + transaction.id
                     const msisdn = mobile
                     const operator = operator_name.name

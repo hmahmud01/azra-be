@@ -28,6 +28,7 @@ model User {
   AgentProfile         AgentProfile[]
   DealerProfile        DealerProfile[]
   SubDealerProfile     SubDealerProfile[]
+  UserProfile          UserProfile[]
 }
 
 model DealerProfile {
@@ -73,6 +74,20 @@ model AgentProfile {
   userId             Int
   subDealerRef       SubDealerProfile @relation(fields: [subDealerProfileId], references: [id])
   subDealerProfileId Int
+}
+
+model UserProfile {
+  id      Int    @id @default(autoincrement())
+  uuid    String @default(uuid())
+  f_name  String
+  l_name  String
+  age     Int?
+  email   String @unique
+  role    String
+  phone   String
+  address String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
 }
 
 model RefreshToken {
