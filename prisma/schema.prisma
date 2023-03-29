@@ -2,14 +2,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 // USER INFORMATION 
 model User {
   id                   Int                    @id @default(autoincrement())
+  uuid                 String?                @default(uuid())
   email                String?                @unique
   phone                String                 @unique
   password             String
@@ -77,17 +83,18 @@ model AgentProfile {
 }
 
 model UserProfile {
-  id      Int    @id @default(autoincrement())
-  uuid    String @default(uuid())
-  f_name  String
-  l_name  String
-  age     Int?
-  email   String @unique
-  role    String
-  phone   String
-  address String
-  user    User   @relation(fields: [userId], references: [id])
-  userId  Int
+  id              Int    @id @default(autoincrement())
+  uuid            String @default(uuid())
+  f_name          String
+  l_name          String
+  age             Int?
+  email           String @unique
+  role            String
+  phone           String
+  address         String
+  user            User   @relation(fields: [userId], references: [id])
+  userId          Int
+  connectedUserId Int?
 }
 
 model RefreshToken {
@@ -103,6 +110,7 @@ model RefreshToken {
 // USER balance and earning tables
 model UserBalance {
   id                 Int              @id @default(autoincrement())
+  uuid               String           @default(uuid())
   balance            Float
   previousBalance    Float
   agentTrx           AgentTransaction @relation(fields: [agentTransactionId], references: [id])
@@ -112,6 +120,7 @@ model UserBalance {
 
 model AgentTransaction {
   id               Int           @id @default(autoincrement())
+  uuid             String?       @default(uuid())
   user             User          @relation(fields: [userId], references: [id])
   userId           Int
   transferedAmount Float
@@ -126,6 +135,7 @@ model AgentTransaction {
 
 model UserAmountSettlement {
   id        Int       @id @default(autoincrement())
+  uuid      String    @default(uuid())
   note      String
   debit     Float
   credit    Float
@@ -137,6 +147,7 @@ model UserAmountSettlement {
 // AGENT PERCENTAGE VARIABLE
 model AgentPercentage {
   id         Int      @id @default(autoincrement())
+  uuid       String?  @default(uuid())
   user       User     @relation(fields: [userId], references: [id])
   userId     Int      @unique
   percentage Float
@@ -145,6 +156,7 @@ model AgentPercentage {
 
 model AgentEarning {
   id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
   agent         User        @relation(fields: [userId], references: [id])
   userId        Int
   amount        Float
@@ -155,6 +167,7 @@ model AgentEarning {
 
 model LockedBalance {
   id               Int             @id @default(autoincrement())
+  uuid             String          @default(uuid())
   user             User            @relation(fields: [userId], references: [id])
   userId           Int
   currentBalance   Float
@@ -167,6 +180,7 @@ model LockedBalance {
 
 model LockedNumber {
   id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
   phone         String
   status        Boolean
   createdAt     DateTime    @default(now())
@@ -174,8 +188,10 @@ model LockedNumber {
   transactionId Int
 }
 
+// COUNTRY NAME
 model Nation {
   id                 Int                  @id @default(autoincrement())
+  uuid               String               @default(uuid())
   name               String
   short              String
   code               String
@@ -184,8 +200,10 @@ model Nation {
   ApiCountryPriority ApiCountryPriority[]
 }
 
+// MOBILE NETWORK
 model Mobile {
   id          Int           @id @default(autoincrement())
+  uuid        String        @default(uuid())
   name        String
   createAt    DateTime      @default(now())
   nation      Nation        @relation(fields: [nationId], references: [id])
@@ -195,8 +213,10 @@ model Mobile {
   ApiPercent  ApiPercent[]
 }
 
+// MOBILE NETWORK SERVICES
 model TeleService {
   id          Int           @id @default(autoincrement())
+  uuid        String        @default(uuid())
   name        String
   createAt    DateTime      @default(now())
   mobile      Mobile        @relation(fields: [mobileId], references: [id])
@@ -206,6 +226,7 @@ model TeleService {
 
 model Api {
   id                 Int                  @id @default(autoincrement())
+  uuid               String               @default(uuid())
   name               String
   code               String
   status             Boolean
@@ -218,6 +239,7 @@ model Api {
 
 model ApiPercent {
   id        Int      @id @default(autoincrement())
+  uuid      String   @default(uuid())
   api       Api      @relation(fields: [apiId], references: [id])
   apiId     Int
   network   Mobile   @relation(fields: [mobileId], references: [id])
@@ -228,6 +250,7 @@ model ApiPercent {
 
 model ApiCountryPriority {
   id        Int      @id @default(autoincrement())
+  uuid      String   @default(uuid())
   ctry      Nation   @relation(fields: [nationId], references: [id])
   nationId  Int
   api       Api      @relation(fields: [apiId], references: [id])
@@ -238,6 +261,7 @@ model ApiCountryPriority {
 
 model Transaction {
   id                     Int                      @id @default(autoincrement())
+  uuid                   String                   @default(uuid())
   phone                  String
   amount                 Float
   agent                  String?
@@ -263,6 +287,7 @@ model Transaction {
 
 model TransactionResponse {
   id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
   response      Json
   status        Boolean
   trx           Transaction @relation(fields: [transactionId], references: [id])
@@ -272,6 +297,7 @@ model TransactionResponse {
 
 model TransactionSource {
   id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
   ip_addr       String
   device        String
   trx           Transaction @relation(fields: [transactionId], references: [id])
@@ -281,6 +307,7 @@ model TransactionSource {
 
 model TransactionAdjustments {
   id              Int         @id @default(autoincrement())
+  uuid            String      @default(uuid())
   adjusted_profit Float
   trx             Transaction @relation(fields: [transactionId], references: [id])
   refund_note     String
@@ -290,6 +317,7 @@ model TransactionAdjustments {
 
 model ApiTransaction {
   id                   Int                    @id @default(autoincrement())
+  uuid                 String                 @default(uuid())
   trx                  Transaction            @relation(fields: [transactionId], references: [id])
   createdAt            DateTime               @default(now())
   api                  Api                    @relation(fields: [apiId], references: [id])
@@ -302,6 +330,7 @@ model ApiTransaction {
 // This will track the record for a transaction which api has been called and if that is success or failed
 model TransactionRecordApi {
   id               Int            @id @default(autoincrement())
+  uuid             String         @default(uuid())
   transaction      ApiTransaction @relation(fields: [apiTransactionId], references: [id])
   apiTransactionId Int
   status           Boolean
@@ -311,6 +340,7 @@ model TransactionRecordApi {
 
 model OrganizationEarned {
   id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
   trx           Transaction @relation(fields: [transactionId], references: [id])
   transactionId Int
   api           Api         @relation(fields: [apiId], references: [id])
@@ -321,6 +351,7 @@ model OrganizationEarned {
 
 model SystemLog {
   id     Int      @id @default(autoincrement())
+  uuid   String   @default(uuid())
   type   String
   detail String
   date   DateTime @default(now())

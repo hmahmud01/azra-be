@@ -3,10 +3,18 @@ import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from '../utls/jwt.js';
 import { addRefreshTokenToWhitelist } from './auth.services.js';
 import bcrypt from 'bcrypt';
+import { db } from '../utls/db.js';
 
 const authRoute = express.Router();
 
-import {findUserByEmail, createUserByEmailAndPassword, findUserByPhone} from '../users/users.services.js';
+import {findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser} from '../users/users.services.js';
+
+authRoute.get('/users', async(req, res, next) => {
+  const users = await db.user.findMany();
+  res.status(200).json({
+    message: users
+  })
+})
 
 authRoute.post('/register', async (req, res, next) => {
   console.log("INSIDE AUTH ROUTE");
@@ -53,6 +61,19 @@ authRoute.post('/register', async (req, res, next) => {
     next(err);
   }
 });
+
+authRoute.post('/createsuperuser', async (req, res, next) => {
+  const user = await createSuperUser(req.body);
+
+  const jti = uuidv4();
+  const { accessToken, refreshToken } = generateTokens(user, jti);
+  await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id }); 
+
+  res.status(200).json({
+    accessToken,
+    refreshToken
+  });
+})
 
 authRoute.post('/login', async (req, res, next) => {
     console.log("checking")

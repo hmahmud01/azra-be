@@ -17,9 +17,7 @@ export function findUserByPhone(phone){
     })
 }
 
-export async function createUserByEmailAndPassword(user){
-    // user.password = hashSync(user.password, 12);
-
+export async function createSuperUser(user){
     const data = {
         email: user.email,
         phone: user.phone,
@@ -27,7 +25,25 @@ export async function createUserByEmailAndPassword(user){
         type: user.type
     }
 
-    const profile = {}
+    const dbuser = await db.user.create({
+        data: data
+    })
+
+    return dbuser;
+}
+
+export async function createUserByEmailAndPassword(user){
+    // user.password = hashSync(user.password, 12);
+
+    const data = {
+        email: user.email,
+        store: user.store,
+        phone: user.phone,
+        password: hashSync(user.password, 12),
+        type: user.type
+    }
+
+    // const profile = {}
 
     console.log("user value : ",user);
     const dbuser = await db.user.create({
@@ -36,71 +52,89 @@ export async function createUserByEmailAndPassword(user){
 
     console.log(dbuser)
 
-    if(user.type == 'agent'){
-        const agent = await db.agentProfile.create({
-            data:  {
-                f_name: user.fname,
-                l_name: user.lname,
-                age: parseInt(user.age),
-                email: user.email,
-                role: user.type,
-                phone: user.phone,
-                address: user.address,
-                user: {
-                    connect: {
-                        id: dbuser.id
-                    }
-                },
-                subDealerRef: {
-                    connect: {
-                        id: user.ref
-                    }
+    const profile = await db.userProfile.create({
+        data: {
+            f_name: user.fname,
+            l_name: user.lname,
+            age: parseInt(user.age),
+            email: user.email,
+            role: user.type,
+            phone: user.phone,
+            address: user.address,
+            user: {
+                connect: {
+                    id: dbuser.id
                 }
-            }
-        })
-        console.log("agent date : ", agent);
-    }else if(user.type == 'dealer'){
-        const dealer = await db.dealerProfile.create({
-            data:  {
-                f_name: user.fname,
-                l_name: user.lname,
-                age: parseInt(user.age),
-                email: user.email,
-                role: user.type,
-                phone: user.phone,
-                address: user.address,
-                user: {
-                    connect: {
-                        id: dbuser.id
-                    }
-                }
-            }
-        })
-        console.log("dealer date : ", dealer);
-    }else if(user.type == 'subdealer'){
-        const subdealer = await db.subDealerProfile.create({
-            data:  {
-                f_name: user.fname,
-                l_name: user.lname,
-                age: parseInt(user.age),
-                email: user.email,
-                role: user.type,
-                phone: user.phone,
-                address: user.address,
-                user: {
-                    connect: {
-                        id: dbuser.id
-                    }
-                },
-                dealerRef: {
-                    connect: {
-                        id: user.ref
-                    }
-                }
-            }
-        })
-        console.log("subdealer date : ", subdealer);
-    }
+            },
+            connectedUserId: user.ref
+        }
+    })
+
+    // if(user.type == 'agent'){
+    //     const agent = await db.agentProfile.create({
+    //         data:  {
+    //             f_name: user.fname,
+    //             l_name: user.lname,
+    //             age: parseInt(user.age),
+    //             email: user.email,
+    //             role: user.type,
+    //             phone: user.phone,
+    //             address: user.address,
+    //             user: {
+    //                 connect: {
+    //                     id: dbuser.id
+    //                 }
+    //             },
+    //             subDealerRef: {
+    //                 connect: {
+    //                     id: user.ref
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     console.log("agent date : ", agent);
+    // }else if(user.type == 'dealer'){
+    //     const dealer = await db.dealerProfile.create({
+    //         data:  {
+    //             f_name: user.fname,
+    //             l_name: user.lname,
+    //             age: parseInt(user.age),
+    //             email: user.email,
+    //             role: user.type,
+    //             phone: user.phone,
+    //             address: user.address,
+    //             user: {
+    //                 connect: {
+    //                     id: dbuser.id
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     console.log("dealer date : ", dealer);
+    // }else if(user.type == 'subdealer'){
+    //     const subdealer = await db.subDealerProfile.create({
+    //         data:  {
+    //             f_name: user.fname,
+    //             l_name: user.lname,
+    //             age: parseInt(user.age),
+    //             email: user.email,
+    //             role: user.type,
+    //             phone: user.phone,
+    //             address: user.address,
+    //             user: {
+    //                 connect: {
+    //                     id: dbuser.id
+    //                 }
+    //             },
+    //             dealerRef: {
+    //                 connect: {
+    //                     id: user.ref
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     console.log("subdealer date : ", subdealer);
+    // }
 
     const trx = {
         user: {
