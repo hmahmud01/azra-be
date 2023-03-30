@@ -8,7 +8,9 @@ const prisma = new PrismaClient();
 const { MD5 } = pkg;
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-const uid = 20
+console.log(process.env.NODE_ENV);
+
+const uid = 4
 
 let mainBalance = 0.00;
 const agentTrx = await prisma.agentTransaction.findMany({
@@ -368,17 +370,13 @@ const submitData = async (req, res, next) => {
 
             for (let i = 0; i < apicreds.length; i++) {
                 if (apicreds[i].api.code == "TST") {
-                    const res = await fetch(
-                        'http://127.0.0.1:8090/api/collections/testbalance/records'
-                    );
+                    const res = await fetch(process.env.TSTBAL);
                     const data = await res.json();
 
                     console.log("Available Balance for TEST : ", data.items[0].balance);
                     if (data.items[0].balance >= amount) {
                         console.log("TEST API WORKING");
-                        const res = await fetch(
-                            'http://127.0.0.1:8090/api/collections/testrecharge/records'
-                        );
+                        const res = await fetch(process.env.TSTREC);
                         const response = await res.json();
                         console.log(response.items[0].message);
                         trx_data = {
@@ -401,17 +399,13 @@ const submitData = async (req, res, next) => {
                     }
 
                 } else if (apicreds[i].api.code == "ETS") {
-                    const res = await fetch(
-                        'http://127.0.0.1:8090/api/collections/etisalatbalance/records'
-                    );
+                    const res = await fetch(process.env.ETSBAL);
                     const data = await res.json();
 
                     console.log("Available Balance for ETS : ", data.items[0].balance);
                     if (data.items[0].balance >= amount) {
                         console.log("ETS API WORKING");
-                        const res = await fetch(
-                            'http://127.0.0.1:8090/api/collections/etisalatrecharge/records'
-                        );
+                        const res = await fetch(process.env.ETSREC);
                         const response = await res.json();
                         console.log(response.items[0].message);
                         trx_data = {
@@ -434,17 +428,13 @@ const submitData = async (req, res, next) => {
                     }
 
                 } else if (apicreds[i].api.code == "ZLO") {
-                    const res = await fetch(
-                        'http://127.0.0.1:8090/api/collections/zolobalance/records'
-                    );
+                    const res = await fetch(process.env.ZLOBAL);
                     const data = await res.json();
 
                     console.log("Available Balance for ZOLO : ", data.items[0].balance);
                     if (data.items[0].balance >= amount) {
                         console.log("ZOLO API WORKING");
-                        const res = await fetch(
-                            'http://127.0.0.1:8090/api/collections/zolorecharge/records'
-                        );
+                        const res = await fetch(process.env.ZLOREC);
                         const response = await res.json();
                         console.log(response.items[0].message);
                         trx_data = {
@@ -472,7 +462,7 @@ const submitData = async (req, res, next) => {
 
                     console.log(`Available balance for DU Sim : ${balance}`);
                     if (balance >= amount) {
-                        await fetch('http://localhost:3000/asynctest', {
+                        await fetch(process.env.DUSIM, {
                             method: 'POST'
                         })
                             .then(response => response.json())
@@ -511,9 +501,9 @@ const submitData = async (req, res, next) => {
                     }
                 } else if (apicreds[i].api.code == "LIV") {
                     console.log("inside LIVE API")
-                    const apiurl = 'http://103.4.145.82/service/API/Recharge/recharge-api.php'
-                    const apikey = ''
-                    const client_id = ''
+                    const apiurl = process.env.LIV
+                    const apikey = process.env.LIV_APIKEY
+                    const client_id = process.env.LIV_CLIENT_ID
                     const transaction_id = '00' + transaction.id
                     const msisdn = mobile
                     const operator = operator_name.name
