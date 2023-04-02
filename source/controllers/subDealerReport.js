@@ -19,25 +19,35 @@ const subDealers = async(req, res, next) => {
 const subDealerAgentReport = async(req, res, next) => {
     const uid = parseInt(req.params.uid)
     console.log(uid);
-    const sdprofile = await prisma.subDealerProfile.findFirst({
+    // const sdprofile = await prisma.subDealerProfile.findFirst({
+    //     where: {
+    //         user: {
+    //             id: uid
+    //         }
+    //     }
+    // })
+
+    // const agents = await prisma.agentProfile.findMany({
+    //     where: {
+    //         subDealerProfileId: sdprofile.id
+    //     }
+    // })
+
+
+    // for (let i =0; i<agents.length; i++){
+    //     console.log(agents[i].userId);
+    // }
+
+    const agents = await prisma.userProfile.findMany({
         where: {
-            user: {
-                id: uid
-            }
+            connectedUserId: uid
+        },
+        include: {
+            user: true
         }
     })
 
-    const agents = await prisma.agentProfile.findMany({
-        where: {
-            subDealerProfileId: sdprofile.id
-        }
-    })
-
-
-    for (let i =0; i<agents.length; i++){
-        console.log(agents[i].userId);
-    }
-
+    console.log(agents);
 
     console.log("agent for subd")
     res.status(200).json({

@@ -33,8 +33,6 @@ export async function createSuperUser(user){
 }
 
 export async function createUserByEmailAndPassword(user){
-    // user.password = hashSync(user.password, 12);
-
     const data = {
         email: user.email,
         store: user.store,
@@ -43,7 +41,6 @@ export async function createUserByEmailAndPassword(user){
         type: user.type
     }
 
-    // const profile = {}
 
     console.log("user value : ",user);
     const dbuser = await db.user.create({
@@ -66,7 +63,7 @@ export async function createUserByEmailAndPassword(user){
                     id: dbuser.id
                 }
             },
-            connectedUserId: user.ref
+            connectedUserId: parseInt(user.ref)
         }
     })
 

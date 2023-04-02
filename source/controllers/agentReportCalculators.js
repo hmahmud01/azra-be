@@ -1,3 +1,6 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const calculateDue = async(id) => {
     let total = 0;
     let debit = 0;

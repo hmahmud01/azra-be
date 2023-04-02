@@ -44,10 +44,7 @@ authRoute.post('/register', async (req, res, next) => {
     if (existingUser) {
       res.status(400);
       throw new Error('Email already in use.');
-    }
-
-    
-
+    } 
     const user = await createUserByEmailAndPassword(req.body);
     const jti = uuidv4();
     const { accessToken, refreshToken } = generateTokens(user, jti);
@@ -102,10 +99,14 @@ authRoute.post('/login', async (req, res, next) => {
       await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
   
       let uid  = existingUser.id
+      let type = existingUser.type
+      let store = existingUser.store
       res.json({
         accessToken,
         refreshToken,
-        uid
+        uid,
+        type,
+        store
       });
     } catch (err) {
       next(err);

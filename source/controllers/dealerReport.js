@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+import calculator from './agentReportCalculators.js';
+
 const dealer = async(req, res, next) => {
     const dealers = await prisma.user.findMany({
         where: {
@@ -16,54 +18,56 @@ const dealer = async(req, res, next) => {
 const dealerSubDealerReport = async(req, res, next) => {
     const uid = parseInt(req.params.uid)
     console.log(uid);
-    const sdprofile = await prisma.dealerProfile.findFirst({
+
+    const subdealers = await prisma.userProfile.findMany({
         where: {
-            user: {
-                id: uid
-            }
+            connectedUserId: uid
+        },
+        include: {
+            user: true
         }
     })
 
-    const sds = await prisma.subDealerProfile.findMany({
-        where: {
-            dealerProfileId: sdprofile.id
-        }
-    })
+    console.log(subdealers);
 
 
-    for (let i =0; i<sds.length; i++){
-        console.log(sds[i].userId);
-    }
-
-
-    console.log("agent for subd")
+    console.log("Subdealer Dealer REport")
     res.status(200).json({
-        message: sds
+        message: subdealers
     })
 }
 
 const dealersubDealerAgentReport = async(req, res, next) => {
     const uid = parseInt(req.params.uid)
     console.log(uid);
-    const sdprofile = await prisma.subDealerProfile.findFirst({
+    let dueval = 0
+    let saleval = 0
+    let earnval = 0
+    let balanceval = 0
+
+    const agents = await prisma.userProfile.findMany({
         where: {
-            user: {
-                id: uid
-            }
+            connectedUserId: uid
+        },
+        include: {
+            user: true
         }
     })
-
-    const agents = await prisma.agentProfile.findMany({
-        where: {
-            subDealerProfileId: sdprofile.id
+    for(let i = 0; i<agents.length; i++){
+        let dues = await calculator.calculateDue(agents[i].user.id).then(res => {dueval = res.total});
+        let sale = await calculator.calculateSale(agents[i].user.id).then(res => {saleval = res.sale});
+        let eraning = await calculator.calculateEarning(agents[i].user.id).then(res => {earnval = res.earn});
+        let balance = await calculator.calculateBalance(agents[i].user.id).then(res => {balanceval = res.balance});
+        let data = {
+            recharge: 0,
+            dues: dueval,
+            sale: saleval,
+            earning: earnval,
+            balance: balanceval
         }
-    })
 
-
-    for (let i =0; i<agents.length; i++){
-        console.log(agents[i].userId);
+        agents[i].data = data;
     }
-
 
     console.log("agent for subd")
     res.status(200).json({
