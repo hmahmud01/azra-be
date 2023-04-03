@@ -1,26 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const sdata = [
-    {'id': 1, 'api': "ZOLO", 'code': "ZLO", "status": true},
-    {'id': 2, 'api': "Etisalat", 'code': "ETS", "status": false},
-]
-
-const getApis = async(req, res, next) => {
-    let result = [
-        {id: 1, api: "ZOLO", code: "ZLO", status: true},
-        {id: 2, api: "Etisalat", code: "ETS", status: false}
-    ]
-
-    result = await prisma.api.findMany();
+const getApis = async (req, res, next) => {
+    let result = await prisma.api.findMany();
 
     res.status(200).json({
         message: result
     })
 }
 
-const getApi = async(req, res, next) => {
-    let result = {id: 1, api: "ZOLO", code: "ZLO", status: true}
+const getApi = async (req, res, next) => {
+    let result = { id: 1, api: "ZOLO", code: "ZLO", status: true }
     let id = req.params.id
     console.log(`fetcing data for ${id}`)
 
@@ -29,7 +19,7 @@ const getApi = async(req, res, next) => {
     })
 }
 
-const deActivateApi = async(req, res, next) => {
+const deActivateApi = async (req, res, next) => {
     let id = parseInt(req.params.id)
     console.log(`deactivating the api with id of ${id}`)
 
@@ -47,7 +37,7 @@ const deActivateApi = async(req, res, next) => {
     })
 }
 
-const activateApi = async(req, res, next) => {
+const activateApi = async (req, res, next) => {
     let id = parseInt(req.params.id)
     console.log(`activating the api with id of ${id}`)
     const updateapi = await prisma.api.update({
@@ -64,7 +54,7 @@ const activateApi = async(req, res, next) => {
     })
 }
 
-const addApi = async(req, res, next) => {
+const addApi = async (req, res, next) => {
     console.log(req.body);
 
     let name = req.body.name;
@@ -85,20 +75,16 @@ const addApi = async(req, res, next) => {
     console.log(`Api : ${api} & code : ${code} & status : ${status}`)
 
     res.status(200).json({
-        message: `Data added : ${apiObj}`
+        message: `API added for ${apiObj.code}`
     })
 }
 
-const assignPriority = async(req, res, next) => {
-   let dummydata = {
-        ctry: 1,
-        apiPriority: [ { apiId: 3, priority: 2 }, { apiId: 2, priority: 3 } ]
-      }
+const assignPriority = async (req, res, next) => {
     console.log(req.body);
 
     let data = req.body;
     let ctryId = data.ctry;
-    for (let i = 0; i<data.apiPriority.length; i++){
+    for (let i = 0; i < data.apiPriority.length; i++) {
         const priority = await prisma.apiCountryPriority.create({
             data: {
                 ctry: {
@@ -122,11 +108,11 @@ const assignPriority = async(req, res, next) => {
     })
 }
 
-const assingPercentage = async(req, res, next) => {
+const assingPercentage = async (req, res, next) => {
     const percent = await prisma.apiPercent.create({
         data: {
             api: {
-                connect:{
+                connect: {
                     id: req.body.api
                 }
             },
@@ -145,7 +131,7 @@ const assingPercentage = async(req, res, next) => {
     })
 }
 
-const apiPriorityData = async(req, res, next) => {
+const apiPriorityData = async (req, res, next) => {
 
     console.log("inside priority Data");
     let data = []
@@ -156,11 +142,11 @@ const apiPriorityData = async(req, res, next) => {
         }
     });
 
-    for (let i = 0; i< result.length; i++){
+    for (let i = 0; i < result.length; i++) {
         let store = {
             id: result[i].id,
             priority: result[i].priority,
-            apiId : result[i].apiId,
+            apiId: result[i].apiId,
             api: result[i].api.name,
             ctry: result[i].ctry.name,
             short: result[i].ctry.short,
@@ -172,19 +158,19 @@ const apiPriorityData = async(req, res, next) => {
     res.status(200).json({
         message: data
     })
-}   
+}
 
-const apiPercentageData = async(req, res, next) => {
+const apiPercentageData = async (req, res, next) => {
     console.log("inside Percentage Data");
     let data = []
-    let result =await prisma.apiPercent.findMany({
-        include:{
+    let result = await prisma.apiPercent.findMany({
+        include: {
             api: true,
             network: true
         }
-    }); 
+    });
 
-    for (let i =0; i<result.length; i++){
+    for (let i = 0; i < result.length; i++) {
         let store = {
             id: result[i].id,
             percent: result[i].percent,
@@ -201,7 +187,7 @@ const apiPercentageData = async(req, res, next) => {
 }
 
 
-const updatePercentage = async(req, res, next) => {
+const updatePercentage = async (req, res, next) => {
     const percent = await prisma.apiPercent.update({
         where: {
             id: req.body.id
@@ -216,7 +202,7 @@ const updatePercentage = async(req, res, next) => {
     })
 }
 
-const updatePriority = async(req, res, next) => {
+const updatePriority = async (req, res, next) => {
     const priority = await prisma.apiCountryPriority.update({
         where: {
             id: req.body.id
@@ -231,4 +217,4 @@ const updatePriority = async(req, res, next) => {
     })
 }
 
-export default {addApi, getApis, getApi, deActivateApi, activateApi, assingPercentage, assignPriority, apiPriorityData, apiPercentageData, updatePercentage, updatePriority}
+export default { addApi, getApis, getApi, deActivateApi, activateApi, assingPercentage, assignPriority, apiPriorityData, apiPercentageData, updatePercentage, updatePriority }

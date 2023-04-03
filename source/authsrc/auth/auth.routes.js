@@ -49,10 +49,11 @@ authRoute.post('/register', async (req, res, next) => {
     const jti = uuidv4();
     const { accessToken, refreshToken } = generateTokens(user, jti);
     await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id });
-
+    let msg = "User Created Successfully"
     res.json({
       accessToken,
       refreshToken,
+      msg
     });
   } catch (err) {
     next(err);

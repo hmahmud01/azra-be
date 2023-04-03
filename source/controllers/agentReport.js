@@ -112,6 +112,8 @@ const agentBalance = async(req, res, next) => {
             }
         }
     )
+
+    console.log(atrx);
     res.status(200).json({
         message: atrx,
         balance: balance.balance

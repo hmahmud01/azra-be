@@ -3,52 +3,12 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import querystring from 'querystring';
 import pkg from "crypto-js";
 import { Curl, CurlHttpVersion } from "node-libcurl";
-// const terminate = curlReq.close.bind(curlReq);
 const prisma = new PrismaClient();
 const { MD5 } = pkg;
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-console.log(process.env.NODE_ENV);
 
-const uid = 4
-
-let mainBalance = 0.00;
-const agentTrx = await prisma.agentTransaction.findMany({
-    where: {
-        userId: uid
-    }
-})
-
-for (let i = 0; i < agentTrx.length; i++) {
-    mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
-}
-console.log(`main balance from trasaction calculation , ${mainBalance}`)
-const lockedbalances = await prisma.lockedBalance.findMany({
-    where: {
-        lockedStatus: true
-    }
-})
-
-let pendingRecharge = 0.00
-
-for (let i = 0; i < lockedbalances.length; i++) {
-    pendingRecharge += lockedbalances[i].amountLocked
-}
-
-console.log(`Pending Balance: ${pendingRecharge}`);
-let actualbalance = mainBalance - pendingRecharge
-
-console.log(`Actual Balance ${actualbalance}`);
 
 // pending balance, actual balance calculation area ENDS
-
-const agentBalance = async (req, res, next) => {
-    res.status(200).json({
-        balance: actualbalance
-    })
-}
-
-
 
 const liveReq = async (send_data, apiurl) => {
     console.log("qs data to send in live", querystring.stringify(send_data));
@@ -175,6 +135,8 @@ const saveResponse = async (response, trxId) => {
             response: response
         }
     })
+
+    console.log("TRX RESPONSE: ", trxResp);
 
     return trxResp;
 }
@@ -408,6 +370,7 @@ const submitData = async (req, res, next) => {
                         const res = await fetch(process.env.ETSREC);
                         const response = await res.json();
                         console.log(response.items[0].message);
+                        const resp = saveResponse(response.items[0].message, transaction.id);
                         trx_data = {
                             trx: {
                                 connect: {
@@ -581,7 +544,7 @@ const submitData = async (req, res, next) => {
             console.log("Transaction Status : ", trx_status);
 
             if (trx_status) {
-                const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${uid} for the amount ${amount}`
+                const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${userId} for the amount ${amount}`
                 const syslog = await prisma.systemLog.create({
                     data: {
                         type: "Recharge",
@@ -699,7 +662,7 @@ const submitData = async (req, res, next) => {
                 // CREATE ENTRY ORGANIZATION EARNED TABLE
 
             } else {
-                const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${uid} for the amount ${amount}`
+                const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${userId} for the amount ${amount}`
                 const syslog = await prisma.systemLog.create({
                     data: {
                         type: "Recharge",
@@ -764,14 +727,37 @@ const submitData = async (req, res, next) => {
         }
     }
 
+    if (trx_status) {
+        res.status(200).json({
+            message: "TRX has been completed"
+        })
+    }else{
+        res.json({
+            message: "TRX FAILED"
+        })
+    }
+
 }
 
 const allTransactions = async (req, res, next) => {
     const trx = await prisma.apiTransaction.findMany({ include: { api: true, trx: true } });
-    console.log(trx);
+
+    let result = []
+
+    for(let i=0; i<trx.length; i++){
+        let data = {
+            id: trx[i].id,
+            createdAt: trx[i].createdAt,
+            api: trx[i].api.code,
+            phone: trx[i].trx.phone,
+            amount: trx[i].trx.amount,
+            agent: trx[i].trx.agent
+        }
+        result.push(data);
+    }
 
     res.status(200).json({
-        message: trx
+        message: result
     })
 }
 
@@ -790,6 +776,41 @@ const allagentTrx = async (req, res, next) => {
 
     res.status(200).json({
         message: atrx
+    })
+}
+
+const agentBalance = async (req, res, next) => {
+    const uid = parseInt(req.params.id)
+
+    let mainBalance = 0.00;
+    const agentTrx = await prisma.agentTransaction.findMany({
+        where: {
+            userId: uid
+        }
+    })
+
+    for (let i = 0; i < agentTrx.length; i++) {
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
+    }
+    console.log(`main balance from trasaction calculation , ${mainBalance}`)
+    const lockedbalances = await prisma.lockedBalance.findMany({
+        where: {
+            lockedStatus: true
+        }
+    })
+
+    let pendingRecharge = 0.00
+
+    for (let i = 0; i < lockedbalances.length; i++) {
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalance = mainBalance - pendingRecharge
+
+    console.log(`Actual Balance ${actualbalance}`);
+    res.status(200).json({
+        balance: actualbalance
     })
 }
 
