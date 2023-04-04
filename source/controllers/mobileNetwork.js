@@ -100,7 +100,7 @@ const addNetwork = async(req, res, next) => {
     console.log(network, {depth: Infinity})
 
     res.status(200).json({
-        message: network
+        message: `Network Created ${network.name}`
     })
 }
 

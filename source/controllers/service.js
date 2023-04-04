@@ -68,8 +68,6 @@ const addService = async(req, res, next) => {
     let service = req.body.service
     let mno = req.body.mno
 
-    
-
     const teleservice = await prisma.teleService.create({
         data: {
             name: service,
@@ -83,7 +81,7 @@ const addService = async(req, res, next) => {
 
     console.log(teleservice)
     res.status(200).json({
-        message: `added data: ${teleservice}`
+        message: `added data: ${teleservice.name}`
     })
 }
 

@@ -1,6 +1,3 @@
-// const { db } = require('../../utils/db');
-// const { hashToken } = require('../../utils/hashToken');
-
 import { db } from '../utls/db.js';
 import { hashToken } from '../utls/hashToken.js';
 
@@ -46,10 +43,3 @@ export function revokeTokens(userId) {
     }
   });
 }
-
-// module.exports = {
-//   addRefreshTokenToWhitelist,
-//   findRefreshTokenById,
-//   deleteRefreshToken,
-//   revokeTokens
-// };
