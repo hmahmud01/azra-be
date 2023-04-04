@@ -2,10 +2,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getAgents = async(req, res, next) => {
-    let result = [
-        {id: 1, name: "Mr. Y", manager: "Mr. X", area: "Location"},
-        {id: 2, name: "Mr. Z", manager: "Mr. X", area: "Location"},
-    ]
+    let result = []
 
     const agents = await prisma.user.findMany({
         where: {
@@ -13,8 +10,24 @@ const getAgents = async(req, res, next) => {
         }
     })
 
+    for(let i =0; i<agents.length; i++){
+        let data = {
+            id: agents[i].id,
+            uuid: agents[i].uuid,
+            email: agents[i].email,
+            phone: agents[i].phone,
+            store: agents[i].store,
+            createdAt: agents[i].createdAt,
+            updatedAt: agents[i].updatedAt,
+            type: agents[i].type,
+            status: agents[i].status
+        }
+
+        result.push(data)
+    }
+    
     res.status(200).json({
-        message: agents
+        message: result
     })
 }
 

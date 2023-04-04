@@ -122,6 +122,20 @@ const trxDetail = async(req, res, next) => {
         }
     })
 
+    const trxResponse = await prisma.transactionResponse.findFirst({
+        where: {
+            transactionId: tid
+        }
+    })
+
+    let trx_resp = ""
+    let trx_stat = null
+
+    if(trxResponse != null){
+        trx_resp = trxResponse.response
+        trx_stat = trxResponse.status
+    }
+
     let trx = {
         id: result.id,
         phone: result.phone,
@@ -134,7 +148,9 @@ const trxDetail = async(req, res, next) => {
         mno: result.mobile.name,
         service: result.service.name,
         device: source.device,
-        ip_addr: source.ip_addr
+        ip_addr: source.ip_addr,
+        trx_resp: trx_resp,
+        trx_stat: trx_stat
     }
 
     res.status(200).json({
@@ -150,6 +166,8 @@ const filterTrx = async(req, res, next) => {
     let failed_recharge_count = 0;
     let total_sales = 0;
     let earned_record = []
+
+    console.log("time data : ", data)
 
     let result = await prisma.organizationEarned.findMany({
         where: {

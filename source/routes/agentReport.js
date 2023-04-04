@@ -4,7 +4,7 @@ import controller from '../controllers/agentReport.js';
 const agentReportRoutes = express.Router();
 
 agentReportRoutes.get('/agentreport', controller.agentReport);
-agentReportRoutes.get('/agentbalance/:id', controller.agentBalance);
+agentReportRoutes.get('/agentbalancecheck/:id', controller.agentBalance);
 agentReportRoutes.get('/agentdues/:id', controller.agentDues);
 agentReportRoutes.get('/agentearning/:id', controller.agentEarning);
 agentReportRoutes.get('/agentrecharge/:id', controller.agentRecharge);

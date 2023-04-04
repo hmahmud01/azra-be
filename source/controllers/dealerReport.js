@@ -4,14 +4,31 @@ const prisma = new PrismaClient();
 import calculator from './agentReportCalculators.js';
 
 const dealer = async(req, res, next) => {
+    let result = []
     const dealers = await prisma.user.findMany({
         where: {
             type: "dealer"
         }
     })
 
+    for (let i =0; i<dealers.length; i++){
+        let data = {
+            id: dealers[i].id,
+            uuid: dealers[i].uuid,
+            email: dealers[i].email,
+            phone: dealers[i].phone,
+            store: dealers[i].store,
+            createdAt: dealers[i].createdAt,
+            updatedAt: dealers[i].updatedAt,
+            type: dealers[i].type,
+            status: dealers[i].status,
+        }
+
+        result.push(data)
+    }
+
     res.status(200).json({
-        message: dealers
+        message: result
     })
 }
 

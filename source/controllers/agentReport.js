@@ -28,11 +28,24 @@ const agentReport = async(req, res, next) => {
             balance: balanceval
         }
 
-        agents[i].data = data;
+        let agentdata = {
+            id: agents[i].id,
+            uuid: agents[i].uuid,
+            email: agents[i].email,
+            phone: agents[i].phone,
+            store: agents[i].store,
+            createdAt: agents[i].createdAt,
+            updatedAt: agents[i].updatedAt,
+            type: agents[i].type,
+            status: agents[i].status,
+            data: data
+        }
+
+        result.push(agentdata)
     }
 
     res.status(200).json({
-        message: agents
+        message: result
     })
 }
 
@@ -51,9 +64,6 @@ const agentDues = async(req, res, next) => {
     const dues = await prisma.userAmountSettlement.findMany({
         where: {
             userId: uid,
-        },
-        include: {
-            user: true
         }
     })
     res.status(200).json({
@@ -69,9 +79,6 @@ const agentSale = async(req, res, next) => {
     const trx = await prisma.transaction.findMany({
         where: {
             userId: uid
-        },
-        include: {
-            doneBy: true,
         }
     })
     res.status(200).json({
@@ -89,7 +96,6 @@ const agentEarning = async(req, res, next) => {
             userId: uid
         },
         include: {
-            agent: true,
             trx: true
         }
     })
@@ -106,9 +112,6 @@ const agentBalance = async(req, res, next) => {
         {
             where: {
                 userId: uid
-            },
-            include: {
-                user: true
             }
         }
     )

@@ -9,6 +9,6 @@ simulatorRoutes.post('/asynctest', controller.asyncTest);
 simulatorRoutes.post('/asyncurl', controller.asyncURL);
 simulatorRoutes.get('/allagenttrx', controller.allagentTrx);
 simulatorRoutes.post('/asynchit', controller.asyncHit);
-simulatorRoutes.get('/agentbalancecheck/:id', controller.agentBalance);
+simulatorRoutes.get('/agentbalance/:id', controller.agentBalance);
 
 export default simulatorRoutes;
