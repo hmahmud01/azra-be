@@ -16,7 +16,7 @@ agentRoutes.get('/data/withdrawal/:id', controller.withdrawData);
 agentRoutes.get('/data/percent/:id', controller.percentData);
 agentRoutes.get('/perc', controller.percTest);
 agentRoutes.get('/org', controller.orgTest);
-agentRoutes.get('/user/information/:id', controller.information);
+agentRoutes.get('/user/information/:uuid', controller.information);
 agentRoutes.get('/adjustments/:id', controller.adjustments);
 agentRoutes.post('/trxrefund', controller.trxRefund);
 

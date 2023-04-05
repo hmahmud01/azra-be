@@ -12,6 +12,17 @@ const agentReport = async(req, res, next) => {
     const agents = await prisma.user.findMany({
         where: {
             type: "agent"
+        },
+        select:{
+            id: true,
+            uuid: true,
+            email: true,
+            phone: true,
+            store: true,
+            createdAt: true,
+            updatedAt: true,
+            type: true,
+            status: true
         }
     })
 
@@ -27,25 +38,26 @@ const agentReport = async(req, res, next) => {
             earning: earnval,
             balance: balanceval
         }
+        
+        agents[i].data = data
 
-        let agentdata = {
-            id: agents[i].id,
-            uuid: agents[i].uuid,
-            email: agents[i].email,
-            phone: agents[i].phone,
-            store: agents[i].store,
-            createdAt: agents[i].createdAt,
-            updatedAt: agents[i].updatedAt,
-            type: agents[i].type,
-            status: agents[i].status,
-            data: data
-        }
-
-        result.push(agentdata)
+        // let agentdata = {
+        //     id: agents[i].id,
+        //     uuid: agents[i].uuid,
+        //     email: agents[i].email,
+        //     phone: agents[i].phone,
+        //     store: agents[i].store,
+        //     createdAt: agents[i].createdAt,
+        //     updatedAt: agents[i].updatedAt,
+        //     type: agents[i].type,
+        //     status: agents[i].status,
+        //     data: data
+        // }
+        // result.push(agentdata)
     }
 
     res.status(200).json({
-        message: result
+        message: agents
     })
 }
 

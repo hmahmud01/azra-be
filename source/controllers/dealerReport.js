@@ -4,31 +4,42 @@ const prisma = new PrismaClient();
 import calculator from './agentReportCalculators.js';
 
 const dealer = async(req, res, next) => {
-    let result = []
+    // let result = []
     const dealers = await prisma.user.findMany({
         where: {
             type: "dealer"
+        },
+        select:{
+            id: true,
+            uuid: true,
+            email: true,
+            phone: true,
+            store: true,
+            createdAt: true,
+            updatedAt: true,
+            type: true,
+            status: true
         }
     })
 
-    for (let i =0; i<dealers.length; i++){
-        let data = {
-            id: dealers[i].id,
-            uuid: dealers[i].uuid,
-            email: dealers[i].email,
-            phone: dealers[i].phone,
-            store: dealers[i].store,
-            createdAt: dealers[i].createdAt,
-            updatedAt: dealers[i].updatedAt,
-            type: dealers[i].type,
-            status: dealers[i].status,
-        }
+    // for (let i =0; i<dealers.length; i++){
+    //     let data = {
+    //         id: dealers[i].id,
+    //         uuid: dealers[i].uuid,
+    //         email: dealers[i].email,
+    //         phone: dealers[i].phone,
+    //         store: dealers[i].store,
+    //         createdAt: dealers[i].createdAt,
+    //         updatedAt: dealers[i].updatedAt,
+    //         type: dealers[i].type,
+    //         status: dealers[i].status,
+    //     }
 
-        result.push(data)
-    }
+    //     result.push(data)
+    // }
 
     res.status(200).json({
-        message: result
+        message: dealers
     })
 }
 
@@ -40,8 +51,30 @@ const dealerSubDealerReport = async(req, res, next) => {
         where: {
             connectedUserId: uid
         },
-        include: {
-            user: true
+        select:{
+            id: true, 
+            uuid: true, 
+            f_name: true, 
+            l_name: true, 
+            age: true, 
+            email: true, 
+            role: true, 
+            phone: true, 
+            address: true,
+            userId: true,
+            user: {
+                select:{
+                    id: true,
+                    uuid: true,
+                    email: true,
+                    phone: true,
+                    store: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    type: true,
+                    status: true
+                }
+            }
         }
     })
 
@@ -66,10 +99,34 @@ const dealersubDealerAgentReport = async(req, res, next) => {
         where: {
             connectedUserId: uid
         },
-        include: {
-            user: true
+        select:{
+            id: true, 
+            uuid: true, 
+            f_name: true, 
+            l_name: true, 
+            age: true, 
+            email: true, 
+            role: true, 
+            phone: true, 
+            address: true,
+            userId: true,
+            user: {
+                select:{
+                    id: true,
+                    uuid: true,
+                    email: true,
+                    phone: true,
+                    store: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    type: true,
+                    status: true
+                }
+            }
         }
     })
+
+    console.log(agents);
     for(let i = 0; i<agents.length; i++){
         let dues = await calculator.calculateDue(agents[i].user.id).then(res => {dueval = res.total});
         let sale = await calculator.calculateSale(agents[i].user.id).then(res => {saleval = res.sale});
