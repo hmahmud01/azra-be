@@ -226,7 +226,7 @@ model TeleService {
 
 model Api {
   id                 Int                  @id @default(autoincrement())
-  uuid               String               @default(uuid())
+  uuid               String               @unique @default(uuid())
   name               String
   code               String
   status             Boolean
@@ -239,7 +239,7 @@ model Api {
 
 model ApiPercent {
   id        Int      @id @default(autoincrement())
-  uuid      String   @default(uuid())
+  uuid      String   @unique @default(uuid())
   api       Api      @relation(fields: [apiId], references: [id])
   apiId     Int
   network   Mobile   @relation(fields: [mobileId], references: [id])
@@ -250,7 +250,7 @@ model ApiPercent {
 
 model ApiCountryPriority {
   id        Int      @id @default(autoincrement())
-  uuid      String   @default(uuid())
+  uuid      String   @unique @default(uuid())
   ctry      Nation   @relation(fields: [nationId], references: [id])
   nationId  Int
   api       Api      @relation(fields: [apiId], references: [id])

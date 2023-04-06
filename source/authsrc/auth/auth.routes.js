@@ -114,10 +114,12 @@ authRoute.post('/login', async (req, res, next) => {
         let uid = existingUser.id
         let type = existingUser.type
         let store = existingUser.store
+        let uuid = existingUser.uuid
         res.json({
             accessToken,
             refreshToken,
             uid,
+            uuid,
             type,
             store
         });

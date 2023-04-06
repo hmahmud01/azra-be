@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 import calculator from './agentReportCalculators.js';
 
 const agentReport = async(req, res, next) => {
-    let result = []
     let dueval = 0
     let saleval = 0
     let earnval = 0
@@ -27,10 +26,10 @@ const agentReport = async(req, res, next) => {
     })
 
     for(let i = 0; i<agents.length; i++){
-        let dues = await calculator.calculateDue(agents[i].id).then(res => {dueval = res.total});
-        let sale = await calculator.calculateSale(agents[i].id).then(res => {saleval = res.sale});
-        let eraning = await calculator.calculateEarning(agents[i].id).then(res => {earnval = res.earn});
-        let balance = await calculator.calculateBalance(agents[i].id).then(res => {balanceval = res.balance});
+        await calculator.calculateDue(agents[i].uuid).then(res => {dueval = res.total});
+        await calculator.calculateSale(agents[i].uuid).then(res => {saleval = res.sale});
+        await calculator.calculateEarning(agents[i].uuid).then(res => {earnval = res.earn});
+        await calculator.calculateBalance(agents[i].uuid).then(res => {balanceval = res.balance});
         let data = {
             recharge: 0,
             dues: dueval,
@@ -40,20 +39,6 @@ const agentReport = async(req, res, next) => {
         }
         
         agents[i].data = data
-
-        // let agentdata = {
-        //     id: agents[i].id,
-        //     uuid: agents[i].uuid,
-        //     email: agents[i].email,
-        //     phone: agents[i].phone,
-        //     store: agents[i].store,
-        //     createdAt: agents[i].createdAt,
-        //     updatedAt: agents[i].updatedAt,
-        //     type: agents[i].type,
-        //     status: agents[i].status,
-        //     data: data
-        // }
-        // result.push(agentdata)
     }
 
     res.status(200).json({
@@ -62,7 +47,7 @@ const agentReport = async(req, res, next) => {
 }
 
 const agentRecharge = async(req, res, next) => {
-    const uid = parseInt(req.params.uid)
+    const uid = req.params.uid
     let result = []
     res.status(200).json({
         message: result
@@ -70,12 +55,15 @@ const agentRecharge = async(req, res, next) => {
 }
 
 const agentDues = async(req, res, next) => {
-    const uid = parseInt(req.params.id)
-    let result = []
+    const uid = req.params.id
     let due = await calculator.calculateDue(uid);
     const dues = await prisma.userAmountSettlement.findMany({
         where: {
-            userId: uid,
+            user: {
+                is: {
+                    uuid: uid
+                }
+            }
         }
     })
     res.status(200).json({
@@ -85,12 +73,15 @@ const agentDues = async(req, res, next) => {
 }
 
 const agentSale = async(req, res, next) => {
-    const uid = parseInt(req.params.id)
-    let result = []
+    const uid = req.params.id
     let sale = await calculator.calculateSale(uid)
     const trx = await prisma.transaction.findMany({
         where: {
-            userId: uid
+            doneBy: {
+                is: {
+                    uuid: uid
+                }
+            }
         }
     })
     res.status(200).json({
@@ -100,12 +91,15 @@ const agentSale = async(req, res, next) => {
 }
 
 const agentEarning = async(req, res, next) => {
-    const uid = parseInt(req.params.id)
-    let result = []
+    const uid = req.params.id
     let earn = await calculator.calculateEarning(uid)
     const earning = await prisma.agentEarning.findMany({
         where: {
-            userId: uid
+            agent: {
+                is: {
+                    uuid: uid
+                }
+            }
         },
         include: {
             trx: true
@@ -118,12 +112,16 @@ const agentEarning = async(req, res, next) => {
 }
 
 const agentBalance = async(req, res, next) => {
-    const uid = parseInt(req.params.id)
+    const uid = req.params.id
     let balance = await calculator.calculateBalance(uid)
     const atrx = await prisma.agentTransaction.findMany(
         {
             where: {
-                userId: uid
+                user: {
+                    is: {
+                        uuid: uid
+                    }
+                }
             }
         }
     )

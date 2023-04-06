@@ -22,34 +22,24 @@ const dealer = async(req, res, next) => {
         }
     })
 
-    // for (let i =0; i<dealers.length; i++){
-    //     let data = {
-    //         id: dealers[i].id,
-    //         uuid: dealers[i].uuid,
-    //         email: dealers[i].email,
-    //         phone: dealers[i].phone,
-    //         store: dealers[i].store,
-    //         createdAt: dealers[i].createdAt,
-    //         updatedAt: dealers[i].updatedAt,
-    //         type: dealers[i].type,
-    //         status: dealers[i].status,
-    //     }
-
-    //     result.push(data)
-    // }
-
     res.status(200).json({
         message: dealers
     })
 }
 
 const dealerSubDealerReport = async(req, res, next) => {
-    const uid = parseInt(req.params.uid)
+    const uid = req.params.uid
     console.log(uid);
+
+    const user = await prisma.user.findFirst({
+        where: {
+            uuid: uid
+        }
+    })
 
     const subdealers = await prisma.userProfile.findMany({
         where: {
-            connectedUserId: uid
+            connectedUserId: user.id
         },
         select:{
             id: true, 
@@ -88,16 +78,24 @@ const dealerSubDealerReport = async(req, res, next) => {
 }
 
 const dealersubDealerAgentReport = async(req, res, next) => {
-    const uid = parseInt(req.params.uid)
-    console.log(uid);
+    const uid = req.params.uid
+    console.log("uid", uid);
     let dueval = 0
     let saleval = 0
     let earnval = 0
     let balanceval = 0
 
+    const user = await prisma.user.findFirst({
+        where: {
+            uuid: uid
+        }
+    })
+
+    console.log(user);
+
     const agents = await prisma.userProfile.findMany({
         where: {
-            connectedUserId: uid
+            connectedUserId: user.id
         },
         select:{
             id: true, 
@@ -128,10 +126,10 @@ const dealersubDealerAgentReport = async(req, res, next) => {
 
     console.log(agents);
     for(let i = 0; i<agents.length; i++){
-        let dues = await calculator.calculateDue(agents[i].user.id).then(res => {dueval = res.total});
-        let sale = await calculator.calculateSale(agents[i].user.id).then(res => {saleval = res.sale});
-        let eraning = await calculator.calculateEarning(agents[i].user.id).then(res => {earnval = res.earn});
-        let balance = await calculator.calculateBalance(agents[i].user.id).then(res => {balanceval = res.balance});
+        await calculator.calculateDue(agents[i].user.uuid).then(res => {dueval = res.total});
+        await calculator.calculateSale(agents[i].user.uuid).then(res => {saleval = res.sale});
+        await calculator.calculateEarning(agents[i].user.uuid).then(res => {earnval = res.earn});
+        await calculator.calculateBalance(agents[i].user.uuid).then(res => {balanceval = res.balance});
         let data = {
             recharge: 0,
             dues: dueval,

@@ -30,6 +30,7 @@ const orgReport = async(req, res, next) => {
         let data = {
             id: result[i].id,
             transactionId: result[i].transactionId,
+            trxuuid: result[i].trx.uuid,
             rechargeAmount: result[i].trx.amount,
             apiId: result[i].apiId,
             api: result[i].api.name,
@@ -79,11 +80,46 @@ const allTransactions = async(req, res, next) => {
         }
     });
 
+
+    // OPTIMIZED QUERY - WORKING ON
+    let result2 = await prisma.transaction.findMany({
+        select: {
+            id: true,
+            uuid: true,
+            phone: true,
+            amount: true,
+            rechargeStatus: true,
+            doneBy: {
+                select: {
+                    email: true,
+                    store: true,
+                }
+            },
+            country: {
+                select: {
+                    name: true
+                }
+            },
+            mobile: {
+                select: {
+                    name: true
+                }
+            },
+            service: {
+                select: {
+                    name: true
+                }
+            },
+            createdAt: true
+        }
+    })
+
     let trx = []
 
     for (let i = 0; i<result.length; i++){
         let data = {
             trxId: result[i].id,
+            uuid: result[i].uuid,
             phone: result[i].phone,
             amount: result[i].amount,
             rechargeStatus: result[i].rechargeStatus,
@@ -103,10 +139,10 @@ const allTransactions = async(req, res, next) => {
 }
 
 const trxDetail = async(req, res, next) => {
-    const tid = parseInt(req.params.id)
+    const tid = req.params.id
     let result = await prisma.transaction.findFirst({
         where: {
-            id: tid
+            uuid: tid
         },
         include:{
             doneBy: true,
@@ -118,13 +154,21 @@ const trxDetail = async(req, res, next) => {
 
     const source = await prisma.transactionSource.findFirst({
         where: {
-            transactionId: tid
+            trx: {
+                is: {
+                    uuid: tid
+                }
+            }
         }
     })
 
     const trxResponse = await prisma.transactionResponse.findFirst({
         where: {
-            transactionId: tid
+            trx: {
+                is: {
+                    uuid: tid
+                }
+            }
         }
     })
 
