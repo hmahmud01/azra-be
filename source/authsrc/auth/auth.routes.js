@@ -10,26 +10,21 @@ const authRoute = express.Router();
 import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
 
 authRoute.get('/users', async (req, res, next) => {
-    const users = await db.user.findMany();
-    const result = []
-
-    for (let i = 0; i < users.length; i++) {
-        let data = {
-            id: users[i].id,
-            uuid: users[i].uuid,
-            email: users[i].email,
-            phone: users[i].phone,
-            store: users[i].store,
-            createdAt: users[i].createdAt,
-            updatedAt: users[i].updatedAt,
-            type: users[i].type,
-            status: users[i].status
+    const users = await db.user.findMany({
+        select:{
+            id: true,
+            uuid: true,
+            email: true,
+            phone: true,
+            store: true,
+            createdAt: true,
+            updatedAt: true,
+            type: true,
+            status: true
         }
-
-        result.push(data)
-    }
+    });
     res.status(200).json({
-        message: result
+        message: users
     })
 })
 
@@ -119,10 +114,12 @@ authRoute.post('/login', async (req, res, next) => {
         let uid = existingUser.id
         let type = existingUser.type
         let store = existingUser.store
+        let uuid = existingUser.uuid
         res.json({
             accessToken,
             refreshToken,
             uid,
+            uuid,
             type,
             store
         });

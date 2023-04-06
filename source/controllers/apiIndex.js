@@ -20,11 +20,13 @@ const getApi = async (req, res, next) => {
 }
 
 const deActivateApi = async (req, res, next) => {
-    let id = parseInt(req.params.id)
+    let id = req.params.id
     console.log(`deactivating the api with id of ${id}`)
 
     const updateapi = await prisma.api.update({
-        where: { id: id },
+        where: { 
+            uuid: id
+        },
         data: {
             status: false,
         }
@@ -38,10 +40,10 @@ const deActivateApi = async (req, res, next) => {
 }
 
 const activateApi = async (req, res, next) => {
-    let id = parseInt(req.params.id)
+    let id = req.params.id
     console.log(`activating the api with id of ${id}`)
     const updateapi = await prisma.api.update({
-        where: { id: id },
+        where: { uuid: id },
         data: {
             status: true,
         }
@@ -145,6 +147,7 @@ const apiPriorityData = async (req, res, next) => {
     for (let i = 0; i < result.length; i++) {
         let store = {
             id: result[i].id,
+            uuid: result[i].uuid,
             priority: result[i].priority,
             apiId: result[i].apiId,
             api: result[i].api.name,
@@ -173,6 +176,7 @@ const apiPercentageData = async (req, res, next) => {
     for (let i = 0; i < result.length; i++) {
         let store = {
             id: result[i].id,
+            uuid: result[i].uuid,
             percent: result[i].percent,
             apiId: result[i].apiId,
             api: result[i].api.name,
@@ -190,7 +194,7 @@ const apiPercentageData = async (req, res, next) => {
 const updatePercentage = async (req, res, next) => {
     const percent = await prisma.apiPercent.update({
         where: {
-            id: req.body.id
+            uuid: req.body.id
         },
         data: {
             percent: req.body.percentage
@@ -205,7 +209,7 @@ const updatePercentage = async (req, res, next) => {
 const updatePriority = async (req, res, next) => {
     const priority = await prisma.apiCountryPriority.update({
         where: {
-            id: req.body.id
+            uuid: req.body.id
         },
         data: {
             priority: req.body.priority

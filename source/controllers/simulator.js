@@ -6,8 +6,6 @@ import { Curl, CurlHttpVersion } from "node-libcurl";
 const prisma = new PrismaClient();
 const { MD5 } = pkg;
 
-
-
 // pending balance, actual balance calculation area ENDS
 
 const liveReq = async (send_data, apiurl) => {
@@ -145,12 +143,13 @@ const submitData = async (req, res, next) => {
     const ip_addr = req.socket.remoteAddress;
     const device = req.headers['user-agent']
 
-    let userId = parseInt(req.body.userId)
+    // let userId = parseInt(req.body.userId)
     let mobile = req.body.mobile
     let amount = req.body.amount
     let country = req.body.country
     let network = req.body.network
     let service = req.body.service
+    let uuid = req.body.uuid
 
     const operator_name = await prisma.mobile.findFirst({
         where: {
@@ -168,7 +167,10 @@ const submitData = async (req, res, next) => {
     let mainBalance = 0.00;
     const agentTrx = await prisma.agentTransaction.findMany({
         where: {
-            userId: userId
+            // userId: userId
+            user: {
+                uuid: uuid
+            }
         }
     })
 
@@ -179,7 +181,10 @@ const submitData = async (req, res, next) => {
 
     const lockedbalances = await prisma.lockedBalance.findMany({
         where: {
-            userId: userId,
+            // userId: userId,
+            user: {
+                uuid: uuid
+            },
             lockedStatus: true
         }
     })
@@ -233,6 +238,14 @@ const submitData = async (req, res, next) => {
 
     console.log(`loccked status: ${lockedNumber}`)
 
+    const user = await prisma.user.findFirst({
+        where: {
+            uuid: uuid
+        }
+    })
+
+    let userId = user.id
+
     if (lockedNumber.length > 0) {
         let msg = `This number is already engaged with a pending recharge : ${mobile}`;
         console.log(msg)
@@ -268,7 +281,7 @@ const submitData = async (req, res, next) => {
             }
         }
         if (actualbalanceagent > amount) {
-            console.log("User Id : ", userId);
+            console.log("User Id : ", uuid);
 
             const transaction = await prisma.transaction.create({
                 data: transaction_data
@@ -600,7 +613,10 @@ const submitData = async (req, res, next) => {
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 const percent = await prisma.agentPercentage.findFirst({
                     where: {
-                        userId: userId
+                        // userId: userId
+                        user: {
+                            uuid: uuid
+                        }
                     }
                 })
 
@@ -780,12 +796,16 @@ const allagentTrx = async (req, res, next) => {
 }
 
 const agentBalance = async (req, res, next) => {
-    const uid = parseInt(req.params.id)
+    const uid = req.params.id
 
     let mainBalance = 0.00;
     const agentTrx = await prisma.agentTransaction.findMany({
         where: {
-            userId: uid
+            user: {
+                is: {
+                    uuid: uid
+                }
+            }
         }
     })
 
@@ -795,7 +815,12 @@ const agentBalance = async (req, res, next) => {
     console.log(`main balance from trasaction calculation , ${mainBalance}`)
     const lockedbalances = await prisma.lockedBalance.findMany({
         where: {
-            lockedStatus: true
+            lockedStatus: true,
+            user: {
+                is: {
+                    uuid: uid
+                }
+            }
         }
     })
 

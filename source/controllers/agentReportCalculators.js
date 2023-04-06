@@ -7,7 +7,11 @@ const calculateDue = async(id) => {
     let credit = 0;
     const dues = await prisma.userAmountSettlement.findMany({
         where: {
-            userId: id,
+            user: {
+                is: {
+                    uuid: id
+                }
+            }
         }
     })
     
@@ -27,7 +31,11 @@ const calculateEarning = async(id) => {
     let result = []
     const earning = await prisma.agentEarning.findMany({
         where: {
-            userId: id
+            agent: {
+                is: {
+                    uuid: id
+                }
+            }
         }
     })
 
@@ -42,7 +50,11 @@ const calculateSale = async(id) => {
     let result = []
     const trx = await prisma.transaction.findMany({
         where: {
-            userId: id
+            doneBy: {
+                is: {
+                    uuid: id
+                }
+            }
         }
     })
 
@@ -58,7 +70,11 @@ const calculateBalance = async(id) => {
     let deduct = 0;
     const atrx = await prisma.agentTransaction.findMany({
         where: {
-            userId: id
+            user: {
+                is: {
+                    uuid: id
+                }
+            }
         }
     })
 
