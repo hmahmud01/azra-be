@@ -197,6 +197,8 @@ const trxDetail = async(req, res, next) => {
         trx_stat: trx_stat
     }
 
+    console.log("trx : ", trx)
+
     res.status(200).json({
         message : trx
     })
