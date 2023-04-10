@@ -477,7 +477,7 @@ const trxRefund = async(req, res, next) => {
     let note = req.body.note
     const transaction = await prisma.transaction.update({
         where: {
-            id: tid
+            uuid: tid
         },
         data: {
             rechargeStatus: false
@@ -486,7 +486,11 @@ const trxRefund = async(req, res, next) => {
 
     const trxProfit = await prisma.organizationEarned.findFirst({
         where: {
-            transactionId: tid
+            trx: {
+                is: {
+                    uuid: tid
+                }
+            }
         }
     })
 
@@ -495,7 +499,7 @@ const trxRefund = async(req, res, next) => {
             adjusted_profit: trxProfit.cutAmount,
             trx: {
                 connect:{
-                    id: tid
+                    id: transaction.id
                 }
             },
             refund_note: note

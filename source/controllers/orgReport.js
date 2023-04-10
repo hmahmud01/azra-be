@@ -35,6 +35,7 @@ const orgReport = async(req, res, next) => {
             apiId: result[i].apiId,
             api: result[i].api.name,
             cutAmount: result[i].cutAmount,
+            status: result[i].trx.rechargeStatus,
             createdAt: result[i].createdAt
         }
         earned_record.push(data);
@@ -52,11 +53,47 @@ const orgReport = async(req, res, next) => {
         }
     }
 
+    let sendData = earned_record.reverse();
+
     let profit_adjustment = earned - refunded_profit
     let sales_adjustment = total_sales - refund_sales
 
+    const date = new Date();
+    const month = date.getMonth() + 1
+    const prevDay = date.getDate() -1
+    const nextDay = date.getDate() +1
+    const yesterDay = new Date(`${date.getFullYear()}-${month}-${prevDay}`);
+    const tomorrow = new Date(`${date.getFullYear()}-${month}-${nextDay}`);
+
+    let today_earned_records = await prisma.organizationEarned.findMany({
+        where: {
+            createdAt: {
+                lte: tomorrow,
+                gte: yesterDay
+            }
+        },
+        include: {
+            trx: true,
+            api: true
+        }
+    });
+
+    let today_earned = 0;
+    let today_success_count = 0;
+    let today_sales = 0;
+
+    for (let i = 0; i<today_earned_records.length; i++){
+        if (today_earned_records[i].trx.rechargeStatus == true){
+            today_success_count++
+            today_sales += today_earned_records[i].trx.amount 
+            today_earned += today_earned_records[i].cutAmount
+        }
+    }
+
+    let main_earning = earned - refunded_profit
     res.status(200).json({
-        message: earned_record,
+        main_earning: main_earning,
+        message: sendData,
         total_earned: earned,
         success_recharge_count: success_recharge_count,
         failed_recharge_count: failed_recharge_count,
@@ -66,7 +103,10 @@ const orgReport = async(req, res, next) => {
         adjustment: {
             profit: profit_adjustment,
             sales: sales_adjustment
-        }
+        },
+        today_earned: today_earned,
+        today_success_count: today_success_count,
+        today_sales: today_sales
     })
 }
 
@@ -80,8 +120,6 @@ const allTransactions = async(req, res, next) => {
         }
     });
 
-
-    // OPTIMIZED QUERY - WORKING ON
     let result2 = await prisma.transaction.findMany({
         select: {
             id: true,
@@ -152,6 +190,26 @@ const trxDetail = async(req, res, next) => {
         }
     })
 
+    const orgEarned = await prisma.organizationEarned.findFirst({
+        where: {
+            trx: {
+                is: {
+                    uuid: tid
+                }
+            }
+        }
+    })
+
+    const agentEarned = await prisma.agentEarning.findFirst({
+        where: {
+            trx: {
+                is: {
+                    uuid: tid
+                }
+            }
+        }
+    })
+
     const source = await prisma.transactionSource.findFirst({
         where: {
             trx: {
@@ -194,7 +252,9 @@ const trxDetail = async(req, res, next) => {
         device: source.device,
         ip_addr: source.ip_addr,
         trx_resp: trx_resp,
-        trx_stat: trx_stat
+        trx_stat: trx_stat,
+        agentCut: agentEarned.amount,
+        orgCut: orgEarned.cutAmount
     }
 
     console.log("trx : ", trx)
@@ -253,7 +313,7 @@ const filterTrx = async(req, res, next) => {
             apiId: result[i].apiId,
             api: result[i].api.name,
             cutAmount: result[i].cutAmount,
-            createdAt: result[i].createdAt
+            createdAt: result[i].createdAt,
         }
         earned_record.push(data);
         earned += result[i].cutAmount
@@ -282,7 +342,11 @@ const filterTrx = async(req, res, next) => {
         total_earned: earned,
         success_recharge_count: success_recharge_count,
         failed_recharge_count: failed_recharge_count,
-        total_sales: total_sales
+        total_sales: total_sales,
+        main_earning: 0,
+        today_earned: 0,
+        today_success_count: 0,
+        today_sales: 0
     })   
 }
 
@@ -305,7 +369,6 @@ const allAdjusmtments = async(req, res, next) => {
             amount: adjustments[i].trx.amount,
             agent: adjustments[i].trx.agent 
         }
-
         data.push(val);
     }
 

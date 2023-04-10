@@ -482,7 +482,12 @@ const submitData = async (req, res, next) => {
                     const client_id = process.env.LIV_CLIENT_ID
                     const transaction_id = '00' + transaction.id
                     const msisdn = mobile
-                    const operator = operator_name.name
+                    if (operator_name.name == "GP"){
+                        const operator = "grameen"
+                    }else{
+                        const operator = operator_name.name
+                    }
+                        
                     const sendAmout = amount
 
                     const send_data = {
@@ -656,8 +661,14 @@ const submitData = async (req, res, next) => {
                 })
 
                 console.log("Organization Percent : ", orgPercent);
+                let perc = 0.0
+                if (orgPercent == null){
+                    perc = 0.1
+                }else{
+                    perc = orgPercent.percent
+                }
 
-                let orgCut = amount / 100 * orgPercent.percent
+                let orgCut = amount / 100 * perc
                 const orgEarnedData = {
                     trx: {
                         connect: {

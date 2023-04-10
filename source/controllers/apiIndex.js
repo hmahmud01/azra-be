@@ -82,26 +82,44 @@ const addApi = async (req, res, next) => {
 }
 
 const assignPriority = async (req, res, next) => {
-    console.log(req.body);
-
     let data = req.body;
     let ctryId = data.ctry;
+
     for (let i = 0; i < data.apiPriority.length; i++) {
-        const priority = await prisma.apiCountryPriority.create({
-            data: {
+        const existingData = await prisma.apiCountryPriority.findFirst({
+            where: {
                 ctry: {
-                    connect: {
+                    is: {
                         id: ctryId
                     }
                 },
                 api: {
-                    connect: {
+                    is: {
                         id: data.apiPriority[i].apiId
                     }
-                },
-                priority: data.apiPriority[i].priority
+                }
             }
         })
+
+        if(existingData){
+            console.log(`DATA EXISTING FOR ${ctryId} and ${data.apiPriority[i].apiId}`)
+        }else{
+            const priority = await prisma.apiCountryPriority.create({
+                data: {
+                    ctry: {
+                        connect: {
+                            id: ctryId
+                        }
+                    },
+                    api: {
+                        connect: {
+                            id: data.apiPriority[i].apiId
+                        }
+                    },
+                    priority: data.apiPriority[i].priority
+                }
+            })
+        }
     }
 
 
@@ -111,25 +129,52 @@ const assignPriority = async (req, res, next) => {
 }
 
 const assingPercentage = async (req, res, next) => {
-    const percent = await prisma.apiPercent.create({
-        data: {
+    let msg = ""
+    let status_code = 200
+    const existingData = await prisma.apiPercent.findFirst({
+        where: {    
             api: {
-                connect: {
+                is: {
                     id: req.body.api
                 }
             },
             network: {
-                connect: {
+                is:{
                     id: req.body.network
                 }
-            },
-            percent: req.body.percentage
+            }
         }
     })
 
-    console.log(percent);
-    res.status(200).json({
-        message: "Percent Assignment COmplete"
+    if (existingData){
+        console.log(existingData);
+        msg = "Percentage Combination Already exists"
+        status_code = 400
+    }else {
+        const percent = await prisma.apiPercent.create({
+            data: {
+                api: {
+                    connect: {
+                        id: req.body.api
+                    }
+                },
+                network: {
+                    connect: {
+                        id: req.body.network
+                    }
+                },
+                percent: req.body.percentage
+            }
+        })
+    
+        console.log(percent);
+        msg = "Percent Assignment COmplete"
+        status_code = 200
+    }
+
+    
+    res.status(status_code).json({
+        message: msg
     })
 }
 
