@@ -7,6 +7,8 @@ simulatorRoutes.post('/submitdata', controller.submitData);
 simulatorRoutes.get('/alltrx', controller.allTransactions);
 simulatorRoutes.post('/asynctest', controller.asyncTest);
 simulatorRoutes.post('/asyncurl', controller.asyncURL);
+simulatorRoutes.post('/etisalattest', controller.etisalatTest);
+simulatorRoutes.post('/zolotest', controller.zoloTest);
 simulatorRoutes.get('/allagenttrx', controller.allagentTrx);
 simulatorRoutes.post('/asynchit', controller.asyncHit);
 simulatorRoutes.get('/agentbalance/:id', controller.agentBalance);
