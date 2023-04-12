@@ -261,7 +261,7 @@ model ApiCountryPriority {
 
 model Transaction {
   id                     Int                      @id @default(autoincrement())
-  uuid                   String                   @default(uuid())
+  uuid                   String                   @unique @default(uuid())
   phone                  String
   amount                 Float
   agent                  String?

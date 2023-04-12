@@ -46,6 +46,72 @@ const agentReport = async(req, res, next) => {
     })
 }
 
+const agentProfileReport = async(req, res, next) => {
+    let dueval = 0
+    let saleval = 0
+    let earnval = 0
+    let balanceval = 0
+    const uid = req.params.id
+
+    await calculator.calculateDue(uid).then(res => {dueval = res.total});
+    await calculator.calculateSale(uid).then(res => {saleval = res.sale});
+    await calculator.calculateEarning(uid).then(res => {earnval = res.earn});
+    await calculator.calculateBalance(uid).then(res => {balanceval = res.balance});
+
+    const finance = {
+        due: dueval,
+        sale: saleval,
+        earn: earnval,
+        balance: balanceval
+    }
+
+    const profile = await prisma.userProfile.findFirst({
+        where: {
+            user: {
+                is: {
+                    uuid: uid
+                }
+            }
+        },
+        select: {
+            f_name: true,
+            l_name: true,
+            age: true,
+            email: true,
+            role: true,
+            phone: true,
+            address: true,
+            connectedUserId: true,
+            user: {
+                select: {
+                    store: true,
+                    status: true,
+                    createdAt: true
+                }
+            }
+        }
+    })
+
+    const subdealer = await prisma.user.findFirst({
+        where: {
+            id: profile.connectedUserId
+        }
+    })
+    profile.store = profile.user.store
+    profile.createdAt = profile.user.createdAt
+
+    profile.subdealer_phone = subdealer.phone
+    profile.subdealer_store = subdealer.store
+
+    res.status(200).json({
+        message: {
+            finance: finance,
+            profile: profile
+        }
+    })
+
+}
+
 const agentRecharge = async(req, res, next) => {
     const uid = req.params.uid
     let result = []
@@ -133,4 +199,4 @@ const agentBalance = async(req, res, next) => {
     })
 }
 
-export default {agentReport, agentBalance, agentRecharge, agentDues, agentSale, agentEarning}
+export default {agentReport, agentProfileReport, agentBalance, agentRecharge, agentDues, agentSale, agentEarning}
