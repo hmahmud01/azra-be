@@ -10,7 +10,7 @@ import agentRoutes from './source/routes/agent.js';
 import dealerRoutes from './source/routes/dealer.js';
 import subDealerRoutes from './source/routes/subdealer.js';
 import serviceRoutes from './source/routes/service.js';
-import mnoRoutes from './source/routes/mobilenetwork.js';
+import mnoRoutes from './source/routes/mobileNetwork.js';
 import simulatorRoutes from './source/routes/simulator.js';
 import authRoute from './source/authsrc/auth/auth.routes.js';
 import usersRoute from './source/authsrc/users/users.routes.js';
