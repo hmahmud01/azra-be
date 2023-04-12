@@ -5,7 +5,7 @@
   "main": "sources/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon source/server.js",
+    "dev": "nodemon azrapay.js",
     "build": "rm -rf build/ && prettier --write source/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
