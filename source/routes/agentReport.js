@@ -1,14 +1,18 @@
-import express from 'express';
-import controller from '../controllers/agentReport.js';
+// import express from 'express';
+// import controller from '../controllers/agentReport.js';
 
-const agentReportRoutes = express.Router();
+module.exports = app => {
+    const express = require("express");
+    const controller = require("../controllers/agentReport.js"); 
+    const agentReportRoutes = express.Router();
 
-agentReportRoutes.get('/agentreport', controller.agentReport);
-agentReportRoutes.get('/agentprofilereport/:id', controller.agentProfileReport);
-agentReportRoutes.get('/agentbalancecheck/:id', controller.agentBalance);
-agentReportRoutes.get('/agentdues/:id', controller.agentDues);
-agentReportRoutes.get('/agentearning/:id', controller.agentEarning);
-agentReportRoutes.get('/agentrecharge/:id', controller.agentRecharge);
-agentReportRoutes.get('/agentsale/:id', controller.agentSale);
+    agentReportRoutes.get('/agentreport', controller.agentReport);
+    agentReportRoutes.get('/agentprofilereport/:id', controller.agentProfileReport);
+    agentReportRoutes.get('/agentbalancecheck/:id', controller.agentBalance);
+    agentReportRoutes.get('/agentdues/:id', controller.agentDues);
+    agentReportRoutes.get('/agentearning/:id', controller.agentEarning);
+    agentReportRoutes.get('/agentrecharge/:id', controller.agentRecharge);
+    agentReportRoutes.get('/agentsale/:id', controller.agentSale);
 
-export default agentReportRoutes;
+    app.use('/', agentReportRoutes);
+}

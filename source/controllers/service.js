@@ -1,20 +1,26 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+const db = require("../models");
+const Service = db.service;
+const Mobile = db.mobile;
+const Op = db.Sequelize.Op;
 
-const getServices = async(req, res, next) => {
+exports.getServices = async(req, res, next) => {
     let result = []
     let services = []
 
-    result = await prisma.teleService.findMany({
-        include: {mobile: true}
-    })
+    result = await Service.findAll();
 
     for(let i=0; i<result.length;i++){
+        const mobile = Mobile.findOne({
+            where: {
+                uuid: result[i].mobileId
+            }
+        })
         let data = {
             id: result[i].id,
+            uuid: result[i].uuid,
             name: result[i].name,
             createAt: result[i].createAt,
-            network: result[i].mobile.name
+            network: mobile.name
         }
 
         services.push(data)
@@ -26,11 +32,8 @@ const getServices = async(req, res, next) => {
         message: services
     })
 }
-
-const listService = async(req, res, next) => {
-    let result2 = await prisma.teleService.findMany({
-        include: {mobile: true}
-    })
+exports.listService = async(req, res, next) => {
+    let result2 = await Service.findAll()
 
     console.log(result2);
 
@@ -39,17 +42,23 @@ const listService = async(req, res, next) => {
     })
 }
 
-const getService = async(req, res, next) => {
+exports.getService = async(req, res, next) => {
     let result = {id:1, service: "TopUp", mno: "Gp"}
     let id = req.params.id
     console.log(`Data for id ${id} is `, result)
+
+    const service = Service.findOne({
+        where: {
+            uuid: id
+        }
+    })
 
     res.status(200).json({
         message: result
     })
 }
 
-const updateService = async(req, res, next) => {
+exports.updateService = async(req, res, next) => {
     let response = `updating for id ${req.params.id}`
 
     res.status(200).json({
@@ -57,32 +66,26 @@ const updateService = async(req, res, next) => {
     })
 }
 
-const deleteService = async(req, res, next) => {
+exports.deleteService = async(req, res, next) => {
     res.status(200).json({
         message: `Data deleting for id ${req.params.id}`
     })
 }
 
-const addService = async(req, res, next) => {
+exports.addService = async(req, res, next) => {
     
     let service = req.body.service
     let mno = req.body.mno
 
-    const teleservice = await prisma.teleService.create({
-        data: {
-            name: service,
-            mobile: {
-                connect: {
-                    id: parseInt(mno)
-                }
-            }
-        }
-    })
+    let data = {
+        name: service,
+        mobileId: mno,
+    }
+
+    const teleservice = await Service.create(data)
 
     console.log(teleservice)
     res.status(200).json({
         message: `added data: ${teleservice.name}`
     })
 }
-
-export default {getServices, listService, getService, updateService, addService, deleteService};

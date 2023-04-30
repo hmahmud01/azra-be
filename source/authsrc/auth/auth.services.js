@@ -1,9 +1,13 @@
-import { db } from '../utls/db.js';
-import { hashToken } from '../utls/hashToken.js';
+// import { db } from '../utls/db.js';
+// import { hashToken } from '../utls/hashToken.js';
+const db = require("../../models");
+const { hashToken } = require("../utls/hashToken.js");
+
+const RefreshToken = db.refreshtoken;
 
 // used when we create a refresh token.
-export function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
-  return db.refreshToken.create({
+function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
+  return RefreshToken.create({
     data: {
       // id: jti,
       hashedToken: hashToken(refreshToken),
@@ -13,8 +17,8 @@ export function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
 }
 
 // used to check if the token sent by the client is in the database.
-export function findRefreshTokenById(id) {
-  return db.refreshToken.findUnique({
+function findRefreshTokenById(id) {
+  return RefreshToken.findOne({
     where: {
       id,
     },
@@ -22,8 +26,8 @@ export function findRefreshTokenById(id) {
 }
 
 // soft delete tokens after usage.
-export function deleteRefreshToken(id) {
-  return db.refreshToken.update({
+function deleteRefreshToken(id) {
+  return RefreshToken.update({
     where: {
       id,
     },
@@ -33,8 +37,8 @@ export function deleteRefreshToken(id) {
   });
 }
 
-export function revokeTokens(userId) {
-  return db.refreshToken.updateMany({
+function revokeTokens(userId) {
+  return RefreshToken.update({
     where: {
       userId
     },
@@ -42,4 +46,11 @@ export function revokeTokens(userId) {
       revoked: true
     }
   });
+}
+
+module.exports = {
+  addRefreshTokenToWhitelist,
+  findRefreshTokenById,
+  deleteRefreshToken,
+  revokeTokens
 }

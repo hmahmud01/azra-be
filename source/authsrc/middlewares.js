@@ -1,4 +1,4 @@
-export function isAuthenticated(req, res, next) {
+function isAuthenticated(req, res, next) {
     const { authorization } = req.headers;
   
     if (!authorization) {
@@ -21,7 +21,7 @@ export function isAuthenticated(req, res, next) {
     return next();
   }
   
-//   module.exports = {
-//       isAuthenticated
-//   }
+  module.exports = {
+      isAuthenticated
+  }
   

@@ -1,28 +1,37 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
 
-import calculator from './agentReportCalculators.js';
+// import calculator from './agentReportCalculators.js';
 
-const agentReport = async(req, res, next) => {
+const db = require("../models")
+const User = db.user;
+const AgentTransaction = db.agenttransaction;
+const UserAmountSettlement = db.useramountsettlement;
+const AgentEarning = db.agentearning;
+const Transaction = db.transaction;
+const UserProfile = db.userprofile;
+const calculator = require("./agentReportCalculators.js");
+
+exports.agentReport = async(req, res, next) => {
     let dueval = 0
     let saleval = 0
     let earnval = 0
     let balanceval = 0
-    const agents = await prisma.user.findMany({
+    const agents = await User.findAll({
         where: {
             type: "agent"
         },
-        select:{
-            id: true,
-            uuid: true,
-            email: true,
-            phone: true,
-            store: true,
-            createdAt: true,
-            updatedAt: true,
-            type: true,
-            status: true
-        }
+        // select:{
+        //     id: true,
+        //     uuid: true,
+        //     email: true,
+        //     phone: true,
+        //     store: true,
+        //     createdAt: true,
+        //     updatedAt: true,
+        //     type: true,
+        //     status: true
+        // }
     })
 
     for(let i = 0; i<agents.length; i++){
@@ -46,7 +55,7 @@ const agentReport = async(req, res, next) => {
     })
 }
 
-const agentProfileReport = async(req, res, next) => {
+exports.agentProfileReport = async(req, res, next) => {
     let dueval = 0
     let saleval = 0
     let earnval = 0
@@ -65,36 +74,32 @@ const agentProfileReport = async(req, res, next) => {
         balance: balanceval
     }
 
-    const profile = await prisma.userProfile.findFirst({
+    const profile = await UserProfile.findOne({
         where: {
-            user: {
-                is: {
-                    uuid: uid
-                }
-            }
+            userId: uid
         },
-        select: {
-            f_name: true,
-            l_name: true,
-            age: true,
-            email: true,
-            role: true,
-            phone: true,
-            address: true,
-            connectedUserId: true,
-            user: {
-                select: {
-                    store: true,
-                    status: true,
-                    createdAt: true
-                }
-            }
-        }
+        // select: {
+        //     f_name: true,
+        //     l_name: true,
+        //     age: true,
+        //     email: true,
+        //     role: true,
+        //     phone: true,
+        //     address: true,
+        //     connectedUserId: true,
+        //     user: {
+        //         select: {
+        //             store: true,
+        //             status: true,
+        //             createdAt: true
+        //         }
+        //     }
+        // }
     })
 
-    const subdealer = await prisma.user.findFirst({
+    const subdealer = await User.findOne({
         where: {
-            id: profile.connectedUserId
+            uuid: profile.connectedUserId
         }
     })
     profile.store = profile.user.store
@@ -112,7 +117,7 @@ const agentProfileReport = async(req, res, next) => {
 
 }
 
-const agentRecharge = async(req, res, next) => {
+exports.agentRecharge = async(req, res, next) => {
     const uid = req.params.uid
     let result = []
     res.status(200).json({
@@ -120,16 +125,12 @@ const agentRecharge = async(req, res, next) => {
     })
 }
 
-const agentDues = async(req, res, next) => {
+exports.agentDues = async(req, res, next) => {
     const uid = req.params.id
     let due = await calculator.calculateDue(uid);
-    const dues = await prisma.userAmountSettlement.findMany({
+    const dues = await UserAmountSettlement.findAll({
         where: {
-            user: {
-                is: {
-                    uuid: uid
-                }
-            }
+            userId: uid
         }
     })
     res.status(200).json({
@@ -138,16 +139,12 @@ const agentDues = async(req, res, next) => {
     })
 }
 
-const agentSale = async(req, res, next) => {
+exports.agentSale = async(req, res, next) => {
     const uid = req.params.id
     let sale = await calculator.calculateSale(uid)
-    const trx = await prisma.transaction.findMany({
+    const trx = await Transaction.findAll({
         where: {
-            doneBy: {
-                is: {
-                    uuid: uid
-                }
-            }
+            userId: uid
         }
     })
     res.status(200).json({
@@ -156,19 +153,12 @@ const agentSale = async(req, res, next) => {
     })
 }
 
-const agentEarning = async(req, res, next) => {
+exports.agentEarning = async(req, res, next) => {
     const uid = req.params.id
     let earn = await calculator.calculateEarning(uid)
-    const earning = await prisma.agentEarning.findMany({
+    const earning = await AgentEarning.findAll({
         where: {
-            agent: {
-                is: {
-                    uuid: uid
-                }
-            }
-        },
-        include: {
-            trx: true
+            userId: uid
         }
     })
     res.status(200).json({
@@ -177,17 +167,13 @@ const agentEarning = async(req, res, next) => {
     })
 }
 
-const agentBalance = async(req, res, next) => {
+exports.agentBalance = async(req, res, next) => {
     const uid = req.params.id
     let balance = await calculator.calculateBalance(uid)
-    const atrx = await prisma.agentTransaction.findMany(
+    const atrx = await AgentTransaction.findAll(
         {
             where: {
-                user: {
-                    is: {
-                        uuid: uid
-                    }
-                }
+                userId: uid
             }
         }
     )
@@ -199,4 +185,4 @@ const agentBalance = async(req, res, next) => {
     })
 }
 
-export default {agentReport, agentProfileReport, agentBalance, agentRecharge, agentDues, agentSale, agentEarning}
+// export default {agentReport, agentProfileReport, agentBalance, agentRecharge, agentDues, agentSale, agentEarning}

@@ -1,182 +1,108 @@
-import { hashSync } from "bcrypt";
-import { db } from '../utls/db.js';
+// import { hashSync } from "bcrypt";
+// import { db } from '../utls/db.js';
 
-export function findUserByEmail(email){
-    return db.user.findUnique({
+const { hashSync } = require("bcrypt");
+const db = require("../../models");
+const User = db.user
+const UserProfile = db.userprofile
+const AgentTransaction = db.agenttransaction
+const AgentPercentage = db.agentpercentage
+
+function findUserByEmail(email){
+    return User.findOne({
         where: {
             email,
         }
     })
 }
 
-export function findUserByPhone(phone){
-    return db.user.findUnique({
+function findUserByPhone(phone){
+    return User.findOne({
         where: {
             phone
         }
     })
 }
 
-export async function createSuperUser(user){
+async function createSuperUser(user){
+
     const data = {
         email: user.email,
         phone: user.phone,
         password: hashSync(user.password, 12),
-        type: user.type
+        userType: user.type,
+        status: true
     }
 
-    const dbuser = await db.user.create({
-        data: data
-    })
+    console.log(data)
+    const dbuser = await User.create(data)
 
     return dbuser;
 }
 
-export async function createUserByEmailAndPassword(user){
+async function createUserByEmailAndPassword(user){
     const data = {
         email: user.email,
         store: user.store,
         phone: user.phone,
         password: hashSync(user.password, 12),
-        type: user.type
+        userType: user.type,
+        status: true
     }
 
 
     console.log("user value : ",user);
-    const dbuser = await db.user.create({
-        data: data
-    })
+    const dbuser = await User.create(data)
 
     console.log(dbuser)
 
-    const profile = await db.userProfile.create({
-        data: {
-            f_name: user.fname,
-            l_name: user.lname,
-            age: parseInt(user.age),
-            email: user.email,
-            role: user.type,
-            phone: user.phone,
-            address: user.address,
-            user: {
-                connect: {
-                    id: dbuser.id
-                }
-            },
-            connectedUserId: parseInt(user.ref)
-        }
+    const profile = await UserProfile.create({
+        f_name: user.fname,
+        l_name: user.lname,
+        age: parseInt(user.age),
+        email: user.email,
+        role: user.type,
+        phone: user.phone,
+        address: user.address,
+        userId: dbuser.uuid,
+        connectedUserId: user.ref
     })
 
-    // if(user.type == 'agent'){
-    //     const agent = await db.agentProfile.create({
-    //         data:  {
-    //             f_name: user.fname,
-    //             l_name: user.lname,
-    //             age: parseInt(user.age),
-    //             email: user.email,
-    //             role: user.type,
-    //             phone: user.phone,
-    //             address: user.address,
-    //             user: {
-    //                 connect: {
-    //                     id: dbuser.id
-    //                 }
-    //             },
-    //             subDealerRef: {
-    //                 connect: {
-    //                     id: user.ref
-    //                 }
-    //             }
-    //         }
-    //     })
-    //     console.log("agent date : ", agent);
-    // }else if(user.type == 'dealer'){
-    //     const dealer = await db.dealerProfile.create({
-    //         data:  {
-    //             f_name: user.fname,
-    //             l_name: user.lname,
-    //             age: parseInt(user.age),
-    //             email: user.email,
-    //             role: user.type,
-    //             phone: user.phone,
-    //             address: user.address,
-    //             user: {
-    //                 connect: {
-    //                     id: dbuser.id
-    //                 }
-    //             }
-    //         }
-    //     })
-    //     console.log("dealer date : ", dealer);
-    // }else if(user.type == 'subdealer'){
-    //     const subdealer = await db.subDealerProfile.create({
-    //         data:  {
-    //             f_name: user.fname,
-    //             l_name: user.lname,
-    //             age: parseInt(user.age),
-    //             email: user.email,
-    //             role: user.type,
-    //             phone: user.phone,
-    //             address: user.address,
-    //             user: {
-    //                 connect: {
-    //                     id: dbuser.id
-    //                 }
-    //             },
-    //             dealerRef: {
-    //                 connect: {
-    //                     id: user.ref
-    //                 }
-    //             }
-    //         }
-    //     })
-    //     console.log("subdealer date : ", subdealer);
-    // }
-
     const trx = {
-        user: {
-            connect: {
-                id: dbuser.id
-            }
-        },
+        userId: dbuser.uuid,
         transferedAmount: 0.00,
-        deductedAmount: 0.00
+        deductedAmount: 0.00,
+        note: "New Account TRX"
     }
 
     console.log(trx);
 
-    const agentTrx = await db.agentTransaction.create({
-        data: trx
-    })
+    const agentTrx = await AgentTransaction.create(trx)
 
     const openingPercent = {
-        user: {
-            connect: {
-                id: dbuser.id
-            }
-        },
+        userId: dbuser.uuid,
         percentage: 0.10
     }
 
-    const agentPercent = await db.agentPercentage.create({
-        data: openingPercent
-    })
+    const agentPercent = await AgentPercentage.create(openingPercent)
 
     console.log(`first trx from ${dbuser.id}`, agentTrx, agentPercent);
 
     return dbuser;
 }
 
-export function findUserById(id){
-    return db.user.findUnique({
+function findUserById(id){
+    return User.findOne({
         where: {
             id,
         }
     })
 }
 
-// module.exports = {
-//     findUserByEmail,
-//     findUserById,
-//     createUserByEmailAndPassword
-// }
+module.exports = {
+    findUserByEmail,
+    findUserByPhone,
+    createSuperUser,
+    findUserById,
+    createUserByEmailAndPassword
+}

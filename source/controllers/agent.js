@@ -1,21 +1,40 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
 
-const getAgents = async(req, res, next) => {
-    const agents = await prisma.user.findMany({
+const db = require("../models")
+const User = db.user;
+const AgentTransaction = db.agenttransaction;
+const UserAmountSettlement = db.useramountsettlement;
+const SystemLog = db.systemlog;
+const AgentPercentage = db.agentpercentage;
+const ApiPercent = db.apipercent;
+const ApiCountryPriority = db.apicountrypriority;
+const AgentEarning = db.agentearning;
+const Transaction = db.transaction;
+const TransactionAdjustments =db.transactionadjustments;
+const OrganizationEarned = db.organizationearned;
+
+exports.getAgents = async(req, res, next) => {
+    // const agents = await User.findAll({
+    //     where: {
+    //         type: "agent"
+    //     },
+    //     select:{
+    //         id: true,
+    //         uuid: true,
+    //         email: true,
+    //         phone: true,
+    //         store: true,
+    //         createdAt: true,
+    //         updatedAt: true,
+    //         type: true,
+    //         status: true
+    //     }
+    // })
+
+    const agents = await User.findAll({
         where: {
             type: "agent"
-        },
-        select:{
-            id: true,
-            uuid: true,
-            email: true,
-            phone: true,
-            store: true,
-            createdAt: true,
-            updatedAt: true,
-            type: true,
-            status: true
         }
     })
     
@@ -24,7 +43,7 @@ const getAgents = async(req, res, next) => {
     })
 }
 
-const getAgent = async(req, res, next) => {
+exports.getAgent = async(req, res, next) => {
     let result = {id: 2, name: "Mr. Z", manager: "Mr. X", area: "Location"}
     let id = req.params.id
     console.log(`Data for id ${id} is `, result)
@@ -34,7 +53,7 @@ const getAgent = async(req, res, next) => {
     })
 }
 
-const updateAgent = async(req, res, next) => {
+exports.updateAgent = async(req, res, next) => {
     let response = `updating for id ${req.params.id}`
 
     res.status(200).json({
@@ -42,13 +61,13 @@ const updateAgent = async(req, res, next) => {
     })
 }
 
-const deleteAgent = async(req, res, next) => {
+exports.deleteAgent = async(req, res, next) => {
     res.status(200).json({
         message: `Data deleting for id ${req.params.id}`
     })
 }
 
-const addAgent = async(req, res, next) => {
+exports.addAgent = async(req, res, next) => {
     let name = req.body.name
     let phone = req.body.phone
     let manger = req.body.manager
@@ -62,7 +81,7 @@ const addAgent = async(req, res, next) => {
 
 
 const findId = async(uuid) => {
-    const user = await prisma.user.findFirst({
+    const user = await User.findOne({
         where: {
             uuid: uuid
         }
@@ -72,7 +91,7 @@ const findId = async(uuid) => {
 }
 
 
-const balanceTransfer = async(req, res, next) => {
+exports.balanceTransfer = async(req, res, next) => {
     console.log("inside balacne")
     let uid = 0
     let amount = req.body.amount
@@ -82,39 +101,25 @@ const balanceTransfer = async(req, res, next) => {
 
     await findId(id).then(res => {uid = res});
 
-    const transfer = await prisma.agentTransaction.create({
-        data: {
-            user: {
-                connect: {
-                    id: uid 
-                }
-            },
-            transferedAmount: amount,
-            deductedAmount: 0.00
-        }
+    const transfer = await AgentTransaction.create({
+        userId: id,
+        transferedAmount: amount,
+        deductedAmount: 0.00
     })
     
     console.log("transfer data, ", transfer);
 
-    const settlement = await prisma.userAmountSettlement.create({
-        data: {
-            user: {
-                connect: {
-                    id: uid
-                }
-            },
-            debit: 0.00,
-            credit: amount,
-            note: "User Credit Data"
-        }
+    const settlement = await UserAmountSettlement.create({
+        userId: id,
+        debit: 0.00,
+        credit: amount,
+        note: "User Credit Data"
     })
 
     const logmsg = `Amount ${amount} has been transferred to ${uid}'s account`
-    const syslog = await prisma.systemLog.create({
-        data: {
-            type: "Transfer",
-            detail: logmsg
-        }
+    const syslog = await SystemLog.create({
+        type: "Transfer",
+        detail: logmsg
     })
 
     res.status(200).json({
@@ -123,7 +128,7 @@ const balanceTransfer = async(req, res, next) => {
     })
 }
 
-const settleDebt = async(req, res, next)=> {
+exports.settleDebt = async(req, res, next)=> {
     const amount = req.body.amount
     let id = req.params.id
     let uid = 0
@@ -131,25 +136,17 @@ const settleDebt = async(req, res, next)=> {
 
     await findId(id).then(res => {uid = res});
 
-    const settlement = await prisma.userAmountSettlement.create({
-        data: {
-            user: {
-                connect: {
-                    id: uid
-                }
-            },
-            debit: amount,
-            credit: 0.00,
-            note: "User Credit withdrawn"
-        }
+    const settlement = await UserAmountSettlement.create({
+        userId: id,
+        debit: amount,
+        credit: 0.00,
+        note: "User Credit withdrawn"
     })
 
     const logmsg = `Withdrawal has been made from the user ${id} for the amount of %${amount}`
-    const syslog = await prisma.systemLog.create({
-        data: {
-            type: "Withdrawal",
-            detail: logmsg
-        }
+    const syslog = await SystemLog.create({
+        type: "Withdrawal",
+        detail: logmsg
     })
 
     res.status(200).json({
@@ -157,7 +154,7 @@ const settleDebt = async(req, res, next)=> {
     })
 }
 
-const assignPercent = async(req, res, next) => {
+exports.assignPercent = async(req, res, next) => {
     let uid = 0;
     const percent = req.body.percent
     let id = req.params.id
@@ -166,20 +163,21 @@ const assignPercent = async(req, res, next) => {
 
     console.log(`Id is :${id}`)
 
-    const percentAssign = await prisma.agentPercentage.update({
-        where: {
-            userId: uid
-        },
-        data: {
+    const percentAssign = await AgentPercentage.update(
+        {
             percentage: percent
+        },
+        {
+            where: {
+                userId: id
+            }
         }
-    })
+        
+    )
     const logmsg = `Agent Profit has been udpated for ${id} for the amount of ${percent}%`
-    const syslog = await prisma.systemLog.create({
-        data: {
-            type: "AgentProfit",
-            detail: logmsg
-        }
+    const syslog = await SystemLog.create({
+        type: "AgentProfit",
+        detail: logmsg
     })
 
     res.status(200).json({
@@ -195,16 +193,12 @@ function excludeAmount(balance, keys) {
     return balance
 }
 
-const transferData = async(req, res, next) => {
+exports.transferData = async(req, res, next) => {
     let id = req.params.id
 
-    const data = await prisma.agentTransaction.findMany({
+    const data = await AgentTransaction.findMany({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -225,17 +219,13 @@ function excludeCredit(withdrawal, keys) {
     return withdrawal
 }
 
-const withdrawData = async(req, res, next) => {
+exports.withdrawData = async(req, res, next) => {
     console.log(req.params);
     let id = req.params.id
     console.log(id);
-    const data = await prisma.userAmountSettlement.findMany({
+    const data = await UserAmountSettlement.findMany({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -250,15 +240,13 @@ const withdrawData = async(req, res, next) => {
     
 }
 
-const percentData = async(req, res, next) => {
+exports.percentData = async(req, res, next) => {
     console.log(req.params);
     let id = req.params.id
     console.log(id);
-    const data = await prisma.agentPercentage.findMany({
+    const data = await AgentPercentage.findMany({
         where: {
-            user: {
-                uuid: id
-            }
+            userId: id
         }
     })
 
@@ -269,16 +257,16 @@ const percentData = async(req, res, next) => {
     })
 }
 
-const allUserList = async(req, res, next) => {
-    const data = await prisma.user.findMany();
+exports.allUserList = async(req, res, next) => {
+    const data = await User.findAll();
 
     res.status(200).json({
         message: data
     })
 }
 
-const percTest = async(req, res, next) => {
-    const data = await prisma.agentPercentage.findFirst({
+exports.percTest = async(req, res, next) => {
+    const data = await AgentPercentage.findFirst({
         where: {
             userId: 11
         }
@@ -289,8 +277,8 @@ const percTest = async(req, res, next) => {
     })
 }
 
-const orgTest = async(req, res, next) => {
-    const data = await prisma.apiPercent.findFirst({
+exports.orgTest = async(req, res, next) => {
+    const data = await ApiPercent.findFirst({
         where: {
             apiId: 2,
             mobileId: 3
@@ -299,7 +287,7 @@ const orgTest = async(req, res, next) => {
 
     let dummy = []
 
-    const apicreds = await prisma.apiCountryPriority.findMany({
+    const apicreds = await ApiCountryPriority.findMany({
         where: {
             nationId: 1
         },
@@ -326,13 +314,9 @@ const calculateDue = async(id) => {
     let total = 0;
     let debit = 0;
     let credit = 0; 
-    const dues = await prisma.userAmountSettlement.findMany({
+    const dues = await UserAmountSettlement.findAll({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -350,13 +334,9 @@ const calculateDue = async(id) => {
 const calculateEarning = async(id) => {
     let total = 0;
     let result = []
-    const earning = await prisma.agentEarning.findMany({
+    const earning = await AgentEarning.findAll({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -369,13 +349,9 @@ const calculateEarning = async(id) => {
 const calculateSale = async(id) => {
     let total = 0;
     let count = 0;
-    const trx = await prisma.transaction.findMany({
+    const trx = await Transaction.findMany({
         where: {
-            doneBy: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -392,13 +368,9 @@ const calculateBalance = async(id) => {
     let total = 0;
     let transfer = 0;
     let deduct = 0;
-    const atrx = await prisma.agentTransaction.findMany({
+    const atrx = await AgentTransaction.findAll({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -412,7 +384,7 @@ const calculateBalance = async(id) => {
     return {balance: total};
 }
 
-const information = async(req, res, next) => {
+exports.information = async(req, res, next) => {
     let id = req.params.uuid
     let total_trx = 0
     let total_recharged = 0
@@ -421,21 +393,17 @@ const information = async(req, res, next) => {
     let percent = 0
 
     console.log(id)
-    const percentage = await prisma.agentPercentage.findFirst({
+    const percentage = await AgentPercentage.findOne({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
     console.log(percentage);
 
-    let dues = await calculateDue(id).then(res => {debt = res.total})
-    let totat = await calculateSale(id).then(res => {total_trx = res.sale; total_recharged = res.count})
-    let cbalance = await calculateBalance(id).then(res => {balance = res.balance})
+    await calculateDue(id).then(res => {debt = res.total})
+    await calculateSale(id).then(res => {total_trx = res.sale; total_recharged = res.count})
+    await calculateBalance(id).then(res => {balance = res.balance})
     percent = percentage.percentage
     let data = {
         dues: debt,
@@ -450,13 +418,9 @@ const information = async(req, res, next) => {
     })
 }
 
-const adjustments = async(req, res, next) => {
+exports.adjustments = async(req, res, next) => {
     let id = req.params.id
-    const adjustments = await prisma.transactionAdjustments.findMany({
-        include: {
-            trx: true
-        }
-    })
+    const adjustments = await TransactionAdjustments.findAll()
 
     console.log(adjustments);
 
@@ -472,90 +436,60 @@ const adjustments = async(req, res, next) => {
 }
 
 
-const trxRefund = async(req, res, next) => {
+exports.trxRefund = async(req, res, next) => {
     let tid = req.body.tid
     let note = req.body.note
-    const transaction = await prisma.transaction.update({
-        where: {
-            uuid: tid
-        },
-        data: {
+    const transaction = await Transaction.update(
+        {
             rechargeStatus: false
+        },
+        {
+            where: {
+                uuid: tid
+            },
         }
-    })
+    )
 
-    const trxProfit = await prisma.organizationEarned.findFirst({
+    const trxProfit = await OrganizationEarned.findFirst({
         where: {
-            trx: {
-                is: {
-                    uuid: tid
-                }
-            }
+            transactionId: tid
         }
     })
 
-    const adjustment = await prisma.transactionAdjustments.create({
-        data: {
-            adjusted_profit: trxProfit.cutAmount,
-            trx: {
-                connect:{
-                    id: transaction.id
-                }
-            },
-            refund_note: note
-        }
+    const adjustment = await TransactionAdjustments.create({
+        adjusted_profit: trxProfit.cutAmount,
+        transactionId: transaction.uuid,
+        refund_note: note
     })
 
-    const agentBalanceUpdate = await prisma.agentTransaction.create({
-        data: {
-            user: {
-                connect: {
-                    id: transaction.userId
-                }
-            },
-            transferedAmount: transaction.amount,
-            deductedAmount: 0.00,
-            note: `Transaction has been refunded for trx no ${transaction.id} - Refund trx id - ${adjustment.id}`,
-            trx: {
-                connect: {
-                    id: transaction.id
-                }
-            }
-        }
+    const agentBalanceUpdate = await AgentTransaction.create({
+        userId: transaction.userId,
+        transferedAmount: transaction.amount,
+        deductedAmount: 0.00,
+        note: `Transaction has been refunded for trx no ${transaction.id} - Refund trx id - ${adjustment.id}`,
+        transactionId: transaction.uuid
     })
 
-    const percent = await prisma.agentPercentage.findFirst({
+    const percent = await AgentPercentage.findOne({
         where: {
             userId: transaction.userId
         }
     })
 
     let profitadjustment = transaction.amount * percent.percentage / 100
-    const earningadjustment = await prisma.agentEarning.create({
-        data: {
-            agent: {
-                connect: {
-                    id: transaction.userId
-                }
-            },
-            amount: -(profitadjustment),
-            trx: {
-                connect: {
-                    id: transaction.id
-                }
-            }
-        }
+    const earningadjustment = await AgentEarning.create({
+        userId: transaction.userId,
+        amount: -(profitadjustment),
+        trxId: transaction.uuid
     })
 
     // TODO
     // CREATE A SYSTEM LOG HERE
 
     const logmsg = `TRX-${tid} has been refunded for manual refund status`
-    const syslog = await prisma.systemLog.create({
-        data: {
-            type: "Refund",
-            detail: logmsg
-        }
+    const syslog = await SystemLog.create({
+        type: "Refund",
+        detail: logmsg
     })
 
     res.status(200).json({
@@ -568,4 +502,4 @@ const trxRefund = async(req, res, next) => {
     })
 }
 
-export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest, information, adjustments, trxRefund};
+// export default {getAgents, getAgent, updateAgent, addAgent, deleteAgent, balanceTransfer, settleDebt, assignPercent, transferData, withdrawData, percentData, allUserList, percTest, orgTest, information, adjustments, trxRefund};

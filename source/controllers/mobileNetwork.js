@@ -1,49 +1,52 @@
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
-const getNetworks = async(req, res, next) => {
+const db = require("../models");
+const Mobile = db.mobile;
+const Country = db.country;
+const Op = db.Sequelize.Op;
+
+exports.getNetworks = async(req, res, next) => {
 
     let result = []
 
-    const networks = await prisma.mobile.findMany({ include: {nation: true} });
+    const networks = await Mobile.findAll();
     console.log(networks); 
 
     for (let i=0; i<networks.length; i++){
+        const country = await Country.findOne({
+            where: {
+                uuid: networks[i].countryId
+            }
+        })
         let data = {
             id: networks[i].id,
             name: networks[i].name,
+            uuid: networks[i].uuid,
             createAt: networks[i].createAt,
-            ctry: networks[i].nation.name,
-            short: networks[i].nation.short
+            ctryId: networks[i].countryId,
+            ctry: country.name,
+            short: country.short
         }
-
         result.push(data)
     }
 
+    res.status(200).json({
+        message: result
+    })
+}
+
+exports.listNetwork = async(req, res, next) => {
+    const result = await Mobile.findAll();
 
     res.status(200).json({
         message: result
     })
 }
 
-const listNetwork = async(req, res, next) => {
-    let result = [
-        {id: 1, name: "GP", country: 1},
-        {id: 2, name: "Banglalink", country: 1},
-        {id: 3, name: "Airtel", country: 2},
-    ]
-
-    result = await prisma.mobile.findMany();
-
-    res.status(200).json({
-        message: result
-    })
-}
-
-const getNetwork = async(req, res, next) => {
+exports.getNetwork = async(req, res, next) => {
     let id = req.params.id
-    console.log(id)
     let result = {id: 2, mno: "Banglalink", ctry: "BD"}
 
     res.status(200).json({
@@ -51,7 +54,7 @@ const getNetwork = async(req, res, next) => {
     })
 }
 
-const updateNetwork = async(req, res, next) => {
+exports.updateNetwork = async(req, res, next) => {
     let id = req.params.id
     msg = `updating data for id ${id}`
 
@@ -61,7 +64,7 @@ const updateNetwork = async(req, res, next) => {
     })
 }
 
-const deleteNetwork = async(req, res, next) => {
+exports.deleteNetwork = async(req, res, next) => {
     let id = req.params.id
     msg = `Deleting data for id ${id}`
 
@@ -71,38 +74,18 @@ const deleteNetwork = async(req, res, next) => {
     })
 }
 
-const addNetwork = async(req, res, next) => {
+exports.addNetwork = async(req, res, next) => {
     let mno = req.body.mno
     let ctry = req.body.country
 
-    const country = await prisma.nation.findFirst({
-        where: {
-            id: parseInt(ctry)
-        }
-    })
+    let data = {
+        name: mno,
+        countryId: ctry
+    }
 
-    console.log(country);
-
-    console.log("mno : ", mno, "ctry : ", ctry);
-    let response = `data creating for ${mno}`
-
-    const network = await prisma.mobile.create({
-        data: {
-            name: mno,
-            nation: {
-                connect: {
-                    id: parseInt(ctry)
-                }
-            }
-        },
-        include: { nation: true}
-    })
-
-    console.log(network, {depth: Infinity})
+    const network = await Mobile.create(data)
 
     res.status(200).json({
         message: `Network Created ${network.name}`
     })
 }
-
-export default { getNetworks, listNetwork, getNetwork, updateNetwork, deleteNetwork, addNetwork };

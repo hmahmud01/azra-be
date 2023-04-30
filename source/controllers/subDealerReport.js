@@ -1,11 +1,13 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
 
-import calculator from './agentReportCalculators.js';
+// import calculator from './agentReportCalculators.js';
+
+const db = require("../models");
 
 
-const subDealers = async(req, res, next) => {
-    const subdealers = await prisma.user.findMany({
+exports.subDealers = async(req, res, next) => {
+    const subdealers = await db.user.findAll({
         where: {
             type: "subdealer"
         }
@@ -16,7 +18,7 @@ const subDealers = async(req, res, next) => {
     })
 }
 
-const subDealerAgentReport = async(req, res, next) => {
+exports.subDealerAgentReport = async(req, res, next) => {
     const uid = parseInt(req.params.uid)
     console.log(uid);
     // const sdprofile = await prisma.subDealerProfile.findFirst({
@@ -38,12 +40,9 @@ const subDealerAgentReport = async(req, res, next) => {
     //     console.log(agents[i].userId);
     // }
 
-    const agents = await prisma.userProfile.findMany({
+    const agents = await db.userprofile.findAll({
         where: {
             connectedUserId: uid
-        },
-        include: {
-            user: true
         }
     })
 
@@ -55,4 +54,4 @@ const subDealerAgentReport = async(req, res, next) => {
     })  
 }
 
-export default {subDealers, subDealerAgentReport}
+// export default {subDealers, subDealerAgentReport}

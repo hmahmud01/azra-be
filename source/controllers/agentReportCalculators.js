@@ -1,17 +1,19 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
 
-const calculateDue = async(id) => {
+const db = require("../models")
+const AgentTransaction = db.agenttransaction;
+const UserAmountSettlement = db.useramountsettlement;
+const AgentEarning = db.agentearning;
+const Transaction = db.transaction;
+
+exports.calculateDue = async(id) => {
     let total = 0;
     let debit = 0;
     let credit = 0;
-    const dues = await prisma.userAmountSettlement.findMany({
+    const dues = await UserAmountSettlement.findAll({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
     
@@ -26,16 +28,12 @@ const calculateDue = async(id) => {
     return {total: total};
 }
 
-const calculateEarning = async(id) => {
+exports.calculateEarning = async(id) => {
     let total = 0;
     let result = []
-    const earning = await prisma.agentEarning.findMany({
+    const earning = await AgentEarning.findAll({
         where: {
-            agent: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -45,16 +43,12 @@ const calculateEarning = async(id) => {
     return {earn: total};
 }
 
-const calculateSale = async(id) => {
+exports.calculateSale = async(id) => {
     let total = 0;
     let result = []
-    const trx = await prisma.transaction.findMany({
+    const trx = await Transaction.findAll({
         where: {
-            doneBy: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -64,17 +58,13 @@ const calculateSale = async(id) => {
     return {sale: total};
 }
 
-const calculateBalance = async(id) => {
+exports.calculateBalance = async(id) => {
     let total = 0;
     let transfer = 0;
     let deduct = 0;
-    const atrx = await prisma.agentTransaction.findMany({
+    const atrx = await AgentTransaction.findAll({
         where: {
-            user: {
-                is: {
-                    uuid: id
-                }
-            }
+            userId: id
         }
     })
 
@@ -88,4 +78,4 @@ const calculateBalance = async(id) => {
     return {balance: total};
 }
 
-export default {calculateDue, calculateEarning, calculateSale, calculateBalance}
+// export default {calculateDue, calculateEarning, calculateSale, calculateBalance}

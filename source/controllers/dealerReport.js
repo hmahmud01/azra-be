@@ -1,25 +1,28 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
 
-import calculator from './agentReportCalculators.js';
+// import calculator from './agentReportCalculators.js';
 
-const dealer = async(req, res, next) => {
+const db = require("../models");
+const calculator = require('./agentReportCalculators.js');
+
+exports.dealer = async(req, res, next) => {
     // let result = []
-    const dealers = await prisma.user.findMany({
+    const dealers = await db.user.findAll({
         where: {
             type: "dealer"
         },
-        select:{
-            id: true,
-            uuid: true,
-            email: true,
-            phone: true,
-            store: true,
-            createdAt: true,
-            updatedAt: true,
-            type: true,
-            status: true
-        }
+        // select:{
+        //     id: true,
+        //     uuid: true,
+        //     email: true,
+        //     phone: true,
+        //     store: true,
+        //     createdAt: true,
+        //     updatedAt: true,
+        //     type: true,
+        //     status: true
+        // }
     })
 
     res.status(200).json({
@@ -27,45 +30,45 @@ const dealer = async(req, res, next) => {
     })
 }
 
-const dealerSubDealerReport = async(req, res, next) => {
+exports.dealerSubDealerReport = async(req, res, next) => {
     const uid = req.params.uid
     console.log(uid);
 
-    const user = await prisma.user.findFirst({
+    const user = await db.user.findOne({
         where: {
             uuid: uid
         }
     })
 
-    const subdealers = await prisma.userProfile.findMany({
+    const subdealers = await db.userprofile.findAll({
         where: {
-            connectedUserId: user.id
+            connectedUserId: uid
         },
-        select:{
-            id: true, 
-            uuid: true, 
-            f_name: true, 
-            l_name: true, 
-            age: true, 
-            email: true, 
-            role: true, 
-            phone: true, 
-            address: true,
-            userId: true,
-            user: {
-                select:{
-                    id: true,
-                    uuid: true,
-                    email: true,
-                    phone: true,
-                    store: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    type: true,
-                    status: true
-                }
-            }
-        }
+        // select:{
+        //     id: true, 
+        //     uuid: true, 
+        //     f_name: true, 
+        //     l_name: true, 
+        //     age: true, 
+        //     email: true, 
+        //     role: true, 
+        //     phone: true, 
+        //     address: true,
+        //     userId: true,
+        //     user: {
+        //         select:{
+        //             id: true,
+        //             uuid: true,
+        //             email: true,
+        //             phone: true,
+        //             store: true,
+        //             createdAt: true,
+        //             updatedAt: true,
+        //             type: true,
+        //             status: true
+        //         }
+        //     }
+        // }
     })
 
     console.log(subdealers);
@@ -77,7 +80,7 @@ const dealerSubDealerReport = async(req, res, next) => {
     })
 }
 
-const dealersubDealerAgentReport = async(req, res, next) => {
+exports.dealersubDealerAgentReport = async(req, res, next) => {
     const uid = req.params.uid
     console.log("uid", uid);
     let dueval = 0
@@ -85,7 +88,7 @@ const dealersubDealerAgentReport = async(req, res, next) => {
     let earnval = 0
     let balanceval = 0
 
-    const user = await prisma.user.findFirst({
+    const user = await db.user.findOne({
         where: {
             uuid: uid
         }
@@ -93,35 +96,35 @@ const dealersubDealerAgentReport = async(req, res, next) => {
 
     console.log(user);
 
-    const agents = await prisma.userProfile.findMany({
+    const agents = await db.userprofile.findAll({
         where: {
-            connectedUserId: user.id
+            connectedUserId: uid
         },
-        select:{
-            id: true, 
-            uuid: true, 
-            f_name: true, 
-            l_name: true, 
-            age: true, 
-            email: true, 
-            role: true, 
-            phone: true, 
-            address: true,
-            userId: true,
-            user: {
-                select:{
-                    id: true,
-                    uuid: true,
-                    email: true,
-                    phone: true,
-                    store: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    type: true,
-                    status: true
-                }
-            }
-        }
+        // select:{
+        //     id: true, 
+        //     uuid: true, 
+        //     f_name: true, 
+        //     l_name: true, 
+        //     age: true, 
+        //     email: true, 
+        //     role: true, 
+        //     phone: true, 
+        //     address: true,
+        //     userId: true,
+        //     user: {
+        //         select:{
+        //             id: true,
+        //             uuid: true,
+        //             email: true,
+        //             phone: true,
+        //             store: true,
+        //             createdAt: true,
+        //             updatedAt: true,
+        //             type: true,
+        //             status: true
+        //         }
+        //     }
+        // }
     })
 
     console.log(agents);
@@ -147,4 +150,4 @@ const dealersubDealerAgentReport = async(req, res, next) => {
     })  
 }
 
-export default { dealer, dealerSubDealerReport, dealersubDealerAgentReport }
+// export default { dealer, dealerSubDealerReport, dealersubDealerAgentReport }

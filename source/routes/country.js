@@ -1,12 +1,12 @@
-import express from 'express';
-import controller from '../controllers/country.js';
-const countryroutes = express.Router();
+module.exports = app => {
+    const express = require("express");
+    const controller = require("../controllers/country.js");
 
-countryroutes.get('/countries', controller.getCountries);
-countryroutes.get('/country/list', controller.listCountry);
-countryroutes.get('/country/:id', controller.getCountry);
-countryroutes.put('/country/:id', controller.updateCountry);
-countryroutes.delete('/country/:id', controller.deleteCountry);
-countryroutes.post('/country', controller.addCountry);
+    const countryRoutes = express.Router();
+    countryRoutes.get('/countries', controller.getCountries);
+    countryRoutes.get('/country/list', controller.listCountry);
+    countryRoutes.get('/country/:id', controller.getCountry);
+    countryRoutes.post('/country', controller.addCountry);
 
-export default countryroutes;
+    app.use('/', countryRoutes);
+}
