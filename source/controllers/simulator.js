@@ -1,50 +1,8 @@
 import fetch from "node-fetch";
 import { Prisma, PrismaClient } from '@prisma/client';
-import querystring from 'querystring';
 import pkg from "crypto-js";
-import { Curl, CurlHttpVersion } from "node-libcurl";
 const prisma = new PrismaClient();
 const { MD5 } = pkg;
-
-// pending balance, actual balance calculation area ENDS
-
-const liveReq = async (send_data, apiurl) => {
-    console.log("qs data to send in live", querystring.stringify(send_data));
-    console.log("json data to send in live", JSON.stringify(send_data));
-    const curlReq = new Curl();
-
-    const key = MD5("test@pass").toString();
-    console.log("API KEY : ", key);
-    const apikey = `x-api-key: `
-    
-    // ae0f72d3a4fccf24e4f85bdc5d017cc9
-    curlReq.setOpt(Curl.option.URL, apiurl);
-    curlReq.setOpt(Curl.option.TRANSFER_ENCODING, 1);
-    curlReq.setOpt(Curl.option.MAXREDIRS, 2);
-    curlReq.setOpt(Curl.option.SSL_VERIFYHOST, 0);
-    curlReq.setOpt(Curl.option.SSL_VERIFYPEER, 0);
-    curlReq.setOpt(Curl.option.TIMEOUT, 30);
-    curlReq.setOpt(Curl.option.FOLLOWLOCATION, true);
-    curlReq.setOpt(Curl.option.CUSTOMREQUEST, 'POST');
-    curlReq.setOpt(Curl.option.POSTFIELDS, JSON.stringify(send_data))
-    curlReq.setOpt(Curl.option.HTTPHEADER, [
-        'x-api-key: ',
-        'Content-Type: application/json'
-    ])
-
-    curlReq.on("end", function (statusCode, data, headers) {
-        console.log("Status : ", statusCode);
-        console.log("return Data ", data);
-        saveResponse(data, send_data.data.transaction_id);
-        console.log(this.getInfo("TOTAL_TIME"));
-        console.log(headers);
-        this.close();
-    })
-
-    curlReq.on("error", curlReq.close.bind(curlReq));
-    curlReq.perform();
-}
-
 
 const asyncTest = async (req, res, next) => {
     let responseurl = "http://localhost:3000/asynchit";
@@ -75,6 +33,53 @@ const asyncURL = async (req, res, next) => {
 
     let randomRepeater = Math.floor(Math.random() * 5);
     res.status(400).json(data);
+}
+
+
+// TEST API FOR RECHARGE
+const etisalatTest = async(req, res, next) => {
+    const balance = 500
+    const req_bal = parseInt(req.body.bal)
+
+    let status = ""
+    let message = ""
+
+    if (req_bal > balance) {
+        status = "failed"
+        message = "Requested Balance is more than the API balance"
+    }else {
+        status = "success"
+        message = "Recharge Request Success"
+    }
+
+    res.status(200).json({
+        message: {
+            status : status,
+            msg : message
+        }
+    })
+}
+
+const zoloTest = async(req, res, next) => {
+    const balance = 900
+
+    let status = ""
+    let message = ""
+
+    if (req_bal > balance) {
+        status = "failed"
+        message = "Requested Balance is more than the API balance"
+    }else {
+        status = "success"
+        message = "Recharge Request Success"
+    }
+
+    res.status(200).json({
+        message: {
+            status : status,
+            msg: message
+        }
+    })
 }
 
 const asyncHit = async (req, res, next) => {
@@ -374,16 +379,21 @@ const submitData = async (req, res, next) => {
                     }
 
                 } else if (apicreds[i].api.code == "ETS") {
-                    const res = await fetch(process.env.ETSBAL);
-                    const data = await res.json();
-
-                    console.log("Available Balance for ETS : ", data.items[0].balance);
-                    if (data.items[0].balance >= amount) {
-                        console.log("ETS API WORKING");
-                        const res = await fetch(process.env.ETSREC);
-                        const response = await res.json();
-                        console.log(response.items[0].message);
-                        const resp = saveResponse(response.items[0].message, transaction.id);
+                    const send_data = {
+                        bal : amount
+                    }
+                    // const res = await fetch(process.env.ETSTST)
+                    const apiCall = await fetch(process.env.ETSTST, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'  
+                        },
+                        body: JSON.stringify(send_data),
+                    })
+                    const data = await apiCall.json()
+                    console.log(data)
+                    const resp = saveResponse(data.message, transaction.id);
+                    if (data.message.status == "success"){
                         trx_data = {
                             trx: {
                                 connect: {
@@ -399,20 +409,55 @@ const submitData = async (req, res, next) => {
                         trx_api_id = apicreds[i].api.id
                         trx_status = true
                         break;
-                    } else {
+                    }else{
                         console.log("ETS DIDN'T WORK")
                     }
+                    
+                    // const res = await fetch(process.env.ETSBAL);
+                    // const data = await res.json();
+
+                    // console.log("Available Balance for ETS : ", data.items[0].balance);
+                    // if (data.items[0].balance >= amount) {
+                    //     console.log("ETS API WORKING");
+                    //     const res = await fetch(process.env.ETSREC);
+                    //     const response = await res.json();
+                    //     console.log(response.items[0].message);
+                    //     const resp = saveResponse(response.items[0].message, transaction.id);
+                    //     trx_data = {
+                    //         trx: {
+                    //             connect: {
+                    //                 id: transaction.id
+                    //             }
+                    //         },
+                    //         api: {
+                    //             connect: {
+                    //                 id: apicreds[i].api.id
+                    //             }
+                    //         }
+                    //     }
+                    //     trx_api_id = apicreds[i].api.id
+                    //     trx_status = true
+                    //     break;
+                    // } else {
+                    //     console.log("ETS DIDN'T WORK")
+                    // }
 
                 } else if (apicreds[i].api.code == "ZLO") {
-                    const res = await fetch(process.env.ZLOBAL);
-                    const data = await res.json();
-
-                    console.log("Available Balance for ZOLO : ", data.items[0].balance);
-                    if (data.items[0].balance >= amount) {
-                        console.log("ZOLO API WORKING");
-                        const res = await fetch(process.env.ZLOREC);
-                        const response = await res.json();
-                        console.log(response.items[0].message);
+                    const send_data = {
+                        bal : amount
+                    }
+                    // const res = await fetch(process.env.ETSTST)
+                    const apiCall = await fetch(process.env.ETSTST, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'  
+                        },
+                        body: JSON.stringify(send_data),
+                    })
+                    const data = await apiCall.json()
+                    console.log(data)
+                    const resp = saveResponse(data.message, transaction.id);
+                    if (data.message.status == "success"){
                         trx_data = {
                             trx: {
                                 connect: {
@@ -428,9 +473,37 @@ const submitData = async (req, res, next) => {
                         trx_api_id = apicreds[i].api.id
                         trx_status = true
                         break;
-                    } else {
-                        console.log("ZOLO DIDN'T WORK");
+                    }else{
+                        console.log("ZLO DIDN'T WORK")
                     }
+
+                    // const res = await fetch(process.env.ZLOBAL);
+                    // const data = await res.json();
+
+                    // console.log("Available Balance for ZOLO : ", data.items[0].balance);
+                    // if (data.items[0].balance >= amount) {
+                    //     console.log("ZOLO API WORKING");
+                    //     const res = await fetch(process.env.ZLOREC);
+                    //     const response = await res.json();
+                    //     console.log(response.items[0].message);
+                    //     trx_data = {
+                    //         trx: {
+                    //             connect: {
+                    //                 id: transaction.id
+                    //             }
+                    //         },
+                    //         api: {
+                    //             connect: {
+                    //                 id: apicreds[i].api.id
+                    //             }
+                    //         }
+                    //     }
+                    //     trx_api_id = apicreds[i].api.id
+                    //     trx_status = true
+                    //     break;
+                    // } else {
+                    //     console.log("ZOLO DIDN'T WORK");
+                    // }
                 } else if (apicreds[i].api.code == "DU") {
                     console.log("INSIDE DU SIM");
 
@@ -534,25 +607,6 @@ const submitData = async (req, res, next) => {
                         console.log(e);
                         console.log("LIVE DIDNT WORK");
                     }) 
-
-                    // await liveReq(send_data, apiurl);
-                    // console.log(trx_status, " before trx ");
-                    // trx_data = {
-                    //     trx: {
-                    //         connect: {
-                    //             id: transaction.id
-                    //         }
-                    //     },
-                    //     api: {
-                    //         connect: {
-                    //             id: apicreds[i].api.id
-                    //         }
-                    //     }
-                    // }
-                    // trx_api_id = apicreds[i].api.id
-                    // trx_status = true
-                    // console.log(trx_status, " after trx ");
-                    // console.log(trx_data);
                 }
             }
 
@@ -850,5 +904,5 @@ const agentBalance = async (req, res, next) => {
     })
 }
 
-export default { submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit };
+export default { submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit, etisalatTest, zoloTest };
 
