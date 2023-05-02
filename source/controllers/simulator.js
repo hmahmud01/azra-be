@@ -212,7 +212,7 @@ exports.submitData = async (req, res, next) => {
 
     let apicredunsorted = []
     for (let i = 0; i < apis.length; i++) {
-        const api = await db.api.findeOne({where: {uuid: apis[i].apiId}})
+        const api = await db.api.findOne({where: {uuid: apis[i].apiId}})
         if (api.status == true) {
             apicredunsorted.push(apis[i])
         }
@@ -236,11 +236,14 @@ exports.submitData = async (req, res, next) => {
 
     console.log(`loccked status: ${lockedNumber}`)
 
+
+    console.log(uuid)
     const user = await db.user.findOne({
         where: {
             uuid: uuid
         }
     })
+    console.log(user)
 
     let userId = user.uuid
 
@@ -569,7 +572,7 @@ exports.submitData = async (req, res, next) => {
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 const percent = await db.agentpercentage.findOne({
                     where: {
-                        userId: userId,
+                        userId: uuid,
                     }
                 })
 
@@ -578,7 +581,7 @@ exports.submitData = async (req, res, next) => {
                 let earned = amount / 100 * percent.percentage
 
                 const earnedData = {
-                    userId: userId,
+                    userId: uuid,
                     amount: earned,
                     trxId: transaction.uuid
                 }
@@ -711,7 +714,7 @@ exports.allagentTrx = async (req, res, next) => {
     const atrx = await db.agenttransaction.findAll(
         {
             where: {
-                userId: userId
+                userId: uuid
             }
         }
     )
@@ -727,11 +730,14 @@ exports.agentBalance = async (req, res, next) => {
     let mainBalance = 0.00;
     const agentTrx = await db.agenttransaction.findAll({
         where: {
-            userId: userId
+            userId: uid
         }
     })
 
+    console.log(agentTrx)
+
     for (let i = 0; i < agentTrx.length; i++) {
+        console.log(typeof(agentTrx[i].transferedAmount));
         mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
     }
     console.log(`main balance from trasaction calculation , ${mainBalance}`)
@@ -758,4 +764,3 @@ exports.agentBalance = async (req, res, next) => {
 }
 
 // export default { submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit, etisalatTest, zoloTest };
-

@@ -34,9 +34,11 @@ exports.getAgents = async(req, res, next) => {
 
     const agents = await User.findAll({
         where: {
-            type: "agent"
+            usertype: "agent"
         }
     })
+
+    console.log(agents);
     
     res.status(200).json({
         message: agents
@@ -116,7 +118,7 @@ exports.balanceTransfer = async(req, res, next) => {
         note: "User Credit Data"
     })
 
-    const logmsg = `Amount ${amount} has been transferred to ${uid}'s account`
+    const logmsg = `Amount ${amount} has been transferred to ${id}'s account`
     const syslog = await SystemLog.create({
         type: "Transfer",
         detail: logmsg
@@ -196,7 +198,7 @@ function excludeAmount(balance, keys) {
 exports.transferData = async(req, res, next) => {
     let id = req.params.id
 
-    const data = await AgentTransaction.findMany({
+    const data = await AgentTransaction.findAll({
         where: {
             userId: id
         }
@@ -223,7 +225,7 @@ exports.withdrawData = async(req, res, next) => {
     console.log(req.params);
     let id = req.params.id
     console.log(id);
-    const data = await UserAmountSettlement.findMany({
+    const data = await UserAmountSettlement.findAll({
         where: {
             userId: id
         }
@@ -244,7 +246,7 @@ exports.percentData = async(req, res, next) => {
     console.log(req.params);
     let id = req.params.id
     console.log(id);
-    const data = await AgentPercentage.findMany({
+    const data = await AgentPercentage.findAll({
         where: {
             userId: id
         }
@@ -287,7 +289,7 @@ exports.orgTest = async(req, res, next) => {
 
     let dummy = []
 
-    const apicreds = await ApiCountryPriority.findMany({
+    const apicreds = await ApiCountryPriority.findAll({
         where: {
             nationId: 1
         },
@@ -349,7 +351,7 @@ const calculateEarning = async(id) => {
 const calculateSale = async(id) => {
     let total = 0;
     let count = 0;
-    const trx = await Transaction.findMany({
+    const trx = await Transaction.findAll({
         where: {
             userId: id
         }
@@ -373,6 +375,8 @@ const calculateBalance = async(id) => {
             userId: id
         }
     })
+
+    console.log(atrx)
 
     for (let i = 0; i<atrx.length; i++){
         transfer += atrx[i].transferedAmount

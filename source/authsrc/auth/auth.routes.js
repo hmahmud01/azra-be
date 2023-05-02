@@ -123,7 +123,7 @@ module.exports = app => {
             await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
 
             let uid = existingUser.id
-            let type = existingUser.type
+            let usertype = existingUser.usertype
             let store = existingUser.store
             let uuid = existingUser.uuid
             res.json({
@@ -131,7 +131,7 @@ module.exports = app => {
                 refreshToken,
                 uid,
                 uuid,
-                type,
+                usertype,
                 store
             });
         } catch (err) {

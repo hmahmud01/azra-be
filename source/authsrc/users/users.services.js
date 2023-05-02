@@ -46,7 +46,7 @@ async function createUserByEmailAndPassword(user){
         store: user.store,
         phone: user.phone,
         password: hashSync(user.password, 12),
-        userType: user.type,
+        usertype: user.type,
         status: true
     }
 
