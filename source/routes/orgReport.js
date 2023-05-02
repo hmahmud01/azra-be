@@ -1,13 +1,22 @@
-import express from 'express';
-import controller from '../controllers/orgReport.js';
+// import express from 'express';
+// import controller from '../controllers/orgReport.js';
 
-const orgReportRoutes = express.Router();
+module.exports = app => {
+    const express = require("express");
+    const controller = require("../controllers/orgReport.js");
+    const orgReportRoutes = express.Router();
 
-orgReportRoutes.get('/orgreports', controller.orgReport);
-orgReportRoutes.get('/alltransactions', controller.allTransactions);
-orgReportRoutes.get('/trxdetail/:id', controller.trxDetail);
-orgReportRoutes.get('/alladjustments', controller.allAdjusmtments);
-orgReportRoutes.post('/filtertrx', controller.filterTrx);
-orgReportRoutes.get('/systemlog', controller.systemLog);
+    orgReportRoutes.get('/orgreports', controller.orgReport);
+    orgReportRoutes.get('/alltransactions', controller.allTransactions);
+    orgReportRoutes.get('/trxdetail/:id', controller.trxDetail);
+    orgReportRoutes.get('/alladjustments', controller.allAdjusmtments);
+    orgReportRoutes.post('/filtertrx', controller.filterTrx);
+    orgReportRoutes.get('/systemlog', controller.systemLog);
 
-export default orgReportRoutes;
+    app.use('/', orgReportRoutes);
+
+}
+
+
+
+// export default orgReportRoutes;

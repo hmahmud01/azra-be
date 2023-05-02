@@ -30,7 +30,7 @@ const bodyParser = require("body-parser");
 const app = express();
 
 var corsOptions = {
-    origin: "http://localhost:8081"
+    origin: "http://localhost:3001"
 }
 
 app.use(morgan('dev'));
@@ -91,6 +91,8 @@ require("./source/routes/agent")(app);
 require("./source/routes/agentReport")(app);
 require("./source/routes/subDealerReport")(app);
 require("./source/routes/dealerReport")(app);
+require("./source/routes/orgReport")(app);
+require("./source/routes/simulator")(app);
 
 const httpServer = http.createServer(app);
 
