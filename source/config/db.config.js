@@ -3,7 +3,7 @@ module.exports = {
     USER: process.env.DBUSER,
     PASSWORD: process.env.DBPASSWORD,
     DB: process.env.DB,
-    PORT: process.env.PORT,
+    PORT: process.env.DBPORT,
     dialect: process.env.DIALECT,
     pool: {
       max: parseInt(process.env.POOL_MAX),
