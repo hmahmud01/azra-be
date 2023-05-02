@@ -3,7 +3,7 @@
 // import pkg from "crypto-js";
 // const prisma = new PrismaClient();
 // const { MD5 } = pkg;
-// const fetch = require("node-fetch");
+const fetch = require("node-fetch-commonjs");
 const db = require("../models");
 const { MD5 } = require("crypto-js");
 
@@ -138,6 +138,8 @@ const saveResponse = async (response, trxId) => {
         response: response
     })
 
+    // response cannot be an array or an object
+
     console.log("TRX RESPONSE: ", trxResp);
 
     return trxResp;
@@ -177,7 +179,7 @@ exports.submitData = async (req, res, next) => {
     })
 
     for (let i = 0; i < agentTrx.length; i++) {
-        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
     }
     console.log(`main balance from trasaction calculation , ${mainBalance}`)
 
@@ -279,7 +281,7 @@ exports.submitData = async (req, res, next) => {
             const transfer = await db.agenttransaction.create({
                 userId: userId,
                 transferedAmount: 0.00,
-                deductedAmount: parseFloat(amount),
+                dedcutedAmount: parseFloat(amount),
                 transactionId: transaction.uuid
             })
 
@@ -290,7 +292,7 @@ exports.submitData = async (req, res, next) => {
                 lockedStatus: true
             })
 
-            const lockedNumber = await prisma.lockedNumber.create({
+            const lockedNumber = await db.lockednumber.create({
                 phone: mobile,
                 status: true,
                 trx_id: transaction.uuid
@@ -299,7 +301,7 @@ exports.submitData = async (req, res, next) => {
             console.log("TRANSACATION BUILT > BALANCE LOCKED > NUMBER LOCKED");
 
             for (let i = 0; i < apicreds.length; i++) {
-                const api = await db.api.findeOne({where: {uuid: apicreds[i].apiId}})
+                const api = await db.api.findOne({where: {uuid: apicreds[i].apiId}})
                 if (api.code == "TST") {
                     const res = await fetch(process.env.TSTBAL);
                     const data = await res.json();
@@ -321,7 +323,7 @@ exports.submitData = async (req, res, next) => {
                         console.log("TEST API DIDN't WORK");
                     }
 
-                } else if (apicreds[i].api.code == "ETS") {
+                } else if (api.code == "ETS") {
                     const send_data = {
                         bal : amount
                     }
@@ -377,7 +379,7 @@ exports.submitData = async (req, res, next) => {
                     //     console.log("ETS DIDN'T WORK")
                     // }
 
-                } else if (apicreds[i].api.code == "ZLO") {
+                } else if (api.code == "ZLO") {
                     const send_data = {
                         bal : amount
                     }
@@ -431,7 +433,7 @@ exports.submitData = async (req, res, next) => {
                     // } else {
                     //     console.log("ZOLO DIDN'T WORK");
                     // }
-                } else if (apicreds[i].api.code == "DU") {
+                } else if (api.code == "DU") {
                     console.log("INSIDE DU SIM");
 
                     let balance = 1000.00
@@ -467,7 +469,7 @@ exports.submitData = async (req, res, next) => {
                     } else {
                         console.log("DU SIM API DIDNT WORK");
                     }
-                } else if (apicreds[i].api.code == "LIV") {
+                } else if (api.code == "LIV") {
                     console.log("inside LIVE API")
                     const apiurl = process.env.LIV
                     const apikey = process.env.LIV_APIKEY
@@ -638,7 +640,7 @@ exports.submitData = async (req, res, next) => {
                 const transfer = await db.agenttransaction.create({
                     userId: userId,
                     transferedAmount: parseFloat(amount),
-                    deductedAmount: 0.00,
+                    dedcutedAmount: 0.00,
                     transcationId: transaction.uuid
                 })
 
@@ -738,7 +740,8 @@ exports.agentBalance = async (req, res, next) => {
 
     for (let i = 0; i < agentTrx.length; i++) {
         console.log(typeof(agentTrx[i].transferedAmount));
-        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
+        console.log(typeof(agentTrx[i].dedcutedAmount), typeof(agentTrx[i].dedcutedAmount))
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
     }
     console.log(`main balance from trasaction calculation , ${mainBalance}`)
     const lockedbalances = await db.lockedbalance.findAll({

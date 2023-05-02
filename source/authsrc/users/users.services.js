@@ -71,7 +71,7 @@ async function createUserByEmailAndPassword(user){
     const trx = {
         userId: dbuser.uuid,
         transferedAmount: 0.00,
-        deductedAmount: 0.00,
+        dedcutedAmount: 0.00,
         note: "New Account TRX"
     }
 

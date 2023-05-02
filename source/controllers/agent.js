@@ -106,7 +106,7 @@ exports.balanceTransfer = async(req, res, next) => {
     const transfer = await AgentTransaction.create({
         userId: id,
         transferedAmount: amount,
-        deductedAmount: 0.00
+        dedcutedAmount: 0.00
     })
     
     console.log("transfer data, ", transfer);
@@ -204,7 +204,7 @@ exports.transferData = async(req, res, next) => {
         }
     })
 
-    const dataRe = excludeAmount(data, ['deductedAmount'])
+    const dataRe = excludeAmount(data, ['dedcutedAmount'])
 
     console.log(`inside data transfer for ${id}`)
 
@@ -380,7 +380,7 @@ const calculateBalance = async(id) => {
 
     for (let i = 0; i<atrx.length; i++){
         transfer += atrx[i].transferedAmount
-        deduct += atrx[i].deductedAmount
+        deduct += atrx[i].dedcutedAmount
     }
 
     total = transfer - deduct
@@ -469,7 +469,7 @@ exports.trxRefund = async(req, res, next) => {
     const agentBalanceUpdate = await AgentTransaction.create({
         userId: transaction.userId,
         transferedAmount: transaction.amount,
-        deductedAmount: 0.00,
+        dedcutedAmount: 0.00,
         note: `Transaction has been refunded for trx no ${transaction.id} - Refund trx id - ${adjustment.id}`,
         transactionId: transaction.uuid
     })

@@ -70,7 +70,7 @@ exports.calculateBalance = async(id) => {
 
     for (let i = 0; i<atrx.length; i++){
         transfer += atrx[i].transferedAmount
-        deduct += atrx[i].deductedAmount
+        deduct += atrx[i].dedcutedAmount
     }
 
     total = transfer - deduct
