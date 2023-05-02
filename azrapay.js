@@ -27,6 +27,8 @@ const bodyParser = require("body-parser");
 // import { PrismaClient } from '@prisma/client';
 // const prisma = new PrismaClient();
 
+require('dotenv').config();
+
 const app = express();
 
 var corsOptions = {

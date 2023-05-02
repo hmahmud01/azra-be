@@ -1,15 +1,14 @@
 module.exports = {
-    HOST: "localhost",
-    USER: "root",
-    PASSWORD: "root",
-    DB: "azrasql",
-    PORT: 3306,
-    dialect: "mysql",
+    HOST: process.env.DBHOST,
+    USER: process.env.DBUSER,
+    PASSWORD: process.env.DBPASSWORD,
+    DB: process.env.DB,
+    PORT: process.env.PORT,
+    dialect: process.env.DIALECT,
     pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
+      max: parseInt(process.env.POOL_MAX),
+      min: parseInt(process.env.POOL_MIN),
+      acquire: process.env.POOL_ACQUIRE,
+      idle: process.env.POOL_IDLE
     }
 };
-  
