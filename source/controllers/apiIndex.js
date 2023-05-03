@@ -180,6 +180,8 @@ exports.apiPriorityData = async (req, res, next) => {
     let data = []
     let result = await ApiCountryPriority.findAll();
 
+    console.log(result)
+
     for (let i = 0; i < result.length; i++) {
         let ctry = await Country.findOne({where: {uuid: result[i].countryId}})
         let api = await Api.findOne({where: {uuid: result[i].apiId}})
@@ -190,7 +192,7 @@ exports.apiPriorityData = async (req, res, next) => {
             apiId: result[i].apiId,
             api: api.name,
             ctry: ctry.name,
-            short: ctry.short,
+            short: ctry.short,       
             ctryId: result[i].countryId,
         }
         data.push(store);
@@ -205,6 +207,8 @@ exports.apiPercentageData = async (req, res, next) => {
     console.log("inside Percentage Data");
     let data = []
     let result = await ApiPercent.findAll();
+
+    console.log(result)
 
     for (let i = 0; i < result.length; i++) {
         let network = await Mobile.findOne({where: {uuid: result[i].mobileId}})

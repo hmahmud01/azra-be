@@ -313,7 +313,7 @@ exports.submitData = async (req, res, next) => {
                         const response = await res.json();
                         console.log(response.items[0].message);
                         trx_data = {
-                            transcationId: transaction.uuid,
+                            transactionId: transaction.uuid,
                             apiId: api.uuid
                         }
                         trx_api_id = api.uuid
@@ -340,7 +340,7 @@ exports.submitData = async (req, res, next) => {
                     const resp = saveResponse(data.message, transaction.id);
                     if (data.message.status == "success"){
                         trx_data = {
-                            transcationId: transaction.uuid,
+                            transactionId: transaction.uuid,
                             apiId: api.uuid
                         }
                         trx_api_id = api.uuid
@@ -393,10 +393,10 @@ exports.submitData = async (req, res, next) => {
                     })
                     const data = await apiCall.json()
                     console.log(data)
-                    const resp = saveResponse(data.message, transaction.id);
+                    const resp = saveResponse("Transation from ETS zlo", transaction.id);
                     if (data.message.status == "success"){
                         trx_data = {
-                            transcationId: transaction.uuid,
+                            transactionId: transaction.uuid,
                             apiId: api.uuid
                         }
                         trx_api_id = api.uuid
@@ -454,7 +454,7 @@ exports.submitData = async (req, res, next) => {
                                 if (response.msg == 'SUCCESS') {
                                     console.log(trx_status, " before trx ");
                                     trx_data = {
-                                        transcationId: transaction.uuid,
+                                        transactionId: transaction.uuid,
                                         apiId: api.uuid
                                     }
                                     trx_api_id = api.uuid
@@ -510,7 +510,7 @@ exports.submitData = async (req, res, next) => {
                         const resp = saveResponse(data, transaction.id);
                         console.log(resp);
                         trx_data = {
-                            transcationId: transaction.uuid,
+                            transactionId: transaction.uuid,
                             apiId: api.uuid
                         }
                         trx_api_id = api.uuid
@@ -641,7 +641,7 @@ exports.submitData = async (req, res, next) => {
                     userId: userId,
                     transferedAmount: parseFloat(amount),
                     dedcutedAmount: 0.00,
-                    transcationId: transaction.uuid
+                    transactionId: transaction.uuid
                 })
 
                 console.log("transaction returned");
@@ -694,19 +694,21 @@ exports.allTransactions = async (req, res, next) => {
     let result = []
 
     for(let i=0; i<trx.length; i++){
+        // API AND TRANSACTIONS ARE UNDEFINED DUE TO PROMISE
         const api = db.api.findOne({where: {uuid: trx[i].apiId}})
-        const trx = db.transaction.findOne({where: {uuid: trx[i].transactionId}})
+        const transaction = db.transaction.findOne({where: {uuid: trx[i].transactionId}})
         let data = {
             id: trx[i].id,
             createdAt: trx[i].createdAt,
             api: api.code,
-            phone: trx.phone,
-            amount: trx.amount,
-            agent: trx.agent
+            phone: transaction.phone,
+            amount: transaction.amount,
+            agent: transaction.agent
         }
         result.push(data);
     }
-
+    console.log("TRX LIST")
+    console.log(result);
     res.status(200).json({
         message: result
     })

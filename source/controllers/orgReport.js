@@ -126,10 +126,10 @@ exports.allTransactions = async(req, res, next) => {
     let trx = []
 
     for (let i = 0; i<result.length; i++){
-        const doneBy = db.user.findOne({where: {uuid: result[i].userId}})
-        const country = db.country.findOne({where: {uuid: result[i].countryId}})
-        const mobile = db.mobile.findOne({where: {uuid: result[i].mobileId}})
-        const service = db.service.findOne({where: {uuid: result[i].serviceId}})
+        const doneBy = await db.user.findOne({where: {uuid: result[i].userId}})
+        const country = await db.country.findOne({where: {uuid: result[i].countryId}})
+        const mobile = await db.mobile.findOne({where: {uuid: result[i].mobileId}})
+        const service = await db.service.findOne({where: {uuid: result[i].serviceId}})
 
         let data = {
             trxId: result[i].id,
@@ -160,10 +160,10 @@ exports.trxDetail = async(req, res, next) => {
         }
     })
 
-    const doneBy = db.user.findOne({where: {uuid: result.userId}})
-    const country = db.country.findOne({where: {uuid: result.countryId}})
-    const mobile = db.mobile.findOne({where: {uuid: result.mobileId}})
-    const service = db.service.findOne({where: {uuid: result.serviceId}})
+    const doneBy = await db.user.findOne({where: {uuid: result.userId}})
+    const country = await db.country.findOne({where: {uuid: result.countryId}})
+    const mobile = await db.mobile.findOne({where: {uuid: result.mobileId}})
+    const service = await db.service.findOne({where: {uuid: result.serviceId}})
 
     const orgEarned = await db.organizationearned.findOne({
         where: {
@@ -173,7 +173,7 @@ exports.trxDetail = async(req, res, next) => {
 
     const agentEarned = await db.agentearning.findOne({
         where: {
-            transactionId: tid
+            trxId: tid
         }
     })
 
