@@ -454,7 +454,7 @@ exports.trxRefund = async(req, res, next) => {
         }
     )
 
-    const trxProfit = await OrganizationEarned.findFirst({
+    const trxProfit = await OrganizationEarned.findOne({
         where: {
             transactionId: tid
         }
@@ -473,6 +473,10 @@ exports.trxRefund = async(req, res, next) => {
         note: `Transaction has been refunded for trx no ${transaction.id} - Refund trx id - ${adjustment.id}`,
         transactionId: transaction.uuid
     })
+
+
+    console.log(transaction)
+    console.log(transaction.userId)
 
     const percent = await AgentPercentage.findOne({
         where: {

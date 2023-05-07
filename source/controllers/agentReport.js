@@ -17,9 +17,10 @@ exports.agentReport = async(req, res, next) => {
     let saleval = 0
     let earnval = 0
     let balanceval = 0
+    let result = [];
     const agents = await User.findAll({
         where: {
-            type: "agent"
+            usertype: "agent"
         },
         // select:{
         //     id: true,
@@ -48,10 +49,26 @@ exports.agentReport = async(req, res, next) => {
         }
         
         agents[i].data = data
+
+        let userData = {
+            id: agents[i].id,
+            uuid: agents[i].uuid,
+            email: agents[i].email,
+            phone: agents[i].phone,
+            store: agents[i].store,
+            createdAt: agents[i].createdAt,
+            updatedAt: agents[i].updatedAt,
+            type: agents[i].userType,
+            status: agents[i].status,
+            data: data
+        }
+
+        result.push(userData);
     }
+    console.log(result)
 
     res.status(200).json({
-        message: agents
+        message: result
     })
 }
 

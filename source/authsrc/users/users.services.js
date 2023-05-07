@@ -65,7 +65,7 @@ async function createUserByEmailAndPassword(user){
         phone: user.phone,
         address: user.address,
         userId: dbuser.uuid,
-        connectedUserId: user.ref
+        connectedUser: user.ref
     })
 
     const trx = {

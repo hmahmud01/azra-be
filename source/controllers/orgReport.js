@@ -39,12 +39,12 @@ exports.orgReport = async(req, res, next) => {
         let data = {
             id: result[i].id,
             transactionId: result[i].transactionId,
-            trxuuid: result[i].trx.uuid,
-            rechargeAmount: result[i].trx.amount,
+            trxuuid: result[i].transactionId,
+            rechargeAmount: trx.amount,
             apiId: result[i].apiId,
-            api: result[i].api.name,
+            api: api.name,
             cutAmount: result[i].cutAmount,
-            status: result[i].trx.rechargeStatus,
+            status: trx.rechargeStatus,
             createdAt: result[i].createdAt
         }
         earned_record.push(data);

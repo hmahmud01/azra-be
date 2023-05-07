@@ -9,7 +9,7 @@ const db = require("../models");
 exports.subDealers = async(req, res, next) => {
     const subdealers = await db.user.findAll({
         where: {
-            type: "subdealer"
+            usertype: "subdealer"
         }
     })
 

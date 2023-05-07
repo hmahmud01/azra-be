@@ -10,7 +10,7 @@ exports.dealer = async(req, res, next) => {
     // let result = []
     const dealers = await db.user.findAll({
         where: {
-            type: "dealer"
+            usertype: "dealer"
         },
         // select:{
         //     id: true,
@@ -42,7 +42,7 @@ exports.dealerSubDealerReport = async(req, res, next) => {
 
     const subdealers = await db.userprofile.findAll({
         where: {
-            connectedUserId: uid
+            connectedUser: uid
         },
         // select:{
         //     id: true, 
@@ -87,18 +87,19 @@ exports.dealersubDealerAgentReport = async(req, res, next) => {
     let saleval = 0
     let earnval = 0
     let balanceval = 0
+    let result = []
 
-    const user = await db.user.findOne({
-        where: {
-            uuid: uid
-        }
-    })
+    // const user = await db.user.findOne({
+    //     where: {
+    //         uuid: uid
+    //     }
+    // })
 
-    console.log(user);
+    // console.log(user);
 
     const agents = await db.userprofile.findAll({
         where: {
-            connectedUserId: uid
+            connectedUser: uid
         },
         // select:{
         //     id: true, 
@@ -129,10 +130,10 @@ exports.dealersubDealerAgentReport = async(req, res, next) => {
 
     console.log(agents);
     for(let i = 0; i<agents.length; i++){
-        await calculator.calculateDue(agents[i].user.uuid).then(res => {dueval = res.total});
-        await calculator.calculateSale(agents[i].user.uuid).then(res => {saleval = res.sale});
-        await calculator.calculateEarning(agents[i].user.uuid).then(res => {earnval = res.earn});
-        await calculator.calculateBalance(agents[i].user.uuid).then(res => {balanceval = res.balance});
+        await calculator.calculateDue(agents[i].userId).then(res => {dueval = res.total});
+        await calculator.calculateSale(agents[i].userId).then(res => {saleval = res.sale});
+        await calculator.calculateEarning(agents[i].userId).then(res => {earnval = res.earn});
+        await calculator.calculateBalance(agents[i].userId).then(res => {balanceval = res.balance});
         let data = {
             recharge: 0,
             dues: dueval,
@@ -142,11 +143,33 @@ exports.dealersubDealerAgentReport = async(req, res, next) => {
         }
 
         agents[i].data = data;
+
+        const user = await db.user.findOne({
+            where: {
+                uuid: agents[i].userId
+            }
+        })
+
+        let userData = {
+            id: agents[i].id,
+            uuid: agents[i].userId,
+            email: agents[i].email,
+            phone: agents[i].phone,
+            store: user.store,
+            createdAt: agents[i].createdAt,
+            updatedAt: agents[i].updatedAt,
+            type: agents[i].role,
+            status: user.status,
+            data: data
+        }
+
+        result.push(userData);
     }
 
     console.log("agent for subd")
+    console.log(result)
     res.status(200).json({
-        message: agents
+        message: result
     })  
 }
 

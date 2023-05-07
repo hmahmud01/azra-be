@@ -42,7 +42,7 @@ db.transactionsource = require("./transactionsource.model.js")(sequelize, Sequel
 db.useramountsettlement = require("./useramountsettlement.model.js")(sequelize, Sequelize);
 db.userprofile = require("./userprofile.model.js")(sequelize, Sequelize);
 db.userbalance = require("./userbalance.model.js")(sequelize, Sequelize);
-db.transactionadjusments = require("./transactionadjustments.model.js")(sequelize, Sequelize);
+db.transactionadjustments = require("./transactionadjustments.model.js")(sequelize, Sequelize);
 
 
 module.exports = db;
