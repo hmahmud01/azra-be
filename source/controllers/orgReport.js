@@ -14,7 +14,7 @@ exports.orgReport = async(req, res, next) => {
     let earned_record = []
     let result = await db.organizationearned.findAll();
 
-    const refunds = await db.transactionadjusments.findAll()
+    const refunds = await db.transactionadjustments.findAll();
 
     for(let i=0; i<refunds.length; i++){
         const trx = await db.transaction.findOne({
@@ -122,6 +122,42 @@ exports.orgReport = async(req, res, next) => {
 
 exports.allTransactions = async(req, res, next) => {
     let result = await db.transaction.findAll();
+
+    let trx = []
+
+    for (let i = 0; i<result.length; i++){
+        const doneBy = await db.user.findOne({where: {uuid: result[i].userId}})
+        const country = await db.country.findOne({where: {uuid: result[i].countryId}})
+        const mobile = await db.mobile.findOne({where: {uuid: result[i].mobileId}})
+        const service = await db.service.findOne({where: {uuid: result[i].serviceId}})
+
+        let data = {
+            trxId: result[i].id,
+            uuid: result[i].uuid,
+            phone: result[i].phone,
+            amount: result[i].amount,
+            rechargeStatus: result[i].rechargeStatus,
+            doneBy: doneBy.email,
+            store: doneBy.store,
+            country: country.name,
+            network: mobile.name,
+            service: service.name,
+            createdAt: result[i].createdAt
+        }
+        trx.push(data);
+    }
+
+    res.status(200).json({
+        message: trx
+    })
+}
+
+exports.nonRefundedTrx = async(req, res, next) => {
+    let result = await db.transaction.findAll({
+        where: {
+            rechargeStatus: true,
+        }
+    });
 
     let trx = []
 
@@ -319,7 +355,7 @@ exports.filterTrx = async(req, res, next) => {
 
 exports.allAdjusmtments = async(req, res, next) => {
     const data = []
-    const adjustments = await db.transactionadjusments.findAll();
+    const adjustments = await db.transactionadjustments.findAll();
 
     for (let i=0; i<adjustments.length; i++){
         const trx = await db.transaction.findOne({

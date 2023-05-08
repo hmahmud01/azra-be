@@ -22,17 +22,6 @@ exports.agentReport = async(req, res, next) => {
         where: {
             usertype: "agent"
         },
-        // select:{
-        //     id: true,
-        //     uuid: true,
-        //     email: true,
-        //     phone: true,
-        //     store: true,
-        //     createdAt: true,
-        //     updatedAt: true,
-        //     type: true,
-        //     status: true
-        // }
     })
 
     for(let i = 0; i<agents.length; i++){
@@ -58,7 +47,7 @@ exports.agentReport = async(req, res, next) => {
             store: agents[i].store,
             createdAt: agents[i].createdAt,
             updatedAt: agents[i].updatedAt,
-            type: agents[i].userType,
+            type: agents[i].usertype,
             status: agents[i].status,
             data: data
         }

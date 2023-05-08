@@ -12,17 +12,6 @@ exports.dealer = async(req, res, next) => {
         where: {
             usertype: "dealer"
         },
-        // select:{
-        //     id: true,
-        //     uuid: true,
-        //     email: true,
-        //     phone: true,
-        //     store: true,
-        //     createdAt: true,
-        //     updatedAt: true,
-        //     type: true,
-        //     status: true
-        // }
     })
 
     res.status(200).json({
@@ -44,31 +33,6 @@ exports.dealerSubDealerReport = async(req, res, next) => {
         where: {
             connectedUser: uid
         },
-        // select:{
-        //     id: true, 
-        //     uuid: true, 
-        //     f_name: true, 
-        //     l_name: true, 
-        //     age: true, 
-        //     email: true, 
-        //     role: true, 
-        //     phone: true, 
-        //     address: true,
-        //     userId: true,
-        //     user: {
-        //         select:{
-        //             id: true,
-        //             uuid: true,
-        //             email: true,
-        //             phone: true,
-        //             store: true,
-        //             createdAt: true,
-        //             updatedAt: true,
-        //             type: true,
-        //             status: true
-        //         }
-        //     }
-        // }
     })
 
     console.log(subdealers);
@@ -89,43 +53,11 @@ exports.dealersubDealerAgentReport = async(req, res, next) => {
     let balanceval = 0
     let result = []
 
-    // const user = await db.user.findOne({
-    //     where: {
-    //         uuid: uid
-    //     }
-    // })
-
-    // console.log(user);
 
     const agents = await db.userprofile.findAll({
         where: {
             connectedUser: uid
         },
-        // select:{
-        //     id: true, 
-        //     uuid: true, 
-        //     f_name: true, 
-        //     l_name: true, 
-        //     age: true, 
-        //     email: true, 
-        //     role: true, 
-        //     phone: true, 
-        //     address: true,
-        //     userId: true,
-        //     user: {
-        //         select:{
-        //             id: true,
-        //             uuid: true,
-        //             email: true,
-        //             phone: true,
-        //             store: true,
-        //             createdAt: true,
-        //             updatedAt: true,
-        //             type: true,
-        //             status: true
-        //         }
-        //     }
-        // }
     })
 
     console.log(agents);

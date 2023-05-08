@@ -8,6 +8,7 @@ module.exports = app => {
 
     orgReportRoutes.get('/orgreports', controller.orgReport);
     orgReportRoutes.get('/alltransactions', controller.allTransactions);
+    orgReportRoutes.get('/nonrefundedtrx', controller.nonRefundedTrx);
     orgReportRoutes.get('/trxdetail/:id', controller.trxDetail);
     orgReportRoutes.get('/alladjustments', controller.allAdjusmtments);
     orgReportRoutes.post('/filtertrx', controller.filterTrx);

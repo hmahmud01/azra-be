@@ -454,6 +454,14 @@ exports.trxRefund = async(req, res, next) => {
         }
     )
 
+    const trx = await Transaction.findOne({
+        where: {
+            uuid: tid
+        }
+    })
+
+    console.log("RECHARGE STATUS TO : FALSE")
+
     const trxProfit = await OrganizationEarned.findOne({
         where: {
             transactionId: tid
@@ -462,34 +470,52 @@ exports.trxRefund = async(req, res, next) => {
 
     const adjustment = await TransactionAdjustments.create({
         adjusted_profit: trxProfit.cutAmount,
-        transactionId: transaction.uuid,
+        transactionId: trx.uuid,
         refund_note: note
     })
 
+    console.log("TRX ADJUSTMENTS CREATED ", adjustment);
+
     const agentBalanceUpdate = await AgentTransaction.create({
-        userId: transaction.userId,
-        transferedAmount: transaction.amount,
+        userId: trx.userId,
+        transferedAmount: trx.amount,
         dedcutedAmount: 0.00,
         note: `Transaction has been refunded for trx no ${transaction.id} - Refund trx id - ${adjustment.id}`,
         transactionId: transaction.uuid
     })
 
 
-    console.log(transaction)
-    console.log(transaction.userId)
+    console.log("Agent Balance Updated ", agentBalanceUpdate);
+
+    console.log(trx)
+    console.log(trx.userId)
 
     const percent = await AgentPercentage.findOne({
         where: {
-            userId: transaction.userId
+            userId: trx.userId
         }
     })
 
     let profitadjustment = transaction.amount * percent.percentage / 100
-    const earningadjustment = await AgentEarning.create({
-        userId: transaction.userId,
-        amount: -(profitadjustment),
-        trxId: transaction.uuid
+    const prevEarned = await AgentEarning.findOne({
+        where: {
+            trxId: trx.uuid
+        }
     })
+
+    console.log(prevEarned);
+
+    const earnedData = {
+        userId: trx.userId,
+        amount: -(prevEarned.amount),
+        trxId: trx.uuid
+    }
+
+    console.log("EARNING ADJUSTMENTS DT : ", earnedData);
+    
+    const earningadjustment = await AgentEarning.create(earnedData)
+
+    console.log("Agent Earning Adjusted ", earningadjustment);
 
     // TODO
     // CREATE A SYSTEM LOG HERE
@@ -499,6 +525,9 @@ exports.trxRefund = async(req, res, next) => {
         type: "Refund",
         detail: logmsg
     })
+
+    console.log(syslog)
+    console.log("REFUND SUCCESS")
 
     res.status(200).json({
         message: `Refund for ${tid}`,

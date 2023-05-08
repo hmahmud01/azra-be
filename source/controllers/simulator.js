@@ -337,7 +337,7 @@ exports.submitData = async (req, res, next) => {
                     })
                     const data = await apiCall.json()
                     console.log(data)
-                    const resp = saveResponse(data.message, transaction.id);
+                    const resp = saveResponse(data.message, transaction.uuid);
                     if (data.message.status == "success"){
                         trx_data = {
                             transactionId: transaction.uuid,
@@ -695,8 +695,10 @@ exports.allTransactions = async (req, res, next) => {
 
     for(let i=0; i<trx.length; i++){
         // API AND TRANSACTIONS ARE UNDEFINED DUE TO PROMISE
-        const api = db.api.findOne({where: {uuid: trx[i].apiId}})
-        const transaction = db.transaction.findOne({where: {uuid: trx[i].transactionId}})
+        const api = await db.api.findOne({where: {uuid: trx[i].apiId}})
+        console.log("API : ", api);
+        const transaction = await db.transaction.findOne({where: {uuid: trx[i].transactionId}})
+        console.log("API : ", transaction);
         let data = {
             id: trx[i].id,
             createdAt: trx[i].createdAt,
