@@ -2,7 +2,177 @@
 // const prisma = new PrismaClient();
 
 const db = require("../models");
-const { Op } = require('sequelize')
+const { Op } = require('sequelize');
+const Sequelize = require("sequelize");
+
+const getPagination = (page, size) => {
+    const limit = size? +size : 3;
+    const offset = page ? page * limit : 0;
+
+    return {limit, offset};
+}
+
+const getPagingData = (data, page, limit) => {
+    const {count: totalItems, rows: rows} = data;
+    const currentPage = page ? +page : 0;
+    const totalPages = Math.ceil(totalItems/limit);
+    return { totalItems, rows, totalPages, currentPage };
+}
+
+exports.orgReportSummary = async(req, res, next) => {
+    let earned = 0;
+    let success_recharge_count = 0;
+    let failed_recharge_count = 0;
+    let total_sales = 0;
+    let refunded_profit = 0;
+    let refund_sales = 0;
+
+    let today_earned = 0;
+    let today_success_count = 0;
+    let today_sales = 0;
+
+    const refunds = await db.transactionadjustments.findAll();
+
+    for(let i=0; i<refunds.length; i++){
+        const trx = await db.transaction.findOne({
+            where: {
+                uuid: refunds[i].transactionId
+            }
+        })
+        refunded_profit += refunds[i].adjusted_profit
+        refund_sales += trx.amount
+    }
+
+    let trx = await db.transaction.findAll()
+
+    for (let i=0; i<trx.length; i++){
+        if(trx[i].rechargeStatus == true){
+            success_recharge_count++;
+            total_sales += trx[i].amount
+        }else if(trx[i].rechargeStatus == false){
+            failed_recharge_count++;
+        }
+    }
+
+    
+
+    let earnedRes = await db.organizationearned.findAll({
+        attributes: [[Sequelize.fn('sum', Sequelize.col('cutAmount')), 'total']],
+        raw: true
+    });
+
+    console.log("total ", earnedRes[0].total)
+    // for(let i = 0; i<result.length; i++){
+    //     earned += result[i].cutAmount
+    // }
+
+    let profit_adjustment = earned - refunded_profit
+    let sales_adjustment = total_sales - refund_sales
+
+    const date = new Date();
+    const month = date.getMonth() + 1
+    const prevDay = date.getDate() -1
+    const nextDay = date.getDate() +1
+    const yesterDay = new Date(`${date.getFullYear()}-${month}-${prevDay}`);
+    const tomorrow = new Date(`${date.getFullYear()}-${month}-${nextDay}`);
+
+    let today_earned_records = await db.organizationearned.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: tomorrow,
+                [Op.gte]: yesterDay
+            }
+        }
+    });
+
+    for (let i = 0; i<today_earned_records.length; i++){
+        const trx = await db.transaction.findOne({
+            where: {
+                uuid: today_earned_records[i].transactionId
+            }
+        })
+        if (trx.rechargeStatus == true){
+            today_success_count++
+            today_sales += trx.amount 
+            today_earned += today_earned_records[i].cutAmount
+        }
+    }
+
+    let main_earning = earned - refunded_profit
+
+    res.status(200).json({
+        main_earning: main_earning,
+        total_earned: earnedRes[0].total,
+        success_recharge_count: success_recharge_count,
+        failed_recharge_count: failed_recharge_count,
+        total_sales: total_sales,
+        refunds: refunded_profit,
+        refund_sales: refund_sales,
+        adjustment: {
+            profit: profit_adjustment,
+            sales: sales_adjustment
+        },
+        today_earned: today_earned,
+        today_success_count: today_success_count,
+        today_sales: today_sales
+    })
+}
+
+exports.orgReportPaginated = async(req, res, next) => {
+    let earned_record = [];
+    let totalItems, totalPages, currentPage;
+    const {page, size, id} = req.query;
+    const {limit, offset} = getPagination(page, size);
+    await db.organizationearned.findAndCountAll({
+        limit, offset
+    }).then(async data => {
+        const response = getPagingData(data, page, limit);
+        const result = response.rows
+
+        for(let i = 0; i<result.length; i++){
+            const trx = await db.transaction.findOne({
+                where: {
+                    uuid: result[i].transactionId
+                }
+            })
+            const api = await db.api.findOne({
+                where: {
+                    uuid: result[i].apiId
+                }
+            })
+            let data = {
+                id: result[i].id,
+                transactionId: result[i].transactionId,
+                trxuuid: result[i].transactionId,
+                rechargeAmount: trx.amount,
+                apiId: result[i].apiId,
+                api: api.name,
+                cutAmount: result[i].cutAmount,
+                status: trx.rechargeStatus,
+                createdAt: result[i].createdAt
+            }
+            earned_record.push(data);
+        }
+        totalItems = response.totalItems;
+        totalPages = response.totalPages;
+        currentPage = response.currentPage;
+
+        let sendData = {
+            totalPages: totalPages,
+            message: earned_record.reverse(),
+            currentPage: currentPage,
+            totalPages: totalPages
+        }
+
+        res.send(sendData);
+
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || "SOME ERROR"
+        })
+    });
+
+}
 
 exports.orgReport = async(req, res, next) => {
     let earned = 0;
@@ -118,6 +288,47 @@ exports.orgReport = async(req, res, next) => {
         today_success_count: today_success_count,
         today_sales: today_sales
     })
+}
+
+exports.trxPaginated = async(req, res, next) => {
+    let trx = []
+    const {page, size, id} = req.query;
+    const {limit, offset} = getPagination(page, size);
+
+    await db.transaction.findAndCountAll({
+        limit, offset
+    }).then(async data => {
+        const response = getPagingData(data, page, limit);
+        const rows = response. rows;
+
+        for (let i = 0; i<rows.length; i++){
+            const doneBy = await db.user.findOne({where: {uuid: rows[i].userId}})
+            const country = await db.country.findOne({where: {uuid: rows[i].countryId}})
+            const mobile = await db.mobile.findOne({where: {uuid: rows[i].mobileId}})
+            const service = await db.service.findOne({where: {uuid: rows[i].serviceId}})
+    
+            let data = {
+                trxId: rows[i].id,
+                uuid: rows[i].uuid,
+                phone: rows[i].phone,
+                amount: rows[i].amount,
+                rechargeStatus: rows[i].rechargeStatus,
+                doneBy: doneBy.email,
+                store: doneBy.store,
+                country: country.name,
+                network: mobile.name,
+                service: service.name,
+                createdAt: rows[i].createdAt
+            }
+            trx.push(data);
+        }
+        response.rows = trx
+        res.send(response);
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || "SOME ERROR"
+        })
+    });
 }
 
 exports.allTransactions = async(req, res, next) => {

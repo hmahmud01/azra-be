@@ -21,10 +21,10 @@ const getPagination = (page, size) => {
 }
 
 const getPagingData = (data, page, limit) => {
-    const {count: totalItems, rows: agents} = data;
+    const {count: totalItems, rows: rows} = data;
     const currentPage = page ? +page : 0;
     const totalPages = Math.ceil(totalItems/limit);
-    return { totalItems, agents, totalPages, currentPage };
+    return { totalItems, rows, totalPages, currentPage };
 }
 
 const calculateAgentData = async(uuid) => {

@@ -7,6 +7,9 @@ module.exports = app => {
     const orgReportRoutes = express.Router();
 
     orgReportRoutes.get('/orgreports', controller.orgReport);
+    orgReportRoutes.get('/orgreportpaginated', controller.orgReportPaginated);
+    orgReportRoutes.get('/orgreportsummary', controller.orgReportSummary);
+    orgReportRoutes.get('/trxpaginated', controller.trxPaginated);
     orgReportRoutes.get('/alltransactions', controller.allTransactions);
     orgReportRoutes.get('/nonrefundedtrx', controller.nonRefundedTrx);
     orgReportRoutes.get('/trxdetail/:id', controller.trxDetail);

@@ -9,6 +9,7 @@ module.exports = app => {
     dealerReportRoutes.get('/dealer', controller.dealer);
     dealerReportRoutes.get('/dealersubdealerreport/:uid', controller.dealerSubDealerReport);
     dealerReportRoutes.get('/dealersubdealeragentreport/:uid', controller.dealersubDealerAgentReport);
+    dealerReportRoutes.get('/dealersubdealeragentreportpaginated/:uid', controller.dealersubDealerAgentReportPaginated);
 
     app.use('/', dealerReportRoutes);
 }
