@@ -5,6 +5,7 @@ module.exports = app => {
     const mnoRoutes = express.Router();
     mnoRoutes.get('/networks', controller.getNetworks);
     mnoRoutes.get('/network/list', controller.listNetwork);
+    mnoRoutes.get('/filternetwork/:id', controller.filterNetwork);
     mnoRoutes.get('/network/:id', controller.getNetwork);
     mnoRoutes.put('/network/:id', controller.updateNetwork);
     mnoRoutes.delete('/network/:id', controller.deleteNetwork);

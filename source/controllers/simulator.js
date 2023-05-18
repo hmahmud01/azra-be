@@ -349,35 +349,6 @@ exports.submitData = async (req, res, next) => {
                     }else{
                         console.log("ETS DIDN'T WORK")
                     }
-                    
-                    // const res = await fetch(process.env.ETSBAL);
-                    // const data = await res.json();
-
-                    // console.log("Available Balance for ETS : ", data.items[0].balance);
-                    // if (data.items[0].balance >= amount) {
-                    //     console.log("ETS API WORKING");
-                    //     const res = await fetch(process.env.ETSREC);
-                    //     const response = await res.json();
-                    //     console.log(response.items[0].message);
-                    //     const resp = saveResponse(response.items[0].message, transaction.id);
-                    //     trx_data = {
-                    //         trx: {
-                    //             connect: {
-                    //                 id: transaction.id
-                    //             }
-                    //         },
-                    //         api: {
-                    //             connect: {
-                    //                 id: apicreds[i].api.id
-                    //             }
-                    //         }
-                    //     }
-                    //     trx_api_id = apicreds[i].api.id
-                    //     trx_status = true
-                    //     break;
-                    // } else {
-                    //     console.log("ETS DIDN'T WORK")
-                    // }
 
                 } else if (api.code == "ZLO") {
                     const send_data = {
@@ -406,33 +377,6 @@ exports.submitData = async (req, res, next) => {
                         console.log("ZLO DIDN'T WORK")
                     }
 
-                    // const res = await fetch(process.env.ZLOBAL);
-                    // const data = await res.json();
-
-                    // console.log("Available Balance for ZOLO : ", data.items[0].balance);
-                    // if (data.items[0].balance >= amount) {
-                    //     console.log("ZOLO API WORKING");
-                    //     const res = await fetch(process.env.ZLOREC);
-                    //     const response = await res.json();
-                    //     console.log(response.items[0].message);
-                    //     trx_data = {
-                    //         trx: {
-                    //             connect: {
-                    //                 id: transaction.id
-                    //             }
-                    //         },
-                    //         api: {
-                    //             connect: {
-                    //                 id: apicreds[i].api.id
-                    //             }
-                    //         }
-                    //     }
-                    //     trx_api_id = apicreds[i].api.id
-                    //     trx_status = true
-                    //     break;
-                    // } else {
-                    //     console.log("ZOLO DIDN'T WORK");
-                    // }
                 } else if (api.code == "DU") {
                     console.log("INSIDE DU SIM");
 

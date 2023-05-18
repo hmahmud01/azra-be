@@ -37,6 +37,18 @@ exports.getNetworks = async(req, res, next) => {
     })
 }
 
+exports.filterNetwork = async(req, res, next) => {
+    const result = await Mobile.findAll({
+        where: {
+            countryId: req.params.id
+        }
+    })
+
+    res.status(200).json({
+        message: result
+    })
+}
+
 exports.listNetwork = async(req, res, next) => {
     const result = await Mobile.findAll();
 

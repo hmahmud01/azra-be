@@ -32,6 +32,19 @@ exports.getServices = async(req, res, next) => {
         message: services
     })
 }
+
+exports.filterServices = async(req, res, next) => {
+    const result = await Service.findAll({
+        where: {
+            mobileId: req.params.id
+        }
+    })
+
+    res.status(200).json({
+        message: result
+    })
+}
+
 exports.listService = async(req, res, next) => {
     let result2 = await Service.findAll()
 
