@@ -139,6 +139,124 @@ module.exports = app => {
         }
     });
 
+    authRoute.post('/applogin', async(req,res,next) => {
+        try {
+            const username = req.body.username
+            const password = req.body.password
+
+            console.log("username , password")
+
+            if (!username || !password){
+                res.status(200).json({
+                    msg: "EMAIL AND PASSSWORD NECESSARY"
+                }) 
+                throw new Error('You must provide an email and a password.');
+            }
+
+            const existingUser = await findUserByPhone(username);
+
+            if (!existingUser) {
+                res.status(403);
+                throw new Error('Invalid login credentials.');
+            }
+
+            const validPassword = await bcrypt.compare(password, existingUser.password);
+            if (!validPassword) {
+                res.status(403);
+                throw new Error('Invalid login credentials.');
+            }
+
+            const jti = uuidv4();
+            const { accessToken, refreshToken } = generateTokens(existingUser, jti);
+            await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
+
+            let uid = existingUser.id
+            let usertype = existingUser.usertype
+            let store = existingUser.store
+            let uuid = existingUser.uuid
+            let email = existingUser.email
+            let phone = existingUser.phone
+            let status = existingUser.status
+            let address = "addr"
+
+            let countryServices = []
+
+            const countries = await db.country.findAll()
+            for (let i=0; i<countries.length; i++){
+                let cid = countries[i].uuid
+                let networkdata = []
+                const network = await db.mobile.findAll({
+                    where: {
+                        countryId: cid
+                    }
+                })
+
+                for (let j=0; j<network.length; j++){
+                    let data = {
+                        name: network[j].name,
+                        group: "recharge",
+                        category: "mobile",
+                        type: "operator",
+                        logo: "GRAMEEN_PHONE",
+                        service_code: "MR",
+                        calling_code: [
+                            "880",
+                        ],
+                        country_code: countries[i].short,
+                    }
+                    networkdata.push(data);
+                }
+
+                let countryData = {
+                    name: countries[i].name,
+                    iso_2: countries[i].short,
+                    services: networkdata
+                }
+                countryServices.push(countryData);
+            }
+
+
+            const data = {
+                status: status,
+                balance: 0.111,
+                address: address,
+                currency: "United Arab Emirates Dirham",
+                email: email,
+                contact_no: phone,
+                post: "Customer",
+                credit_limit: "0.000000",
+                reward_enabled: false,
+                service_status: {
+                    status: "running",
+                    header: "Sorry",
+                    content: "Application is under construction",
+                    description: "",
+                    highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                    min_app_version: "68",
+                    latest_app_version: "76"
+                },
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                countries: countryServices,
+                has_token: accessToken,
+	            auth_id: uuid
+            }
+
+
+            res.json({data});
+
+        } catch (error) {
+            res.status(200).json({
+                message: error
+            })
+        }
+        
+        
+
+
+    })
+
     authRoute.post('/refreshToken', async (req, res, next) => {
         try {
             const { refreshToken } = req.body;

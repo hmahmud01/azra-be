@@ -1,0 +1,635 @@
+{
+	"status": true,
+	"balance": "0.45682",
+	"address": "NASSERYA ",
+	"currency": "United Arab Emirates dirham",
+	"email": "",
+	"contact_no": "0524250837",
+	"name": "Saiful",
+	"post": "Customer",
+	"credit_limit": "0.00000",
+	"reward_enabled": false,
+	"service_status": {
+		"status": "running",
+		"header": "Sorry",
+		"content": "Application is under construction",
+		"description": "",
+		"highlight": "WILL BE COMPLETED WITHIN 04:30 AM",
+		"min_app_version": "68",
+		"latest_app_version": "76"
+	},
+	"min_app_version": "68",
+	"latest_app_version": "76",
+	"server_address": "http://13.235.218.177/api/v1/",
+	"countries": [{
+			"name": "United Arab Emirates",
+			"iso_2": "AE",
+			"services": [
+				{
+					"name": "Du",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "DU",
+					"regex": "^[5]{1}[0-9]{8}$",
+					"settings": {
+						"code": "MR",
+						"regex": "^[5]{1}[0-9]{8}$",
+						"prefix": "971",
+						"max_length": 9,
+						"multi_region": false,
+						"data": []
+					},
+					"config": {
+						"code": "DU",
+						"regex": "^[5]{1}[0-9]{8}$",
+						"denomination_step": 1
+					},
+					"service_code": "MR",
+					"calling_code": [
+						"971"
+					],
+					"country_code": "AE",
+					"data": [
+						"Du",
+						"Du",
+						"DU",
+						"9"
+					]
+				},
+				{
+					"name": "Etisalat",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "ETISALAT",
+					"regex": "^[5]{1}[0-9]{8}$",
+					"settings": {
+						"code": "MR",
+						"regex": "^[5]{1}[0-9]{8}$",
+						"prefix": "971",
+						"max_length": 9,
+						"multi_region": false,
+						"data": []
+					},
+					"config": {
+						"code": "ETS",
+						"regex": "^[5]{1}[0-9]{8}$",
+						"denomination_step": 5
+					},
+					"service_code": "MR",
+					"calling_code": [
+						"971"
+					],
+					"country_code": "AE",
+					"data": [
+						"Etisalat",
+						"Etisalat",
+						"ETS",
+						"9"
+					]
+				},
+				{
+					"name": "Bangladesh",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "country",
+					"logo": "BD",
+					"settings": {
+						"code": "MR",
+						"regex": "^[1]{1}[0-9]{9}$",
+						"max_length": 10,
+						"data": []
+					},
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Bangladesh",
+						"Bangladesh",
+						"BD",
+						"10"
+					]
+				},
+				{
+					"name": "Pakistan",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "country",
+					"logo": "PK",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Pakistan",
+						"Pakistan",
+						"PK",
+						"10"
+					]
+				},
+				{
+					"name": "India",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "country",
+					"logo": "IN",
+					"settings": {
+						"code": "MR",
+						"regex": "^[0-9]{10}$",
+						"max_length": 10,
+						"data": []
+					},
+					"regex": "^[0-9]{10}$",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"India",
+						"India",
+						"IN",
+						"10"
+					]
+				},
+				{
+					"name": "International",
+					"group": "recharge",
+					"category": "international",
+					"type": "international",
+					"logo": "INT",
+					"service_code": "MR",
+					"calling_code": [
+						"00"
+					],
+					"country_code": "INT",
+					"data": [
+						"International",
+						"International",
+						"mobile",
+						"0"
+					]
+				},
+				{
+					"name": "Salik",
+					"group": "cards",
+					"category": "card",
+					"type": "operator",
+					"logo": "SALIK",
+					"service_code": "SALIK",
+					"calling_code": [
+						"971"
+					],
+					"country_code": "AE",
+					"data": [
+						"9"
+					]
+				},
+				{
+					"name": "Hello Card",
+					"group": "cards",
+					"category": "card",
+					"type": "operator",
+					"logo": "HELLO",
+					"service_code": "HELLO",
+					"calling_code": [
+						"971"
+					],
+					"country_code": "AE",
+					"data": [
+						"9"
+					]
+				},
+				{
+					"name": "Five Card",
+					"group": "cards",
+					"category": "card",
+					"type": "operator",
+					"logo": "FIVE",
+					"service_code": "FIVE",
+					"calling_code": [
+						"971"
+					],
+					"country_code": "AE",
+					"data": [
+						"9"
+					]
+				},
+				{
+					"name": "DTH",
+					"group": "recharge",
+					"category": "dth",
+					"type": "country",
+					"logo": "DTH",
+					"service_code": "DTH",
+					"settings": {
+						"code": "DTH",
+						"regex": "^[0-9]{4,14}$",
+						"max_length": 14,
+						"prefix": "N/A",
+						"multi_region": false,
+						"data": [{
+								"code": "ART_DTH",
+								"regex": "^[3]{1}[0-9]{9}$",
+								"denomination_step": 1
+							},
+							{
+								"code": "BIG_DTH",
+								"regex": "^[0-9]$",
+								"denomination_step": 1
+							},
+							{
+								"code": "SUN_DIRECT_DTH",
+								"regex": "^[0-9]{10,11}$",
+								"denomination_step": 1
+							},
+							{
+								"code": "VCN_DTH",
+								"regex": "^[0-9]{4,14}$",
+								"denomination_step": 1
+							},
+							{
+								"code": "TTSK_DTH",
+								"regex": "^[1]{1}[0-9]{9}$",
+								"denomination_step": 1
+							},
+							{
+								"code": "DTV",
+								"regex": "^[0-9]{1}[0-9]{7,15}$",
+								"denomination_step": 1
+							}
+						]
+					},
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": []
+				}
+			]
+		},
+		{
+			"name": "India",
+			"iso_2": "IN",
+			"services": [{
+					"name": "Vodafone",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "VODAFONE",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"Vodafone",
+						"Vodafone",
+						"VFN",
+						"10"
+					]
+				},
+				{
+					"name": "Airtel",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "AIRTEL",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"Airtel",
+						"Airtel",
+						"ART",
+						"10"
+					]
+				},
+				{
+					"name": "BSNL",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "BSNL",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"BSNL",
+						"BSNL",
+						"BSN",
+						"10"
+					]
+				},
+				{
+					"name": "Jio",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "JIO",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"Jio",
+						"Jio",
+						"JIO",
+						"10"
+					]
+				},
+				{
+					"name": "MTS",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "MTS",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"MTS",
+						"MTS",
+						"MTS",
+						"10"
+					]
+				},
+				{
+					"name": "Idea",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "IDEA",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"Idea",
+						"Idea",
+						"IDA",
+						"10"
+					]
+				},
+				{
+					"name": "Mobile",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "country",
+					"logo": "MOBILE",
+					"service_code": "MR",
+					"calling_code": [
+						"91"
+					],
+					"country_code": "IN",
+					"data": [
+						"Mobile",
+						"Mobile",
+						"IN",
+						"10"
+					]
+				}
+			]
+		},
+		{
+			"name": "Bangladesh",
+			"iso_2": "BD",
+			"services": [{
+					"name": "Grameenphone",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "GRAMEEN_PHONE",
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Grameenphone",
+						"Grameenphone",
+						"GNP",
+						"10"
+					]
+				},
+				{
+					"name": "Banglalink",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "BANGLALINK",
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Banglalink",
+						"Banglalink",
+						"BGL",
+						"10"
+					]
+				},
+				{
+					"name": "Teletalk",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "TELETALK",
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Teletalk",
+						"Teletalk",
+						"TLT",
+						"10"
+					]
+				},
+				{
+					"name": "Airtel",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "AIRTEL",
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Airtel",
+						"Airtel",
+						"ART",
+						"10"
+					]
+				},
+				{
+					"name": "Robi",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "ROBI",
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Robi",
+						"Robi",
+						"ROBI",
+						"10"
+					]
+				},
+				{
+					"name": "Mobile",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "country",
+					"logo": "MOBILE",
+					"service_code": "MR",
+					"calling_code": [
+						"880"
+					],
+					"country_code": "BD",
+					"data": [
+						"Mobile",
+						"Mobile",
+						"BD",
+						"10"
+					]
+				}
+			]
+		},
+		{
+			"name": "Pakistan",
+			"iso_2": "PK",
+			"services": [{
+					"name": "Warid",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "WARID",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Warid",
+						"Warid",
+						"WRD",
+						"10"
+					]
+				},
+				{
+					"name": "Zong",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "ZONG",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Zong",
+						"Zong",
+						"ZNG",
+						"10"
+					]
+				},
+				{
+					"name": "Ufone",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "UFONE",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Ufone",
+						"Ufone",
+						"UFN",
+						"10"
+					]
+				},
+				{
+					"name": "Mobilink",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "MOBILINK",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Mobilink",
+						"Mobilink",
+						"MBL",
+						"10"
+					]
+				},
+				{
+					"name": "Telenor",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "operator",
+					"logo": "TELENOR",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Telenor",
+						"Telenor",
+						"TLN",
+						"10"
+					]
+				},
+				{
+					"name": "Mobile",
+					"group": "recharge",
+					"category": "mobile",
+					"type": "country",
+					"logo": "PK",
+					"service_code": "MR",
+					"calling_code": [
+						"92"
+					],
+					"country_code": "PK",
+					"data": [
+						"Mobile",
+						"Mobile",
+						"PK",
+						"10"
+					]
+				}
+			]
+		}
+	],
+	"has_token": "eLjbzrzUSmO0uWkWBU2Ohr:APA91bGIt0qp_0KlBrU_0exT4lMJCVN_0VYQlJvqzgW4MlO27EbqRdEO_7pnXKydNyzjw55-A-xjZRjXyzngmOSq6k6iCDpeXxLk-IylDsJiso11vKliUfuw-5zlMiMtBZGOVuFOn7A0",
+	"auth_id": "24eaa984e4c3e81db1020d42dca81f19c4cf013b"
+}
