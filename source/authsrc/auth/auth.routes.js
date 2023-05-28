@@ -202,7 +202,21 @@ module.exports = app => {
                         calling_code: [
                             "880",
                         ],
+                        settings: {
+                            code: "MR",
+                            regex: "",
+                            max_length: 11,
+                            data: []
+                        },
+                        config: {
+                            code: "ETS",
+                            regix: "",
+                            denomination_step: 5
+                        },
                         country_code: countries[i].short,
+                        data : [
+                            ""
+                        ]
                     }
                     networkdata.push(data);
                 }
