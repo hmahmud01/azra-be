@@ -232,7 +232,8 @@
 						"max_length": 14,
 						"prefix": "N/A",
 						"multi_region": false,
-						"data": [{
+						"data": [
+							{
 								"code": "ART_DTH",
 								"regex": "^[3]{1}[0-9]{9}$",
 								"denomination_step": 1
