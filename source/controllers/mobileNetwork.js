@@ -4,6 +4,7 @@
 
 const db = require("../models");
 const Mobile = db.mobile;
+const Setting = db.mobilesetting;
 const Country = db.country;
 const Op = db.Sequelize.Op;
 
@@ -99,5 +100,39 @@ exports.addNetwork = async(req, res, next) => {
 
     res.status(200).json({
         message: `Network Created ${network.name}`
+    })
+}
+
+exports.mobileSetting = async(req, res, next) => {
+    let data = {
+        mobileId: req.body.mobileId,
+        logo: req.body.logo,
+        serviceCode: req.body.serviceCode,
+        callingCode: req.body.callingCode,
+        max_length: req.body.max_length,
+        api_code: req.body.api_code,
+        regex: req.body.regex,
+        denominationStep: req.body.denominationStep,
+    }
+
+    const setting = await Setting.create(data);
+    console.log(setting);
+
+    res.status(200).json({
+        message: `added data: ${setting}`
+    })
+}
+
+exports.findMobileSetting = async(req, res, next) => {
+    let id = req.params.id;
+
+    const setting = await Setting.findOne({
+        where: {
+            uuid: id
+        }
+    })
+
+    res.status(200).json({
+        setting: setting
     })
 }

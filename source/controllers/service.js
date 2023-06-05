@@ -1,5 +1,6 @@
 const db = require("../models");
 const Service = db.service;
+const Setting = db.servicesetting;
 const Mobile = db.mobile;
 const Op = db.Sequelize.Op;
 
@@ -100,5 +101,24 @@ exports.addService = async(req, res, next) => {
     console.log(teleservice)
     res.status(200).json({
         message: `added data: ${teleservice.name}`
+    })
+}
+
+exports.serviceSetting = async(req, res, next) => {
+    let data = {
+        serviceId: req.body.serviceId,
+        serviceCode: req.body.serviceCode,
+        callingCode: req.body.callingCode,
+        max_length: req.body.max_length,
+        api_code: req.body.api_code,
+        regex: req.body.regex,
+        denominationStep: req.body.denominationStep,
+    }
+
+    const setting = await Setting.create(data);
+    console.log(setting);
+
+    res.status(200).json({
+        message: `added data: ${setting}`
     })
 }

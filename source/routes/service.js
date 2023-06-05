@@ -10,6 +10,7 @@ module.exports = app => {
     serviceRoutes.put('/service/:id', controller.updateService);
     serviceRoutes.delete('/service/:id', controller.deleteService);
     serviceRoutes.post('/service', controller.addService);
+    serviceRoutes.post('/servicesetting', controller.serviceSetting);
 
     app.use('/', serviceRoutes);
 }

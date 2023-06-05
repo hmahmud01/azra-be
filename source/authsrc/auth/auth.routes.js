@@ -18,6 +18,18 @@ module.exports = app => {
     // import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
     const { findUserByPhone, createUserByEmailAndPassword, createSuperUser  } = require("../users/users.services.js")
 
+    const findMobileSetting = async(id) => {
+        console.log(id);
+        const setting = await db.mobilesetting.findOne({
+            where: {
+                uuid: id
+            }
+        })
+        console.log(setting);
+        return setting;
+
+    }
+
     authRoute.get('/users', async (req, res, next) => {
         // const users = await User.findAll({
         //     select:{
@@ -178,10 +190,12 @@ module.exports = app => {
             let phone = existingUser.phone
             let status = existingUser.status
             let address = "addr"
+            let setting = {}
 
             let countryServices = []
 
             const countries = await db.country.findAll()
+            
             for (let i=0; i<countries.length; i++){
                 let cid = countries[i].uuid
                 let networkdata = []
@@ -192,33 +206,73 @@ module.exports = app => {
                 })
 
                 for (let j=0; j<network.length; j++){
-                    let data = {
-                        name: network[j].name,
-                        group: "recharge",
-                        category: "mobile",
-                        type: "operator",
-                        logo: "GRAMEEN_PHONE",
-                        service_code: "MR",
-                        calling_code: [
-                            "880",
-                        ],
-                        settings: {
-                            code: "MR",
-                            regex: "",
-                            max_length: 11,
-                            data: []
-                        },
-                        config: {
-                            code: "ETS",
-                            regix: "",
-                            denomination_step: 5
-                        },
-                        country_code: countries[i].short,
-                        data : [
-                            ""
-                        ]
-                    }
-                    networkdata.push(data);
+
+                    const settingdata = db.mobilesetting.findOne({
+                        where: {
+                            mobileId: network[j].uuid
+                        }
+                    }).then(data => {
+                        console.log(data.logo);
+                        let settingdat = {
+                            name: network[j].name,
+                            group: "recharge",
+                            category: "mobile",
+                            type: "operator",
+                            logo: data.logo,
+                            service_code: data.serviceCode,
+                            calling_code: [
+                                data.callingCode,
+                            ],
+                            settings: {
+                                code: data.serviceCode,
+                                regex: data.regex,
+                                max_length: data.max_length,
+                                data: []
+                            },
+                            config: {
+                                code: data.api_code,
+                                regex: data.regex,
+                                denomination_step: data.denominationStep
+                            },
+                            country_code: countries[i].short,
+                            data : [
+                                countries[i].name,
+                                countries[i].name,
+                                countries[i].short,
+                                data.callingCode,
+                            ]
+                        }
+                        networkdata.push(settingdat);
+                        console.log(networkdata);
+                    })
+
+                    // let data = {
+                    //     name: network[j].name,
+                    //     group: "recharge",
+                    //     category: "mobile",
+                    //     type: "operator",
+                    //     logo: "GRAMEEN_PHONE",
+                    //     service_code: "MR",
+                    //     calling_code: [
+                    //         "880",
+                    //     ],
+                    //     settings: {
+                    //         code: "MR",
+                    //         regex: "",
+                    //         max_length: 11,
+                    //         data: []
+                    //     },
+                    //     config: {
+                    //         code: "ETS",
+                    //         regix: "",
+                    //         denomination_step: 5
+                    //     },
+                    //     country_code: countries[i].short,
+                    //     data : [
+                    //         ""
+                    //     ]
+                    // }
+                    // networkdata.push(data);
                 }
 
                 let countryData = {
@@ -228,7 +282,6 @@ module.exports = app => {
                 }
                 countryServices.push(countryData);
             }
-
 
             const data = {
                 status: status,
@@ -256,7 +309,6 @@ module.exports = app => {
                 has_token: accessToken,
 	            auth_id: uuid
             }
-
 
             res.json({data});
 

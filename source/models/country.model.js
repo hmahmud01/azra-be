@@ -16,3 +16,33 @@ module.exports = (sequelize, Sequelize) => {
 
     return Country
 }
+
+// let data = {
+//     name: network[j].name,
+//     group: "recharge",
+//     category: "mobile",
+//     type: "operator",
+//     logo: setting.logo,
+//     service_code: setting.serviceCode,
+//     calling_code: [
+//         setting.callingCode,
+//     ],
+//     settings: {
+//         code: setting.serviceCode,
+//         regex: setting.regex,
+//         max_length: setting.max_length,
+//         data: []
+//     },
+//     config: {
+//         code: setting.api_code,
+//         regex: setting.regex,
+//         denomination_step: setting.denominationStep
+//     },
+//     country_code: countries[i].short,
+//     data : [
+//         countries[i].name,
+//         countries[i].name,
+//         countries[i].short,
+//         setting.callingCode,
+//     ]
+// }
