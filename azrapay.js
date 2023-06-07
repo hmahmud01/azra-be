@@ -95,6 +95,8 @@ require("./source/routes/subDealerReport")(app);
 require("./source/routes/dealerReport")(app);
 require("./source/routes/orgReport")(app);
 require("./source/routes/simulator")(app);
+require("./source/routes/utils")(app);
+
 
 const httpServer = http.createServer(app);
 

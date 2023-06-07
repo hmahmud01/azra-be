@@ -1,7 +1,10 @@
-import express from 'express';
-import controller from '../controllers/utils.js';
-const utilRoutes = express.Router();
+module.exports = app => {
+    const express = require("express");
+    const controller = require("../controllers/utils.js");
+    const utilRoutes = express.Router();
 
-utilRoutes.get('/signpayload', controller.signPayload);
+    utilRoutes.get('/signpayload', controller.signPayload);
 
-export default utilRoutes;
+    app.use('/', utilRoutes);
+
+}

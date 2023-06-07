@@ -212,38 +212,40 @@ module.exports = app => {
                             mobileId: network[j].uuid
                         }
                     }).then(data => {
-                        console.log(data.logo);
-                        let settingdat = {
-                            name: network[j].name,
-                            group: "recharge",
-                            category: "mobile",
-                            type: "operator",
-                            logo: data.logo,
-                            service_code: data.serviceCode,
-                            calling_code: [
-                                data.callingCode,
-                            ],
-                            settings: {
-                                code: data.serviceCode,
-                                regex: data.regex,
-                                max_length: data.max_length,
-                                data: []
-                            },
-                            config: {
-                                code: data.api_code,
-                                regex: data.regex,
-                                denomination_step: data.denominationStep
-                            },
-                            country_code: countries[i].short,
-                            data : [
-                                countries[i].name,
-                                countries[i].name,
-                                countries[i].short,
-                                data.callingCode,
-                            ]
+                        if (data){
+                            console.log(data.logo);
+                            let settingdat = {
+                                name: network[j].name,
+                                group: "recharge",
+                                category: "mobile",
+                                type: "operator",
+                                logo: data.logo,
+                                service_code: data.serviceCode,
+                                calling_code: [
+                                    data.callingCode,
+                                ],
+                                settings: {
+                                    code: data.serviceCode,
+                                    regex: data.regex,
+                                    max_length: data.max_length,
+                                    data: []
+                                },
+                                config: {
+                                    code: data.api_code,
+                                    regex: data.regex,
+                                    denomination_step: data.denominationStep
+                                },
+                                country_code: countries[i].short,
+                                data : [
+                                    countries[i].name,
+                                    countries[i].name,
+                                    countries[i].short,
+                                    data.callingCode,
+                                ]
+                            }
+                            networkdata.push(settingdat);
+                            console.log(networkdata);
                         }
-                        networkdata.push(settingdat);
-                        console.log(networkdata);
                     })
 
                     // let data = {

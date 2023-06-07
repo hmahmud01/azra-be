@@ -24,6 +24,7 @@
     "node-fetch": "^3.3.0",
     "node-fetch-commonjs": "^3.2.4",
     "node-libcurl": "^3.0.0",
+    "node-rsa": "^1.1.1",
     "nodemon": "^2.0.20",
     "pocketbase": "^0.9.1",
     "sequelize": "^6.32.0",
