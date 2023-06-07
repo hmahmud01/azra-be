@@ -207,7 +207,7 @@ module.exports = app => {
 
                 for (let j=0; j<network.length; j++){
 
-                    const settingdata = db.mobilesetting.findOne({
+                    const settingdata = await db.mobilesetting.findOne({
                         where: {
                             mobileId: network[j].uuid
                         }
@@ -243,9 +243,17 @@ module.exports = app => {
                                     data.callingCode,
                                 ]
                             }
+                            console.log("Network DATA");
                             networkdata.push(settingdat);
                             console.log(networkdata);
                         }
+                        let countryData = {
+                            name: countries[i].name,
+                            iso_2: countries[i].short,
+                            services: networkdata
+                        }
+                        countryServices.push(countryData);
+                        console.log(countryServices);
                     })
 
                     // let data = {
@@ -277,13 +285,13 @@ module.exports = app => {
                     // networkdata.push(data);
                 }
 
-                let countryData = {
-                    name: countries[i].name,
-                    iso_2: countries[i].short,
-                    services: networkdata
-                }
-                countryServices.push(countryData);
-                console.log(countryServices);
+                // let countryData = {
+                //     name: countries[i].name,
+                //     iso_2: countries[i].short,
+                //     services: networkdata
+                // }
+                // countryServices.push(countryData);
+                // console.log(countryServices);
             }
 
             console.log("outside loop country services");
