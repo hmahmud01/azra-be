@@ -281,7 +281,11 @@ module.exports = app => {
                     services: networkdata
                 }
                 countryServices.push(countryData);
+                console.log(countryServices);
             }
+
+            console.log("outside loop country services");
+            console.log(countryServices);
 
             const data = {
                 status: status,
