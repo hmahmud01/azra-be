@@ -160,7 +160,10 @@ module.exports = app => {
 
             if (!username || !password){
                 res.status(200).json({
-                    msg: "EMAIL AND PASSSWORD NECESSARY"
+                    msg: {
+                        "status": false,
+                        "auth_id": "N/A"
+                    }
                 }) 
                 throw new Error('You must provide an email and a password.');
             }
@@ -324,12 +327,40 @@ module.exports = app => {
 	            auth_id: uuid
             }
 
-            res.json({data});
+            res.json({
+                status: status,
+                balance: 0.111,
+                address: address,
+                currency: "United Arab Emirates Dirham",
+                email: email,
+                contact_no: phone,
+                post: "Customer",
+                credit_limit: "0.000000",
+                reward_enabled: false,
+                service_status: {
+                    status: "running",
+                    header: "Sorry",
+                    content: "Application is under construction",
+                    description: "",
+                    highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                    min_app_version: "68",
+                    latest_app_version: "76"
+                },
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                countries: countryServices,
+                has_token: accessToken,
+	            auth_id: uuid
+            });
 
         } catch (error) {
-            res.status(200).json({
-                message: error
-            })
+            res.status(200).json(
+                {
+                    "status": false,
+                    "auth_id": "N/A"
+                }
+            )
         }
         
         
