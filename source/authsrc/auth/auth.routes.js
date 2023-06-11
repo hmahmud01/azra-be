@@ -257,44 +257,8 @@ module.exports = app => {
                         }
                         countryServices.push(countryData);
                         console.log(countryServices);
-                    })
-
-                    // let data = {
-                    //     name: network[j].name,
-                    //     group: "recharge",
-                    //     category: "mobile",
-                    //     type: "operator",
-                    //     logo: "GRAMEEN_PHONE",
-                    //     service_code: "MR",
-                    //     calling_code: [
-                    //         "880",
-                    //     ],
-                    //     settings: {
-                    //         code: "MR",
-                    //         regex: "",
-                    //         max_length: 11,
-                    //         data: []
-                    //     },
-                    //     config: {
-                    //         code: "ETS",
-                    //         regix: "",
-                    //         denomination_step: 5
-                    //     },
-                    //     country_code: countries[i].short,
-                    //     data : [
-                    //         ""
-                    //     ]
-                    // }
-                    // networkdata.push(data);
+                    })  
                 }
-
-                // let countryData = {
-                //     name: countries[i].name,
-                //     iso_2: countries[i].short,
-                //     services: networkdata
-                // }
-                // countryServices.push(countryData);
-                // console.log(countryServices);
             }
 
             console.log("outside loop country services");
@@ -326,6 +290,22 @@ module.exports = app => {
                 has_token: accessToken,
 	            auth_id: uuid
             }
+
+            const headerData = {
+                name: "android_settings",
+                chk_status: "chk_running",
+                header: "Sorry",
+                content: "Application is under construction",
+                description: "",
+                highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                status: "running",
+                min_app_version: "68",
+                latest_app_version: "76"
+            }
+
+            res.setHeader(
+                'service_status', JSON.stringify(headerData)
+            )
 
             res.json({
                 status: status,
