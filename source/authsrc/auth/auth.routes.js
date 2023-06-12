@@ -170,6 +170,12 @@ module.exports = app => {
 
             const existingUser = await findUserByPhone(username);
 
+            const profileData = await db.userprofile.findOne({
+                where: {
+                    userId: existingUser.uuid
+                }
+            })
+
             if (!existingUser) {
                 res.status(403);
                 throw new Error('Invalid login credentials.');
@@ -193,6 +199,7 @@ module.exports = app => {
             let phone = existingUser.phone
             let status = existingUser.status
             let address = "addr"
+            let name = profileData.f_name + " " + profileData.l_name
             let setting = {}
 
             let countryServices = []
@@ -264,33 +271,6 @@ module.exports = app => {
             console.log("outside loop country services");
             console.log(countryServices);
 
-            const data = {
-                status: status,
-                balance: 0.111,
-                address: address,
-                currency: "United Arab Emirates Dirham",
-                email: email,
-                contact_no: phone,
-                post: "Customer",
-                credit_limit: "0.000000",
-                reward_enabled: false,
-                service_status: {
-                    status: "running",
-                    header: "Sorry",
-                    content: "Application is under construction",
-                    description: "",
-                    highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
-                    min_app_version: "68",
-                    latest_app_version: "76"
-                },
-                min_app_version: "68",
-                latest_app_version: "76",
-                server_address: process.env.SERVER_URL,
-                countries: countryServices,
-                has_token: accessToken,
-	            auth_id: uuid
-            }
-
             const headerData = {
                 name: "android_settings",
                 chk_status: "chk_running",
@@ -313,6 +293,7 @@ module.exports = app => {
                 address: address,
                 currency: "United Arab Emirates Dirham",
                 email: email,
+                name: name,
                 contact_no: phone,
                 post: "Customer",
                 credit_limit: "0.000000",
