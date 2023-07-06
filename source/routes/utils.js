@@ -4,6 +4,7 @@ module.exports = app => {
     const utilRoutes = express.Router();
 
     utilRoutes.get('/signpayload', controller.signPayload);
+    utilRoutes.get('/getsignpayload', controller.getSignPayload);
 
     app.use('/', utilRoutes);
 

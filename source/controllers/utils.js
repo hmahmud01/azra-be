@@ -1,4 +1,7 @@
 const NodeRSA = require('node-rsa');
+const buffer = require('buffer');
+const { generateKeyPairSync, createSign, createVerify } = require('crypto')
+const crypto = require('crypto');
 
 exports.signPayload = async (req, res, next) => {
 
@@ -16,7 +19,7 @@ exports.signPayload = async (req, res, next) => {
     const msisdn = 564891
     const amount = 10
     let d = Date(Date.now())
-    let a = d.toString()
+    let a = d.toString() 
 
     const data= '{\"destMsisdn\:"971'+msisdn+ '\",\"amount\":'+ amount +'}'
 
@@ -37,5 +40,42 @@ exports.signPayload = async (req, res, next) => {
 
     res.json({
         message: result
+    })
+}
+
+exports.getSignPayload = async(req, res, next) => {
+    const { privateKey, publicKey } = generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+    });
+
+    const privateKey2 = "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAKFGcFcRtE+sZ7aYBuWL1/X/FVPkNwiTifXWK7TqS92XRYlUE8Lvdx1UPXDpzjGMlWRZgdKybsNTYyWDfyPlOkWc1s9b6IgS5E13QVhPF2FSnICi9kgq76bG5NBpJpMoiuZ0yf/YHWjYr9T0fGD58DSe0Nszo9l7wfcNu3r3eRXxAgMBAAECgYAEWYbro5evo23WVqeETD8vob40mZ3jXmlU5v5y83PG3vmE5e6KLipnW9o0CquhRKeogc0sKTGuv80XhKz/7e2M9U2ZjHm3NtiAUfsdhyxvIQPoGIlrrYdM+X6dEClHeZ0az+CDyrgeOfInkZB9iDTtmov/q777gi6IIIpBRh7pXQJBAM59f5yEVRD10dtr3V2MDd+TbPVKLOPtA/NoOwbc5zSLpRoc4f9PUgS9s6+36Z4LXwYEz9qLRHNMG4+igah9Vz0CQQDH8Zw1DVJd1N9BNBbohZ8nnzOlV5dLvpn5C5t8xC22bry9iTwIx/dFDTL3cYyDCkOo28BEKGqS7LHCSBIayATFAkEApEbNvoy9TIf1FDcFXwYsh2G3fpIrko2e5ghXZYdbXb93c4Xk+oR1gRYXHUYY00bCq3wqjPjdVUkIaEZmFtDZFQJBAK3fzpfUHey7UerCAanziZRLPf5rTYbxGbUaAv1dHOOpKTkqPqrkOoQyFkBY3niWVIBjma+r9gIPFAZ/5j6j8oECQQCHQncopbo3gE9ZUD0QFMAbz+L3fSJ/eX3A47t6IoF5wJWYUCKoenLwydowSpusDEftyaaMahn6NIQrxZkgk/7C"
+    const privateKeyHyperBeta2 = `-----BEGIN RSA PRIVATE KEY-----
+    MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAKFGcFcRtE+sZ7aYBuWL1/X/FVPkNwiTifXWK7TqS92XRYlUE8Lvdx1UPXDpzjGMlWRZgdKybsNTYyWDfyPlOkWc1s9b6IgS5E13QVhPF2FSnICi9kgq76bG5NBpJpMoiuZ0yf/YHWjYr9T0fGD58DSe0Nszo9l7wfcNu3r3eRXxAgMBAAECgYAEWYbro5evo23WVqeETD8vob40mZ3jXmlU5v5y83PG3vmE5e6KLipnW9o0CquhRKeogc0sKTGuv80XhKz/7e2M9U2ZjHm3NtiAUfsdhyxvIQPoGIlrrYdM+X6dEClHeZ0az+CDyrgeOfInkZB9iDTtmov/q777gi6IIIpBRh7pXQJBAM59f5yEVRD10dtr3V2MDd+TbPVKLOPtA/NoOwbc5zSLpRoc4f9PUgS9s6+36Z4LXwYEz9qLRHNMG4+igah9Vz0CQQDH8Zw1DVJd1N9BNBbohZ8nnzOlV5dLvpn5C5t8xC22bry9iTwIx/dFDTL3cYyDCkOo28BEKGqS7LHCSBIayATFAkEApEbNvoy9TIf1FDcFXwYsh2G3fpIrko2e5ghXZYdbXb93c4Xk+oR1gRYXHUYY00bCq3wqjPjdVUkIaEZmFtDZFQJBAK3fzpfUHey7UerCAanziZRLPf5rTYbxGbUaAv1dHOOpKTkqPqrkOoQyFkBY3niWVIBjma+r9gIPFAZ/5j6j8oECQQCHQncopbo3gE9ZUD0QFMAbz+L3fSJ/eX3A47t6IoF5wJWYUCKoenLwydowSpusDEftyaaMahn6NIQrxZkgk/7C
+    -----END RSA PRIVATE KEY-----` 
+    console.log(privateKey, publicKey);
+
+    // const sign = createSign('SHA256');
+    // sign.write('some data to sign');
+    // sign.end();
+    // const signature = sign.sign(privateKeyHyperBeta2, 'base64');
+
+    // console.log(signature)
+    // const verify = createVerify('SHA256');
+    // verify.write('some data to sign');
+    // verify.end();
+    // console.log(verify.verify(privateKeyHyperBeta2, signature, 'hex'));
+    // Prints: true
+
+
+    const data = Buffer.from("YOU")
+    const sign = crypto.sign("SHA256", data, privateKey2);
+    const signature = sign.toString('base64')
+    console.log(signature);    
+
+    
+
+    res.json({
+        privateKey: privateKey,
+        publicKey: publicKey
     })
 }
