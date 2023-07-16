@@ -1,13 +1,12 @@
 module.exports = (sequelize, Sequelize) => {
-    const plans = sequelize.define("plans", {
+    const currency = sequelize.define("currency", {
         uuid: {
             type: Sequelize.UUID,
             defaultValue: Sequelize.UUIDV4
         },
-        apiProviderId: Sequelize.STRING,
-        operatoratorCode: Sequelize.STRING,
         countryId: Sequelize.STRING,
-        rechargeType: Sequelize.STRING,
+        aedConversionValue: Sequelize.FLOAT,
+        nationalCurrency: Sequelize.STRING,
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,
@@ -15,5 +14,5 @@ module.exports = (sequelize, Sequelize) => {
         }
     })
 
-    return plans
+    return currency
 }

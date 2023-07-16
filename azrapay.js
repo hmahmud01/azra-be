@@ -96,7 +96,9 @@ require("./source/routes/dealerReport")(app);
 require("./source/routes/orgReport")(app);
 require("./source/routes/simulator")(app);
 require("./source/routes/utils")(app);
-
+require("./source/routes/recharge")(app);
+require("./source/routes/plans")(app);
+require("./source/routes/currency")(app);
 
 const httpServer = http.createServer(app);
 
