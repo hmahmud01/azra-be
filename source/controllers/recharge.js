@@ -35,10 +35,34 @@ exports.plans = async(req, res, next) => {
         }
     })
 
+    let operatorCode = ""
+    let countryId = ""
+    let rechargeType = ""
+
+    let exchange_rate = ""
+    let groups = [{
+        type: "",
+        operator_code: "",
+        plans: [{
+            "plan_id": 10888,
+			"operator_code": "ETS_NBA",
+			"circle_code": "AE",
+			"credit_amount": "30.00000",
+			"credit_currency": "AED",
+			"debit_amount": "30.00000",
+			"debit_currency": "AED",
+			"validity": 0,
+			"narration": "30 Inter mint daily for 30 days. AED 30",
+			"is_range": "1",
+			"tags": [],
+			"api_plan_id": 55773518
+        }]
+    }]
+
     const plan_list = await db.plans.findAll({
         where: {
             rechargeType: data.service_code,
-            operatoratorCode: data.operator_code,
+            operatorCode: data.operator_code,
             countryId: country.uuid
         }
     })
@@ -51,18 +75,28 @@ exports.plans = async(req, res, next) => {
 }
 
 exports.operatorCheck = async(req, res, next) => {
-    // check mobile network here
-    var data = {
-        service_code: "",
-        country_code: "",
-        ui_number: "",
-        prefix: ""
+
+    let service_code = req.body.service_code
+    let country_code = req.body.country_code
+    let ui_number = req.body.ui_number
+    let prefix = req.body.prefix
+
+    let logo = ""
+
+
+    if (ui_number.startsWith("17")){
+        logo = "GRAMEEN_PHONE"
+    }else if(ui_number.startsWith("18")){
+        logo = "ROBI"
+    }else if(ui_number.startsWith("19")){
+        logo = "BANGLALINK"
     }
 
     const operatorsetting = await db.mobilesetting.findOne({
         where: {
-            serviceCode: data.service_code,
-            callingCode: data.prefix
+            serviceCode: service_code,
+            callingCode: prefix,
+            logo: logo
         }
     })
 
@@ -74,6 +108,14 @@ exports.operatorCheck = async(req, res, next) => {
 
 
     var res_data = operator.name
+
+    if (operator.name == "grameen") {
+        res_data={"operator_code": "GNP", "circle_code": country_code}
+    }else if(operator.name == "banglalink"){
+        res_data={"operator_code": "BL", "circle_code": country_code}
+    }else if(operator.name == "robi"){
+        res_data={"operator_code": "ROBI", "circle_code": country_code}
+    }
 
     res.json({
         msg: res_data

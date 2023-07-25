@@ -4,6 +4,7 @@ module.exports = app => {
 
     const planRouter = express.Router();
     planRouter.post('/createplan', controller.createPlan);
+    planRouter.get('/listplan', controller.listPlan);
 
 
     app.use(planRouter);
