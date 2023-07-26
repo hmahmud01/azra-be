@@ -8,6 +8,7 @@ module.exports = (sequelize, Sequelize) => {
         mobileId: Sequelize.STRING,
         serviceCode: Sequelize.STRING,
         callingCode: Sequelize.STRING,
+        startsWith: Sequelize.STRING,
         max_length: Sequelize.INTEGER,
         api_code: {
             type: Sequelize.STRING,

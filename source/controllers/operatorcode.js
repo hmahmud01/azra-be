@@ -3,11 +3,11 @@ const db = require("../models")
 
 exports.setOperatorCode = async(req, res, next) => {
     let data = {
-        apiProviderId : req.body.apiproviderid,
-        countryId: req.body.countryid,
-        mobileId: req.body.mobileid,
-        operatorShort: req.body.operatorshort,
-        operatorCode: req.body.operatorcode
+        apiProviderId : req.body.apiProviderId,
+        countryId: req.body.countryId,
+        mobileId: req.body.mobileId,
+        operatorShort: req.body.operatorShort,
+        operatorCode: req.body.operatorCode
     }
 
     const code = await db.operatorCode.create(data);
@@ -16,4 +16,3 @@ exports.setOperatorCode = async(req, res, next) => {
         message: `added data: ${code}`
     })
 }
-

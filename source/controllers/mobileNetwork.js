@@ -109,6 +109,7 @@ exports.mobileSetting = async(req, res, next) => {
         logo: req.body.logo,
         serviceCode: req.body.serviceCode,
         callingCode: req.body.callingCode,
+        startsWith: req.body.startsWith,
         max_length: req.body.max_length,
         api_code: req.body.api_code,
         regex: req.body.regex,

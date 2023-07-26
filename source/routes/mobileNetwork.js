@@ -1,6 +1,7 @@
 module.exports = app => {
     const express = require("express");
     const controller = require("../controllers/mobileNetwork.js")
+    const operatorCtrl = require("../controllers/operatorcode.js")
 
     const mnoRoutes = express.Router();
     mnoRoutes.get('/networks', controller.getNetworks);
@@ -12,6 +13,7 @@ module.exports = app => {
     mnoRoutes.post('/network', controller.addNetwork);
     mnoRoutes.post('/mobilesetting', controller.mobileSetting);
     mnoRoutes.get('/findmobilesetting/:id', controller.findMobileSetting);
+    mnoRoutes.post('/setoperatorcode', operatorCtrl.setOperatorCode);
 
     app.use('/', mnoRoutes);
 }

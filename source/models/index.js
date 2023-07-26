@@ -47,6 +47,7 @@ db.userbalance = require("./userbalance.model.js")(sequelize, Sequelize);
 db.transactionadjustments = require("./transactionadjustments.model.js")(sequelize, Sequelize);
 db.operatorCode = require("./operatorcode.model.js")(sequelize, Sequelize);
 db.plans = require("./plans.model.js")(sequelize, Sequelize);
+db.plantypes = require("./plantype.model.js")(sequelize, Sequelize);
 db.currency = require("./currency.model.js")(sequelize, Sequelize);
 db.circle = require("./circle.model.js")(sequelize, Sequelize);
 
