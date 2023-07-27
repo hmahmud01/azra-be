@@ -54,6 +54,7 @@ exports.plans = async(req, res, next) => {
         let plans = []
         for(let j=0; j<plandata.length; j++){
             let data = {
+                plan_id: plandata[j].uuid,
                 operator_code: plandata[j].operator_code,
                 circle_code: plandata[j].circle_code,
                 credit_amount: plandata[j].credit_amount,
