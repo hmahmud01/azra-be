@@ -42,6 +42,7 @@ exports.plans = async(req, res, next) => {
                 circle_code: circle_code
             }
         })
+        console.log(plandata)
         let plans = []
         for(let j=0; j<plandata.length; j++){
             let data = {
