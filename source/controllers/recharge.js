@@ -2,20 +2,6 @@ const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 
-exports.getWalletBalane = async(req, res, next) => {
-    var data = {
-        username_customer : "",
-        vouce_date : "2023-5-21",
-        amount : 20,
-        narration : "need fund"
-    }
-    let balance = 20.9
-
-    res.json({
-        msg: balance
-    })
-}
-
 exports.plans = async(req, res, next) => {
     let service_code = req.body.service_code
     let country_code = req.body.country_code
@@ -136,19 +122,114 @@ exports.operatorCheck = async(req, res, next) => {
 exports.recharge = async(req, res, next) => {
 
     var data = {
-        username: "username",
-        sub_operator_code: "GNP_TALK",
-        country_code: "BD",
-        service_code: "MR",
-        ui_number: "175590",
-        plan_amount: 16.00,
-        plan_id: 10371,
-        circle_code: "BD",
-        prefix: "880"
+        "username": "iftay",
+        "sub_operator_code": "GNP_TALK",
+        "country_code": "BD",
+        "service_code": "MR",
+        "ui_number": "1716920198",
+        "plan_amount": "16.00000",
+        "plan_id": "10371",
+        "circle_code": "BD",
+        "prefix": "880"
     }
+
+    let username = req.body.username
+    let sub_operator_code = req.body.sub_operator_code
+    let country_code = req.body.country_code
+    let service_code = req.body.service_code
+    let ui_number = req.body.ui_number
+    let plan_amount = req.body.plan_amount
+    let plan_id = req.body.plan_id
+    let circle_code =req.body.circle_code
+    let prefix = req.body.prefix
+
+    const plan = await db.plans.findOne({
+        where: {
+            uuid: plan_id
+        }
+    })
 
     var result = "success || failed"
     res.json({
-        msg : "recharge stats"
+        msg : `rechargin for ${plan.debit_amount}`
+    })
+}
+
+exports.customerBalanceTransferRequest = async(req, res, next) => {
+    let customer = req.body.username_customer
+    let amount = req.body.amount
+    let narration = req.body.narration
+
+    const user = await db.user.findOne({
+        where: {
+            phone: customer
+        }
+    })
+
+    const transfer = await db.agenttransaction.create({
+        userId: user.uuid,
+        transferedAmount: parseFloat(amount),
+        dedcutedAmount: 0.00
+    })
+
+    const settlement = await db.useramountsettlement.create({
+        userId: user.uuid,
+        debit: 0.00,
+        credit: parseFloat(amount),
+        note: narration
+    })
+
+    const logsms = `Amount ${amount} has been transferred to ${customer}'s account`
+    const syslog = await db.systemlog.create({
+        type: "Transfer",
+        detail: logsms
+    })
+
+    res.status(200).json({
+        message: "transfer Done",
+        data: transfer
+    })
+}
+
+exports.userGetPortalBalance = async(req, res, next) => {
+    let username = req.body.username
+    let mainBalance = 0.00;
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    const agentTrx = await db.agenttransaction.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    for (let i = 0; i < agentTrx.length; i++) {
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
+    }
+
+    console.log(`main balance from trasaction calculation , ${mainBalance}`)
+    const lockedbalances = await db.lockedbalance.findAll({
+        where: {
+            lockedStatus: true,
+            userId: user.uuid
+        }
+    })
+
+    let pendingRecharge = 0.00
+
+    for (let i = 0; i < lockedbalances.length; i++) {
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalance = mainBalance - pendingRecharge
+
+    res.status(200).json({
+        message: "portal balance request",
+        data: username,
+        balance: actualbalance
     })
 }

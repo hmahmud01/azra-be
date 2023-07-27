@@ -89,6 +89,7 @@ const findId = async(uuid) => {
         }
     })
 
+    console.log(user)
     return user.id;
 }
 
