@@ -24,6 +24,9 @@ exports.plans = async(req, res, next) => {
     let username = req.body.username
     let ui_number = req.body.ui_number
 
+    console.log("REQUEST BODY")
+    console.log(req.body)
+
     const grp = []
 
     const groups = await db.plantypes.findAll({
@@ -34,7 +37,11 @@ exports.plans = async(req, res, next) => {
         }
     })
 
+    console.log("PRINTING GROUPS")
+    console.log(groups)
+
     for (let i=0; i<groups.length; i++){
+        console.log("GROUP OPERATAOR CODE")
         console.log(groups[i].operator_code)
         const plandata = await db.plans.findAll({
             where: {
@@ -42,6 +49,7 @@ exports.plans = async(req, res, next) => {
                 circle_code: circle_code
             }
         })
+        console.log("PLAN DATA FILTERED")
         console.log(plandata)
         let plans = []
         for(let j=0; j<plandata.length; j++){
