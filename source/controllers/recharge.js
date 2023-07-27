@@ -54,16 +54,16 @@ exports.plans = async(req, res, next) => {
         let plans = []
         for(let j=0; j<plandata.length; j++){
             let data = {
-                operator_code: plandata[i].operator_code,
-                circle_code: plandata[i].circle_code,
-                credit_amount: plandata[i].credit_amount,
-                credit_currency: plandata[i].credit_currency,
-                debit_amount: plandata[i].debit_amount,
-                debit_currency: plandata[i].debit_currency,
-                validity: plandata[i].validity,
-                narration: plandata[i].narration,
-                is_range: plandata[i].is_range,
-                api_plan_id: plandata[i].api_plan_id,
+                operator_code: plandata[j].operator_code,
+                circle_code: plandata[j].circle_code,
+                credit_amount: plandata[j].credit_amount,
+                credit_currency: plandata[j].credit_currency,
+                debit_amount: plandata[j].debit_amount,
+                debit_currency: plandata[j].debit_currency,
+                validity: plandata[j].validity,
+                narration: plandata[j].narration,
+                is_range: plandata[j].is_range,
+                api_plan_id: plandata[j].api_plan_id,
                 tags: []
             }
             plans.push(data)
