@@ -72,6 +72,72 @@ exports.plans = async(req, res, next) => {
     res.json(finalData)
 }
 
+exports.operators = async(req, res, next) => {
+    let data = {"country_code":"BD","service_code":"MR"}
+
+    let country_code = req.body.country_code
+    let service_code = req.body.service_code
+
+    let operators = []
+    let circles = []
+
+    const country = await db.country.findOne({
+        where: {
+            short: country_code
+        }
+    })
+
+    console.log(country)
+
+    const circlelist = await db.circle.findAll({
+        where: {
+            code: country_code
+        }
+    })
+
+    for(let i = 0; i<circlelist.length; i++){
+        let circle = {
+            circle_name: circlelist[i].name,
+            circle_code: circlelist[i].code
+        }
+        circles.push(circle)
+    }
+
+    
+
+    const operatorCodes = await db.operatorCode.findAll({
+        where: {
+            countryId: country.uuid
+        }
+    })
+
+    console.log(operatorCodes)
+    
+    for(let i=0; i<operatorCodes.length; i++){
+        const operator = await db.mobile.findOne({
+            where: {
+                uuid: operatorCodes[i].mobileId
+            }
+        })
+
+        console.log(operator.name)
+        console.log(operatorCodes[i])
+
+        let operatorData= {
+            operator_name: operator.name,
+		    operator_code: operatorCodes[i].operatorCode
+        }
+
+        operators.push(operatorData)
+    }
+
+    res.status(200).json({
+        operators: operators,
+        circles: circles
+    })
+
+}
+
 exports.operatorCheck = async(req, res, next) => {
 
     let service_code = req.body.service_code
@@ -116,42 +182,6 @@ exports.operatorCheck = async(req, res, next) => {
 
     res.json({
         msg: res_data
-    })
-}
-
-exports.recharge = async(req, res, next) => {
-
-    var data = {
-        "username": "iftay",
-        "sub_operator_code": "GNP_TALK",
-        "country_code": "BD",
-        "service_code": "MR",
-        "ui_number": "1716920198",
-        "plan_amount": "16.00000",
-        "plan_id": "10371",
-        "circle_code": "BD",
-        "prefix": "880"
-    }
-
-    let username = req.body.username
-    let sub_operator_code = req.body.sub_operator_code
-    let country_code = req.body.country_code
-    let service_code = req.body.service_code
-    let ui_number = req.body.ui_number
-    let plan_amount = req.body.plan_amount
-    let plan_id = req.body.plan_id
-    let circle_code =req.body.circle_code
-    let prefix = req.body.prefix
-
-    const plan = await db.plans.findOne({
-        where: {
-            uuid: plan_id
-        }
-    })
-
-    var result = "success || failed"
-    res.json({
-        msg : `rechargin for ${plan.debit_amount}`
     })
 }
 
@@ -231,5 +261,41 @@ exports.userGetPortalBalance = async(req, res, next) => {
         message: "portal balance request",
         data: username,
         balance: actualbalance
+    })
+}
+
+exports.recharge = async(req, res, next) => {
+
+    var data = {
+        "username": "iftay",
+        "sub_operator_code": "GNP_TALK",
+        "country_code": "BD",
+        "service_code": "MR",
+        "ui_number": "1716920198",
+        "plan_amount": "16.00000",
+        "plan_id": "10371",
+        "circle_code": "BD",
+        "prefix": "880"
+    }
+
+    let username = req.body.username
+    let sub_operator_code = req.body.sub_operator_code
+    let country_code = req.body.country_code
+    let service_code = req.body.service_code
+    let ui_number = req.body.ui_number
+    let plan_amount = req.body.plan_amount
+    let plan_id = req.body.plan_id
+    let circle_code =req.body.circle_code
+    let prefix = req.body.prefix
+
+    const plan = await db.plans.findOne({
+        where: {
+            uuid: plan_id
+        }
+    })
+
+    var result = "success || failed"
+    res.json({
+        msg : `rechargin for ${plan.debit_amount}`
     })
 }

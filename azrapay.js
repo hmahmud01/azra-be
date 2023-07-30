@@ -41,6 +41,7 @@ app.get("/", (req, res,) => {
     res.json({message: "LOADING AZRA V2..."})
 })
 
+require("./source/routes/circle")(app);
 require("./source/routes/country")(app);
 require("./source/routes/mobileNetwork")(app);
 require("./source/routes/service")(app);

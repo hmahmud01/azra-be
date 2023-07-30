@@ -5,6 +5,7 @@ module.exports = app => {
     const rechargeRouter = express.Router();
     rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
     rechargeRouter.post('/plans', controller.plans);
+    rechargeRouter.post('/operators', controller.operators);
     rechargeRouter.post('/operator-check', controller.operatorCheck);
     rechargeRouter.post('/recharge', controller.recharge);
     rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
