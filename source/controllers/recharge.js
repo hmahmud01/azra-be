@@ -1,6 +1,7 @@
 const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
+const fetch = require("node-fetch-commonjs");
 
 exports.plans = async(req, res, next) => {
     let service_code = req.body.service_code
@@ -264,6 +265,89 @@ exports.userGetPortalBalance = async(req, res, next) => {
     })
 }
 
+exports.confirmRecharge = async(req, res, next) => {
+    let pdata = {
+        "username": "saiful837",
+        "plan_amount": "50",
+        "plan_id": "90"
+    }
+
+    let username = req.body.username
+    let plan_amount = req.body.plan_amount
+    let plan_id = req.body.plan_id
+    let response = {}
+
+    const plan = await db.plans.findOne({
+        where: {
+            uuid: plan_id
+        }
+    })
+
+    let send_data = {
+        "username" : username
+    }
+
+    console.log(send_data)
+
+    let mainBalance = 0.00;
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    const agentTrx = await db.agenttransaction.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    for (let i = 0; i < agentTrx.length; i++) {
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
+    }
+
+    console.log(`main balance from trasaction calculation , ${mainBalance}`)
+    const lockedbalances = await db.lockedbalance.findAll({
+        where: {
+            lockedStatus: true,
+            userId: user.uuid
+        }
+    })
+
+    let pendingRecharge = 0.00
+
+    for (let i = 0; i < lockedbalances.length; i++) {
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalance = mainBalance - pendingRecharge
+    let debit_amount = plan.debit_amount
+
+    if(actualbalance > debit_amount) {
+        response = {
+            status: "success",
+            message: [{
+                description: "Request Processing",
+                code: 200
+            }],
+            debit_amount: debit_amount
+        }
+    }else{
+        response = {
+            status: "failed",
+            message: [{
+                description: "Not Enough Balance",
+                code: 200
+            }],
+            debit_amount: debit_amount
+        }
+    }
+
+    res.json(response)
+
+}
+
 exports.recharge = async(req, res, next) => {
 
     var data = {
@@ -296,6 +380,6 @@ exports.recharge = async(req, res, next) => {
 
     var result = "success || failed"
     res.json({
-        msg : `rechargin for ${plan.debit_amount}`
+        msg : `recharge incoming`
     })
 }

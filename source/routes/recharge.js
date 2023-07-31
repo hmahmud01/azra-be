@@ -7,6 +7,7 @@ module.exports = app => {
     rechargeRouter.post('/plans', controller.plans);
     rechargeRouter.post('/operators', controller.operators);
     rechargeRouter.post('/operator-check', controller.operatorCheck);
+    rechargeRouter.post('/confirm-recharge', controller.confirmRecharge);
     rechargeRouter.post('/recharge', controller.recharge);
     rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
     // rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
