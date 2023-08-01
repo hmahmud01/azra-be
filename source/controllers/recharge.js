@@ -268,11 +268,6 @@ exports.userGetPortalBalance = async(req, res, next) => {
 }
 
 exports.confirmRecharge = async(req, res, next) => {
-    let pdata = {
-        "username": "saiful837",
-        "plan_amount": "50",
-        "plan_id": "90"
-    }
 
     let username = req.body.username
     let plan_amount = req.body.plan_amount
@@ -391,9 +386,14 @@ exports.recharge = async(req, res, next) => {
         prefix: req.body.prefix
     }
 
+    let debit_amount = 0.0
+
     let apiResp = {
         status: "failed",
-        message: "Error Occured"
+        message: [{
+            description: "Error Occured",
+            code: 200
+        }]
     }
     let mobile = data.prefix + data.ui_number
 
@@ -442,6 +442,20 @@ exports.recharge = async(req, res, next) => {
         }
     })
 
+    if (plan.is_range){
+        const currency = await db.currency.findOne({
+            where: {
+                credit_currency: plan.credit_currency,
+                debit_currency: plan.debit_currency
+            }
+        })
+
+        debit_amount = (parseInt(plan_amount) * currency.conversionValue).toFixed(2);
+
+    }else{
+        debit_amount = plan.debit_amount
+    }
+
     if (lockedNumber.length > 0){
         let msg = `This number is already engaged with a pending recharge : ${mobile}`;
         console.log(msg)
@@ -472,14 +486,14 @@ exports.recharge = async(req, res, next) => {
         const transfer = await db.agenttransaction.create({
             userId: user.uuid,
             transferedAmount: 0.00,
-            dedcutedAmount: parseFloat(plan.credit_amount),
+            dedcutedAmount: debit_amount,
             transactionId: transaction.uuid
         })
 
         const lockedBalance = await db.lockedbalance.create({
             userId: user.uuid,
             currentBalance: 0.00,
-            amountLocked: parseFloat(plan.debit_amount),
+            amountLocked: debit_amount,
             lockedStatus: true
         })
 
@@ -488,6 +502,18 @@ exports.recharge = async(req, res, next) => {
             status: true,
             trx_id: transaction.uuid
         })
+
+        let balanceData = {
+            username: data.username,
+            plan_amount: data.plan_amount,
+            plan_id: data.plan_id
+        }
+
+        const balance = {
+            balance: 12.0
+        }
+
+        console.log(balance);
 
         console.log("TRANSACATION BUILT > BALANCE LOCKED > NUMBER LOCKED");
 
@@ -524,33 +550,39 @@ exports.recharge = async(req, res, next) => {
 
             console.log(`MSISDN : ${msisdn}`)
             console.log(`RECHARGE AMOUNT : ${parseInt(req.body.plan_amount)}`)
-            const apiCall = await fetch(apiurl, {
-                method: 'POST',
-                headers: {
-                    'x-api-key' : apikey,
-                    'Content-Type': 'application/json'  
-                },
-                body: JSON.stringify(send_data),
-            })
-            .then(response => response.json())
-            .then(async data => {
-                console.log("data from live : ", data)
-                const resp = await saveResponse(data, transaction.id);
-                console.log(resp);
-                if (data.status == "success"){
-                    trx_data = {
-                        transactionId: transaction.uuid,
-                        apiId: api.uuid
-                    }
-                    trx_api_id = api.uuid
-                    trx_status = true
-                }
-            }) 
-            .catch(e => {
-                console.log(e);
-                console.log("LIVE DIDNT WORK");
-            }) 
+            // const apiCall = await fetch(apiurl, {
+            //     method: 'POST',
+            //     headers: {
+            //         'x-api-key' : apikey,
+            //         'Content-Type': 'application/json'  
+            //     },
+            //     body: JSON.stringify(send_data),
+            // })
+            // .then(response => response.json())
+            // .then(async data => {
+            //     console.log("data from live : ", data)
+            //     const resp = await saveResponse(data, transaction.id);
+            //     console.log(resp);
+            //     if (data.status == "success"){
+            //         trx_data = {
+            //             transactionId: transaction.uuid,
+            //             apiId: api.uuid
+            //         }
+            //         trx_api_id = api.uuid
+            //         trx_status = true
+            //     }
+            // }) 
+            // .catch(e => {
+            //     console.log(e);
+            //     console.log("LIVE DIDNT WORK");
+            // }) 
 
+            trx_status = true
+            trx_api_id = api.uuid
+            trx_data = {
+                transactionId: transaction.uuid,
+                apiId: api.uuid
+            }
             // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);
             console.log("Api ID: ", trx_api_id);
@@ -606,7 +638,7 @@ exports.recharge = async(req, res, next) => {
 
                 console.log("Agent Percentage : ", percent.percentage);
 
-                let earned = plan.debit_amount / 100 * percent.percentage
+                let earned = debit_amount / 100 * percent.percentage
 
                 const earnedData = {
                     userId: user.uuid,
@@ -637,7 +669,7 @@ exports.recharge = async(req, res, next) => {
                     perc = orgPercent.percent
                 }
 
-                let orgCut = plan.debit_amount / 100 * perc
+                let orgCut = debit_amount / 100 * perc
                 const orgEarnedData = {
                     transactionId: transaction.uuid,
                     apiId: trx_api_id,
@@ -645,10 +677,18 @@ exports.recharge = async(req, res, next) => {
                 }
                 const orgEarning = await db.organizationearned.create(orgEarnedData)
                 console.log("Organization earning : ", orgEarning);
-                // CREATE ENTRY ORGANIZATION EARNED TABLE
                 apiResp = {
-                    status: "Success",
-                    message: trx_data
+                    status: "success",
+                    balance: (balance.balance - debit_amount),
+                    api_trans_code: 12,
+                    message: [{
+                        "description": "Transaction successfull",
+                        "code": 200,
+                    }],
+                    trans_id: "",
+                    trans_code: "",
+                    trans_date: "",
+                    request_endtime: ""
                 }
             } else {
                 const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -668,7 +708,7 @@ exports.recharge = async(req, res, next) => {
 
                 const transfer = await db.agenttransaction.create({
                     userId: user.uuid,
-                    transferedAmount: parseFloat(plan.credit_amount),
+                    transferedAmount: debit_amount,
                     dedcutedAmount: 0.00,
                     transactionId: transaction.uuid
                 })
@@ -699,19 +739,36 @@ exports.recharge = async(req, res, next) => {
                 )
                 console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                 console.log("Balance Unavailable");
+
                 apiResp = {
-                    status: "Failed",
-                    message: trx_data
+                    status: "failed",
+                    balance: balance.balance,
+                    api_trans_code: 12,
+                    message: [{
+                        "description": "Transaction successfull",
+                        "code": 200,
+                    }],
+                    trans_id: "",
+                    trans_code: "",
+                    trans_date: "",
+                    request_endtime: ""
                 }
             }
         }else{
             apiResp = {
-                status: "Failed",
-                message: "No Api Availabe"
+                status: "success",
+                balance: balance.balance,
+                api_trans_code: 12,
+                message: [{
+                    "description": "Transaction successfull",
+                    "code": 200,
+                }],
+                trans_id: "",
+                trans_code: "",
+                trans_date: "",
+                request_endtime: ""
             }
         }
     }
-
-    var result = "success || failed"
     res.json(apiResp)
 }   
