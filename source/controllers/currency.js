@@ -4,9 +4,10 @@ const Sequelize = require("sequelize");
 
 exports.addCurrency = async(req, res, next) => {
     let data = {
-        countryId: req.body.countryId,
-        aedConversionValue: req.body.aedConversionValue,
-        nationalCurrency: req.body.nationalCurrency,
+        title : req.body.title,
+        credit_currency: req.body.credit_currency,
+        debit_currency: req.body.debit_currency,
+        conversionValue: req.body.conversionValue
     }
 
     let currency = db.currency.create(data)
@@ -25,11 +26,11 @@ exports.listCurrency = async(req, res, next) => {
 }
 
 exports.findCurrency = async(req, res, next) => {
-    const data = req.body.countryId
+    const data = req.body.credit_currency
 
     const currency = await db.currency.findOne({
         where: {
-            countryId: data
+            credit_currency: data
         }
     })
 

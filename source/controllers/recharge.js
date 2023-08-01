@@ -279,11 +279,27 @@ exports.confirmRecharge = async(req, res, next) => {
     let plan_id = req.body.plan_id
     let response = {}
 
+    let debit_amount = 0.0
+
     const plan = await db.plans.findOne({
         where: {
             uuid: plan_id
         }
     })
+
+    if (plan.is_range){
+        const currency = await db.currency.findOne({
+            where: {
+                credit_currency: plan.credit_currency,
+                debit_currency: plan.debit_currency
+            }
+        })
+
+        debit_amount = (parseInt(plan_amount) * currency.conversionValue).toFixed(2);
+
+    }else{
+        debit_amount = plan.debit_amount
+    }
 
     let send_data = {
         "username" : username
@@ -324,7 +340,6 @@ exports.confirmRecharge = async(req, res, next) => {
 
     console.log(`Pending Balance: ${pendingRecharge}`);
     let actualbalance = mainBalance - pendingRecharge
-    let debit_amount = plan.debit_amount
 
     if(actualbalance > debit_amount) {
         response = {

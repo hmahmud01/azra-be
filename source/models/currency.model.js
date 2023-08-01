@@ -4,9 +4,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.UUID,
             defaultValue: Sequelize.UUIDV4
         },
-        countryId: Sequelize.STRING,
-        aedConversionValue: Sequelize.FLOAT,
-        nationalCurrency: Sequelize.STRING,
+        title: Sequelize.STRING,
+        credit_currency: Sequelize.STRING,
+        debit_currency: Sequelize.STRING,
+        conversionValue: Sequelize.FLOAT,
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,
