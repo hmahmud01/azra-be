@@ -500,7 +500,7 @@ exports.recharge = async(req, res, next) => {
             const send_data = {
                 "data": {
                     "msisdn": msisdn,
-                    "amount": parseInt(plan.credit_amount),
+                    "amount": parseInt(req.body.plan_amount),
                     "transaction_id": transaction_id,
                     "client_id": client_id,
                     "operator": operator
