@@ -508,6 +508,7 @@ exports.recharge = async(req, res, next) => {
             }
 
             console.log(`MSISDN : ${msisdn}`)
+            console.log(`RECHARGE AMOUNT : ${parseInt(req.body.plan_amount)}`)
             const apiCall = await fetch(apiurl, {
                 method: 'POST',
                 headers: {
