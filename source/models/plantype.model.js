@@ -6,6 +6,8 @@ module.exports = (sequelize, Sequelize) => {
         },
         type: Sequelize.STRING,
         operator_code: Sequelize.STRING,
+        operator: Sequelize.STRING,
+        mobileId: Sequelize.STRING,
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,

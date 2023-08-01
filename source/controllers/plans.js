@@ -35,7 +35,9 @@ exports.listPlan = async(req, res, next) => {
 exports.createPlanType = async(req, res, next) => {
     let data = {
         type: req.body.type,
-        operator_code: req.body.operator_code
+        operator_code: req.body.operator_code,
+        operator: req.body.operator,
+        mobileId: req.body.mobileId
     }
 
     const plantype = await db.plantypes.create(data);
