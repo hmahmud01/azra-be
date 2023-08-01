@@ -450,7 +450,7 @@ exports.recharge = async(req, res, next) => {
             }
         })
 
-        debit_amount = (parseInt(plan_amount) * currency.conversionValue).toFixed(2);
+        debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
 
     }else{
         debit_amount = plan.debit_amount
