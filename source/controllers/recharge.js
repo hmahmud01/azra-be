@@ -224,8 +224,7 @@ exports.customerBalanceTransferRequest = async(req, res, next) => {
     })
 }
 
-exports.userGetPortalBalance = async(req, res, next) => {
-    let username = req.body.username
+exports.userPortalBalance = async(username) => {
     let mainBalance = 0.00;
     const user = await db.user.findOne({
         where: {
@@ -259,6 +258,48 @@ exports.userGetPortalBalance = async(req, res, next) => {
 
     console.log(`Pending Balance: ${pendingRecharge}`);
     let actualbalance = mainBalance - pendingRecharge
+
+    return actualbalance
+}
+
+exports.userGetPortalBalance = async(req, res, next) => {
+    let username = req.body.username
+    // let mainBalance = 0.00;
+    // const user = await db.user.findOne({
+    //     where: {
+    //         phone: username
+    //     }
+    // })
+
+    // const agentTrx = await db.agenttransaction.findAll({
+    //     where: {
+    //         userId: user.uuid
+    //     }
+    // })
+
+    // for (let i = 0; i < agentTrx.length; i++) {
+    //     mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
+    // }
+
+    // console.log(`main balance from trasaction calculation , ${mainBalance}`)
+    // const lockedbalances = await db.lockedbalance.findAll({
+    //     where: {
+    //         lockedStatus: true,
+    //         userId: user.uuid
+    //     }
+    // })
+
+    // let pendingRecharge = 0.00
+
+    // for (let i = 0; i < lockedbalances.length; i++) {
+    //     pendingRecharge += lockedbalances[i].amountLocked
+    // }
+
+    // console.log(`Pending Balance: ${pendingRecharge}`);
+    // let actualbalance = mainBalance - pendingRecharge
+
+    const actualbalance = await this.userPortalBalance(username)
+    console.log(actualbalance);
 
     res.status(200).json({
         message: "portal balance request",
@@ -385,6 +426,8 @@ exports.recharge = async(req, res, next) => {
         circle_code: req.body.circle_code,
         prefix: req.body.prefix
     }
+
+    const userbalance = await this.userPortalBalance(data.username);
 
     let debit_amount = 0.0
 
@@ -679,11 +722,11 @@ exports.recharge = async(req, res, next) => {
                 console.log("Organization earning : ", orgEarning);
                 apiResp = {
                     status: "success",
-                    balance: (balance.balance - debit_amount),
+                    balance: (userbalance - debit_amount),
                     api_trans_code: 12,
                     message: [{
                         "description": "Transaction successfull",
-                        "code": 200,
+                        "code": "200",
                     }],
                     trans_id: "",
                     trans_code: "",
@@ -742,11 +785,11 @@ exports.recharge = async(req, res, next) => {
 
                 apiResp = {
                     status: "failed",
-                    balance: balance.balance,
+                    balance: userbalance,
                     api_trans_code: 12,
                     message: [{
-                        "description": "Transaction successfull",
-                        "code": 200,
+                        "description": "Transaction was unsuccessfull",
+                        "code": "200",
                     }],
                     trans_id: "",
                     trans_code: "",
@@ -756,12 +799,12 @@ exports.recharge = async(req, res, next) => {
             }
         }else{
             apiResp = {
-                status: "success",
-                balance: balance.balance,
+                status: "failed",
+                balance: userbalance,
                 api_trans_code: 12,
                 message: [{
-                    "description": "Transaction successfull",
-                    "code": 200,
+                    "description": "Transaction was unsuccessfull",
+                    "code": "200",
                 }],
                 trans_id: "",
                 trans_code: "",
@@ -771,4 +814,4 @@ exports.recharge = async(req, res, next) => {
         }
     }
     res.json(apiResp)
-}   
+}

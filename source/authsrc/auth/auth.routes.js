@@ -13,6 +13,7 @@ module.exports = app => {
     const bcrypt = require("bcrypt");
     const db = require("../../models");
     const User = db.user
+    const recharge = require("../../controllers/recharge.js");
 
     const authRoute = express.Router();
     // import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
@@ -156,6 +157,8 @@ module.exports = app => {
             const username = req.body.username
             const password = req.body.password
 
+            const userbalance = await recharge.userPortalBalance(username)
+
             console.log("username , password")
 
             if (!username || !password){
@@ -289,7 +292,7 @@ module.exports = app => {
 
             res.json({
                 status: status,
-                balance: 0.111,
+                balance: userbalance,
                 address: address,
                 currency: "United Arab Emirates Dirham",
                 email: email,
