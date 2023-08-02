@@ -183,9 +183,7 @@ exports.operatorCheck = async(req, res, next) => {
         circle_code: country.short
     }
 
-    res.json({
-        msg: res_data
-    })
+    res.json(res_data)
 }
 
 exports.customerBalanceTransferRequest = async(req, res, next) => {
