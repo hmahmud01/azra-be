@@ -226,7 +226,6 @@ module.exports = app => {
                         }
                     }).then(data => {
                         if (data){
-                            console.log(data.logo);
                             let settingdat = {
                                 name: network[j].name,
                                 group: "recharge",
