@@ -427,6 +427,9 @@ exports.recharge = async(req, res, next) => {
         prefix: req.body.prefix
     }
 
+    var now = new Date();
+    // now.format("dd/MM/yyyy hh:mm TT");
+
     const userbalance = await this.userPortalBalance(data.username);
 
     let debit_amount = 0.0
@@ -723,15 +726,15 @@ exports.recharge = async(req, res, next) => {
                 apiResp = {
                     status: "success",
                     balance: (userbalance - debit_amount),
-                    api_trans_code: 12,
+                    api_trans_code: api.id,
                     message: [{
                         "description": "Transaction successfull",
                         "code": "200",
                     }],
-                    trans_id: "",
-                    trans_code: "",
-                    trans_date: "",
-                    request_endtime: ""
+                    trans_id: data.sub_operator_code + transaction.id,
+                    trans_code: `${api.code}-${transaction.uuid}`,
+                    trans_date: now,
+                    request_endtime: now
                 }
             } else {
                 const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -786,30 +789,30 @@ exports.recharge = async(req, res, next) => {
                 apiResp = {
                     status: "failed",
                     balance: userbalance,
-                    api_trans_code: 12,
+                    api_trans_code: api.id,
                     message: [{
                         "description": "Transaction was unsuccessfull",
                         "code": "200",
                     }],
-                    trans_id: "",
-                    trans_code: "",
-                    trans_date: "",
-                    request_endtime: ""
+                    trans_id: data.sub_operator_code + transaction.id,
+                    trans_code: `${api.code}-${transaction.uuid}`,
+                    trans_date: now,
+                    request_endtime: now
                 }
             }
         }else{
             apiResp = {
                 status: "failed",
                 balance: userbalance,
-                api_trans_code: 12,
+                api_trans_code: api.id,
                 message: [{
                     "description": "Transaction was unsuccessfull",
                     "code": "200",
                 }],
-                trans_id: "",
-                trans_code: "",
-                trans_date: "",
-                request_endtime: ""
+                trans_id: data.sub_operator_code + transaction.id,
+                trans_code: `${api.code}-${transaction.uuid}`,
+                trans_date: now,
+                request_endtime: now
             }
         }
     }
