@@ -210,6 +210,7 @@ module.exports = app => {
             const countries = await db.country.findAll()
             
             for (let i=0; i<countries.length; i++){
+                
                 let cid = countries[i].uuid
                 let networkdata = []
                 const network = await db.mobile.findAll({
@@ -218,7 +219,16 @@ module.exports = app => {
                     }
                 })
 
+
+
                 for (let j=0; j<network.length; j++){
+
+                    const operatorcode = await db.operatorCode.findOne({
+                        where: {
+                            countryId: cid,
+                            mobileId: network[j].uuid
+                        }
+                    })
 
                     const settingdata = await db.mobilesetting.findOne({
                         where: {
@@ -249,25 +259,32 @@ module.exports = app => {
                                 },
                                 country_code: countries[i].short,
                                 data : [
-                                    countries[i].name,
-                                    countries[i].name,
-                                    countries[i].short,
-                                    data.callingCode,
+                                    // countries[i].name,
+                                    // countries[i].name,
+                                    // countries[i].short,
+                                    
+                                    network[j].name,
+                                    network[j].name,
+                                    operatorcode.operatorCode,
+                                    // settingdata.max_length
+                                    (data.max_length).toString(),
                                 ]
                             }
                             console.log("Network DATA");
                             networkdata.push(settingdat);
                             console.log(networkdata);
                         }
-                        let countryData = {
-                            name: countries[i].name,
-                            iso_2: countries[i].short,
-                            services: networkdata
-                        }
-                        countryServices.push(countryData);
-                        console.log(countryServices);
+                        
                     })  
+                    
                 }
+                let countryData = {
+                    name: countries[i].name,
+                    iso_2: countries[i].short,
+                    services: networkdata
+                }
+                countryServices.push(countryData);
+                console.log(countryServices);
             }
 
             console.log("outside loop country services");
