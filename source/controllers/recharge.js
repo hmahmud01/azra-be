@@ -594,39 +594,41 @@ exports.recharge = async(req, res, next) => {
 
             console.log(`MSISDN : ${msisdn}`)
             console.log(`RECHARGE AMOUNT : ${parseInt(req.body.plan_amount)}`)
-            // const apiCall = await fetch(apiurl, {
-            //     method: 'POST',
-            //     headers: {
-            //         'x-api-key' : apikey,
-            //         'Content-Type': 'application/json'  
-            //     },
-            //     body: JSON.stringify(send_data),
-            // })
-            // .then(response => response.json())
-            // .then(async data => {
-            //     console.log("data from live : ", data)
-            //     const resp = await saveResponse(data, transaction.id);
-            //     console.log(resp);
-            //     if (data.status == "success"){
-            //         trx_data = {
-            //             transactionId: transaction.uuid,
-            //             apiId: api.uuid
-            //         }
-            //         trx_api_id = api.uuid
-            //         trx_status = true
-            //     }
-            // }) 
-            // .catch(e => {
-            //     console.log(e);
-            //     console.log("LIVE DIDNT WORK");
-            // }) 
+            const apiCall = await fetch(apiurl, {
+                method: 'POST',
+                headers: {
+                    'x-api-key' : apikey,
+                    'Content-Type': 'application/json'  
+                },
+                body: JSON.stringify(send_data),
+            })
+            .then(response => response.json())
+            .then(async data => {
+                console.log("data from live : ", data)
+                const resp = await saveResponse(data, transaction.id);
+                console.log(resp);
+                if (data.status == "success"){
+                    trx_data = {
+                        transactionId: transaction.uuid,
+                        apiId: api.uuid
+                    }
+                    trx_api_id = api.uuid
+                    trx_status = true
+                }
+            }) 
+            .catch(e => {
+                console.log(e);
+                console.log("LIVE DIDNT WORK");
+            }) 
 
-            trx_status = true
-            trx_api_id = api.uuid
-            trx_data = {
-                transactionId: transaction.uuid,
-                apiId: api.uuid
-            }
+
+            // DUMMY RESPONSE
+            // trx_status = true
+            // trx_api_id = api.uuid
+            // trx_data = {
+            //     transactionId: transaction.uuid,
+            //     apiId: api.uuid
+            // }
             // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);
             console.log("Api ID: ", trx_api_id);

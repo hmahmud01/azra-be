@@ -32,6 +32,7 @@ exports.walletHistory = async(req, res, next) => {
     let reqData = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
 
     let balance_info = []
+    let payment_info = []
     const user = await db.user.findOne({
         where: {
             phone: req.body.username
@@ -45,38 +46,23 @@ exports.walletHistory = async(req, res, next) => {
     })
 
     for (let i = 0; i<trx.length; i++){
-        let paid_amount = 0
-        if(trx[i].transferedAmount == 0){
-            paid_amount = trx[i].dedcutedAmount
-        }else if(trx[i].dedcutedAmount == 0){
-            paid_amount = trx[i].transferedAmount
-        }else {
-            paid_amount = 0
-        }
-        let info = {
-            voucher_no: `AZR 00 ${trx[i].id}`,
+        let balanceinfo = {
+            voucher_no: `BTC 00 ${trx[i].id}`,
             voucher_date: trx[i].createdAt,
-            paid_amount: paid_amount.toString()
+            paid_amount: trx[i].transferedAmount.toString()
         }
 
-        balance_info.push(info)
+        balance_info.push(balanceinfo)
+        let paymentinfo = {
+            voucher_no: `RVC 00 ${trx[i].id}`,
+            voucher_date: trx[i].createdAt,
+            paid_amount: trx[i].dedcutedAmount.toString()
+        }
+        payment_info.push(paymentinfo)
     }
 
-    let data = {
-        balance_info: [{
-            voucher_no: "BTC 56891",
-            voucher_date: "2023-07-14 08:43:47",
-            paid_amount: "100.00000"
-        }, {
-            voucher_no: "BTC 56246",
-            voucher_date: "2023-06-25 23:21:31",
-            paid_amount: "100.00000"
-        }, {
-            voucher_no: "BTC 56165",
-            voucher_date: "2023-06-24 09:47:34",
-            paid_amount: "100.00000"
-        }]
-    }
-
-    res.json(balance_info)
+    res.json({
+        balance_info: balance_info,
+        payment_info: payment_info
+    })
 }
