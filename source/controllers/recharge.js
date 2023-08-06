@@ -801,7 +801,7 @@ exports.recharge = async(req, res, next) => {
                 }
             }
         }else if(api.code == "RDY"){
-            console.log("RDY CONNECTED");
+            console.log("=========\nRDY CONNECTE\n===========");
             // DUMMY RESPONSE
             trx_status = true
             trx_api_id = api.uuid
@@ -981,7 +981,7 @@ exports.recharge = async(req, res, next) => {
                 }
             }
         }else if(api.code == "EZL"){
-            console.log("EZL WORKING");
+            console.log("=========\nEZL CONNECTE\n===========");
             // DUMMY RESPONSE
             trx_status = true
             trx_api_id = api.uuid
