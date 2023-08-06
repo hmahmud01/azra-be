@@ -800,6 +800,366 @@ exports.recharge = async(req, res, next) => {
                     request_endtime: now
                 }
             }
+        }else if(api.code == "RDY"){
+            console.log("RDY CONNECTED");
+            // DUMMY RESPONSE
+            trx_status = true
+            trx_api_id = api.uuid
+            trx_data = {
+                transactionId: transaction.uuid,
+                apiId: api.uuid
+            }
+            // TRANSACTION RECORDS
+            console.log("Transaction Data : ", trx_data);
+            console.log("Api ID: ", trx_api_id);
+            console.log("Transaction Status : ", trx_status);
+            
+            if (trx_status) {
+                const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
+                const syslog = await db.systemlog.create({
+                    type: "Recharge",
+                    detail: logmsg
+                })
+
+                const apitrx = await db.apitransaction.create(trx_data)
+
+                const updateNumber = await db.lockednumber.update(
+                    {
+                        status: false,
+                    },
+                    {
+                        where: {
+                            id: lockedNumber.id
+                        }
+                    }
+                )
+
+                const updateBalance = await db.lockedbalance.update(
+                    {
+                        lockedStatus: false,
+                        api_trx_id: apitrx.uuid
+                    },
+                    {
+                        where: {
+                            id: lockedBalance.id
+                        }
+                    }
+                )
+
+                const record = await db.transactionrecordapi.create({
+                    apiTransactionId: apitrx.uuid,
+                    status: true,
+                    statement: "Successfully recharged"
+                })
+                console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
+                console.log("Add a entry of success recharge balance and adjust the agents real balance");
+
+                // TODO
+                // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
+                const percent = await db.agentpercentage.findOne({
+                    where: {
+                        userId: user.uuid,
+                    }
+                })
+
+                console.log("Agent Percentage : ", percent.percentage);
+
+                let earned = debit_amount / 100 * percent.percentage
+
+                const earnedData = {
+                    userId: user.uuid,
+                    amount: earned,
+                    trxId: transaction.uuid
+                }
+
+                const agentEarning = await db.agentearning.create(earnedData)
+
+                console.log("Agent Earned : ", agentEarning);
+
+                // CREATE ENTRY ON AGENTEARNING TABLE
+                // GET API PERCENTAGE FROM APIPERCENT TABLE
+                // const orgPercent = 2.0
+
+                const orgPercent = await db.apipercent.findOne({
+                    where: {
+                        apiId: trx_api_id,
+                        mobileId: network.uuid
+                    }
+                })
+
+                console.log("Organization Percent : ", orgPercent);
+                let perc = 0.0
+                if (orgPercent == null){
+                    perc = 0.1
+                }else{
+                    perc = orgPercent.percent
+                }
+
+                let orgCut = debit_amount / 100 * perc
+                const orgEarnedData = {
+                    transactionId: transaction.uuid,
+                    apiId: trx_api_id,
+                    cutAmount: orgCut
+                }
+                const orgEarning = await db.organizationearned.create(orgEarnedData)
+                console.log("Organization earning : ", orgEarning);
+                apiResp = {
+                    status: "success",
+                    balance: (userbalance - debit_amount),
+                    api_trans_code: api.id,
+                    message: [{
+                        "description": "Transaction successfull",
+                        "code": "200",
+                    }],
+                    trans_id: data.sub_operator_code + transaction.id,
+                    trans_code: `${api.code}-${transaction.uuid}`,
+                    trans_date: now,
+                    request_endtime: now
+                }
+            } else {
+                const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
+                const syslog = await db.systemlog.create({
+                    type: "Recharge",
+                    detail: logmsg
+                })
+                const upd_transaction = await db.transaction.update(
+                    {
+                        rechargeStatus: false
+                    },
+                    {
+                        where: {
+                            id: transaction.id,
+                        }
+                })
+
+                const transfer = await db.agenttransaction.create({
+                    userId: user.uuid,
+                    transferedAmount: debit_amount,
+                    dedcutedAmount: 0.00,
+                    transactionId: transaction.uuid
+                })
+
+                console.log("transaction returned");
+
+                const updateNumber = await db.lockednumber.update(
+                    {
+                        status: false,
+                        trx_id: transaction.uuid
+                    },
+                    {
+                        where: {
+                            id: lockedNumber.id
+                        }
+                    }
+                )
+
+                const updateBalance = await db.lockedbalance.update(
+                    {
+                        lockedStatus: false,
+                    },
+                    {
+                        where: {
+                            id: lockedBalance.id
+                        }
+                    }
+                )
+                console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
+                console.log("Balance Unavailable");
+
+                apiResp = {
+                    status: "failed",
+                    balance: userbalance,
+                    api_trans_code: api.id,
+                    message: [{
+                        "description": "Transaction was unsuccessfull",
+                        "code": "200",
+                    }],
+                    trans_id: data.sub_operator_code + transaction.id,
+                    trans_code: `${api.code}-${transaction.uuid}`,
+                    trans_date: now,
+                    request_endtime: now
+                }
+            }
+        }else if(api.code == "EZL"){
+            console.log("EZL WORKING");
+            // DUMMY RESPONSE
+            trx_status = true
+            trx_api_id = api.uuid
+            trx_data = {
+                transactionId: transaction.uuid,
+                apiId: api.uuid
+            }
+            // TRANSACTION RECORDS
+            console.log("Transaction Data : ", trx_data);
+            console.log("Api ID: ", trx_api_id);
+            console.log("Transaction Status : ", trx_status);
+            
+            if (trx_status) {
+                const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
+                const syslog = await db.systemlog.create({
+                    type: "Recharge",
+                    detail: logmsg
+                })
+
+                const apitrx = await db.apitransaction.create(trx_data)
+
+                const updateNumber = await db.lockednumber.update(
+                    {
+                        status: false,
+                    },
+                    {
+                        where: {
+                            id: lockedNumber.id
+                        }
+                    }
+                )
+
+                const updateBalance = await db.lockedbalance.update(
+                    {
+                        lockedStatus: false,
+                        api_trx_id: apitrx.uuid
+                    },
+                    {
+                        where: {
+                            id: lockedBalance.id
+                        }
+                    }
+                )
+
+                const record = await db.transactionrecordapi.create({
+                    apiTransactionId: apitrx.uuid,
+                    status: true,
+                    statement: "Successfully recharged"
+                })
+                console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
+                console.log("Add a entry of success recharge balance and adjust the agents real balance");
+
+                // TODO
+                // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
+                const percent = await db.agentpercentage.findOne({
+                    where: {
+                        userId: user.uuid,
+                    }
+                })
+
+                console.log("Agent Percentage : ", percent.percentage);
+
+                let earned = debit_amount / 100 * percent.percentage
+
+                const earnedData = {
+                    userId: user.uuid,
+                    amount: earned,
+                    trxId: transaction.uuid
+                }
+
+                const agentEarning = await db.agentearning.create(earnedData)
+
+                console.log("Agent Earned : ", agentEarning);
+
+                // CREATE ENTRY ON AGENTEARNING TABLE
+                // GET API PERCENTAGE FROM APIPERCENT TABLE
+                // const orgPercent = 2.0
+
+                const orgPercent = await db.apipercent.findOne({
+                    where: {
+                        apiId: trx_api_id,
+                        mobileId: network.uuid
+                    }
+                })
+
+                console.log("Organization Percent : ", orgPercent);
+                let perc = 0.0
+                if (orgPercent == null){
+                    perc = 0.1
+                }else{
+                    perc = orgPercent.percent
+                }
+
+                let orgCut = debit_amount / 100 * perc
+                const orgEarnedData = {
+                    transactionId: transaction.uuid,
+                    apiId: trx_api_id,
+                    cutAmount: orgCut
+                }
+                const orgEarning = await db.organizationearned.create(orgEarnedData)
+                console.log("Organization earning : ", orgEarning);
+                apiResp = {
+                    status: "success",
+                    balance: (userbalance - debit_amount),
+                    api_trans_code: api.id,
+                    message: [{
+                        "description": "Transaction successfull",
+                        "code": "200",
+                    }],
+                    trans_id: data.sub_operator_code + transaction.id,
+                    trans_code: `${api.code}-${transaction.uuid}`,
+                    trans_date: now,
+                    request_endtime: now
+                }
+            } else {
+                const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
+                const syslog = await db.systemlog.create({
+                    type: "Recharge",
+                    detail: logmsg
+                })
+                const upd_transaction = await db.transaction.update(
+                    {
+                        rechargeStatus: false
+                    },
+                    {
+                        where: {
+                            id: transaction.id,
+                        }
+                })
+
+                const transfer = await db.agenttransaction.create({
+                    userId: user.uuid,
+                    transferedAmount: debit_amount,
+                    dedcutedAmount: 0.00,
+                    transactionId: transaction.uuid
+                })
+
+                console.log("transaction returned");
+
+                const updateNumber = await db.lockednumber.update(
+                    {
+                        status: false,
+                        trx_id: transaction.uuid
+                    },
+                    {
+                        where: {
+                            id: lockedNumber.id
+                        }
+                    }
+                )
+
+                const updateBalance = await db.lockedbalance.update(
+                    {
+                        lockedStatus: false,
+                    },
+                    {
+                        where: {
+                            id: lockedBalance.id
+                        }
+                    }
+                )
+                console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
+                console.log("Balance Unavailable");
+
+                apiResp = {
+                    status: "failed",
+                    balance: userbalance,
+                    api_trans_code: api.id,
+                    message: [{
+                        "description": "Transaction was unsuccessfull",
+                        "code": "200",
+                    }],
+                    trans_id: data.sub_operator_code + transaction.id,
+                    trans_code: `${api.code}-${transaction.uuid}`,
+                    trans_date: now,
+                    request_endtime: now
+                }
+            }
         }else{
             apiResp = {
                 status: "failed",
