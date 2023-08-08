@@ -403,7 +403,7 @@ const saveResponse = async (response, trxId) => {
     const trxResp = await db.transactionresponse.create({
         transactionId: trxId,
         status: true,
-        response: response.errorMessage
+        response: response
     })
 
     console.log("TRX RESPONSE: ", trxResp);
@@ -424,6 +424,9 @@ exports.recharge = async(req, res, next) => {
         circle_code: req.body.circle_code,
         prefix: req.body.prefix
     }
+
+    console.log("DATA")
+    console.log(data)
 
     var now = new Date();
     // now.format("dd/MM/yyyy hh:mm TT");
@@ -473,6 +476,9 @@ exports.recharge = async(req, res, next) => {
             operator_code: data.sub_operator_code
         }
     })
+    console.log(data.sub_operator_code)
+    console.log("PLAN TYPES")
+    console.log(plan_type)
 
     const network = await db.mobile.findOne({
         where: {
@@ -802,13 +808,88 @@ exports.recharge = async(req, res, next) => {
             }
         }else if(api.code == "RDY"){
             console.log("=========\nRDY CONNECTE\n===========");
-            // DUMMY RESPONSE
-            trx_status = true
-            trx_api_id = api.uuid
-            trx_data = {
-                transactionId: transaction.uuid,
-                apiId: api.uuid
+
+            const apiUrl = "https://www.rechargedaddy.in/RDRechargeAPI/RechargeAPI.aspx"
+            const checkUrl = "https://www.rechargedaddy.in/RDRechargeAPI/RechargeAPI.aspx"
+            let refno = "RDY - " + transaction.uuid
+            let respData = {
+                "MobileNo": "9947539329",
+                "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
+                "REQTYPE": "RECH",
+                "REFNO": refno,
+                "SERCODE": "VF",
+                "CUSTNO": data.ui_number,
+                "AMT": parseInt(data.plan_amount),
+                "STV": 0,
+                "RESPTYPE": "JSON"
+
             }
+
+            var formBody = [];
+            for (var property in respData) {
+                var encodedKey = encodeURIComponent(property);
+                var encodedValue = encodeURIComponent(details[property]);
+                formBody.push(encodedKey + "=" + encodedValue);
+            }
+            formBody = formBody.join("&");
+
+            const apiCall = await fetch(apiUrl, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody
+            })
+            .then(response => response.json())
+            .then(async data => {
+                let checkData = {
+                    "MobileNo": "9947539329",
+                    "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
+                    "REQTYPE": "STATUS",
+                    "REFNO": refno,
+                    "RESPTYPE": "JSON"
+                }
+
+                var formData = [];
+                for (var property in checkData) {
+                    var encodedKey = encodeURIComponent(property);
+                    var encodedValue = encodeURIComponent(details[property]);
+                    formData.push(encodedKey + "=" + encodedValue);
+                }
+                formData = formData.join("&");
+
+                const trxCheck = await fetch(checkUrl, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formBody
+                })
+                .then(response => response.json())
+                .then(async data => {
+                    console.log(data);
+                    // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
+                    const respMsg = `StatusCode: ${data.STATUSCODE}, StatusMSG: ${data.STATUSMSG} , REFNO: ${data.REFNO} , TRNID: ${data.TRNID} , TRNSTATUS : ${data.TRNSTATUS} , OPRID : ${data.OPRID}`
+                    const resp = await saveResponse(respMsg, data.TRNID)
+                    if(data.STATUSMSG == "Success"){
+                        trx_data = {
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
+                        }
+                        trx_api_id = api.uuid
+                        trx_status = true
+                    }
+                })
+                .catch(e=> {
+                    console.log(e)
+                    console.log("EZL didnt work")
+                })
+            })
+            // DUMMY RESPONSE
+            // trx_status = true
+            // trx_api_id = api.uuid
+            // trx_data = {
+            //     transactionId: transaction.uuid,
+            //     apiId: api.uuid
+            // }
             // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);
             console.log("Api ID: ", trx_api_id);
@@ -982,13 +1063,69 @@ exports.recharge = async(req, res, next) => {
             }
         }else if(api.code == "EZL"){
             console.log("=========\nEZL CONNECTE\n===========");
-            // DUMMY RESPONSE
-            trx_status = true
-            trx_api_id = api.uuid
-            trx_data = {
-                transactionId: transaction.uuid,
-                apiId: api.uuid
+
+            const apiUrl = "https://payments-central.com/api/User/Transaction"
+            const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
+
+            // phonenumber can be with prefix or not
+            const send_data ={
+                "SessionId":"aaead679d0aa42acbc43a62a154279a2",
+                "ServiceId":3,
+                "Input":{
+                    "Amount": parseInt(req.body.plan_amount),
+                    "PhoneNumber": data.ui_number
+                },
+                "Reference": "01" + transaction.uuid
             }
+
+            const apiCall = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(send_data)
+            })
+            .then(response => response.json())
+            .then(async data => {
+                let trxId = data.TransactionId
+                let trxcheck = {
+                    SessionId:"aaead679d0aa42acbc43a62a154279a2",
+                    TransactionId: trxId
+                }
+                const checkTrx = await fetch(checkUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify(trxcheck)
+                })
+                .then(response => response.json())
+                .then(async data => {
+                    console.log(data)
+                    let trxMsg = `TransactionStatusCode : ${data.TransactionStatusCode} , TransactionStatusName : ${data.TransactionStatusName} , Message: ${data.Message}`
+                    const resp = await saveResponse(trxMsg, trxId);
+                    if(data.TransactionStatusName == "Successful"){
+                        trx_data = {
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
+                        }
+                        trx_api_id = api.uuid
+                        trx_status = true
+                    }
+                })
+                .catch(e => {
+                    console.log(e);
+                    console.log("EZL didn't work")
+                })
+            })
+            
+            // DUMMY RESPONSE
+            // trx_status = true
+            // trx_api_id = api.uuid
+            // trx_data = {
+            //     transactionId: transaction.uuid,
+            //     apiId: api.uuid
+            // }
             // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);
             console.log("Api ID: ", trx_api_id);
