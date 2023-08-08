@@ -860,6 +860,7 @@ exports.recharge = async(req, res, next) => {
             // formBody = formBody.join("&");
 
             const apiCall = await fetch(apiUrl, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -885,6 +886,7 @@ exports.recharge = async(req, res, next) => {
                 // formData = formData.join("&");
 
                 const trxCheck = await fetch(checkUrl, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
