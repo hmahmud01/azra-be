@@ -2,6 +2,7 @@ const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 const fetch = require("node-fetch-commonjs");
+const qs = require('qs');
 
 const rechargeModule = require('./recharge_module');
 
@@ -812,7 +813,20 @@ exports.recharge = async(req, res, next) => {
             const apiUrl = "https://www.rechargedaddy.in/RDRechargeAPI/RechargeAPI.aspx"
             const checkUrl = "https://www.rechargedaddy.in/RDRechargeAPI/RechargeAPI.aspx"
             let refno = "RDY - " + transaction.uuid
-            let respData = {
+            // let respData = {
+            //     "MobileNo": "9947539329",
+            //     "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
+            //     "REQTYPE": "RECH",
+            //     "REFNO": refno,
+            //     "SERCODE": "VF",
+            //     "CUSTNO": data.ui_number,
+            //     "AMT": parseInt(data.plan_amount),
+            //     "STV": 0,
+            //     "RESPTYPE": "JSON"
+
+            // }
+
+            let resData = qs.stringify({
                 "MobileNo": "9947539329",
                 "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
                 "REQTYPE": "RECH",
@@ -822,46 +836,46 @@ exports.recharge = async(req, res, next) => {
                 "AMT": parseInt(data.plan_amount),
                 "STV": 0,
                 "RESPTYPE": "JSON"
+            })
 
-            }
-
-            var formBody = [];
-            for (var property in respData) {
-                var encodedKey = encodeURIComponent(property);
-                var encodedValue = encodeURIComponent(details[property]);
-                formBody.push(encodedKey + "=" + encodedValue);
-            }
-            formBody = formBody.join("&");
+            // var formBody = [];
+            // for (var property in respData) {
+            //     var encodedKey = encodeURIComponent(property);
+            //     var encodedValue = encodeURIComponent(respData[property]);
+            //     formBody.push(encodedKey + "=" + encodedValue);
+            // }
+            // formBody = formBody.join("&");
 
             const apiCall = await fetch(apiUrl, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: formBody
+                body: resData
             })
             .then(response => response.json())
             .then(async data => {
-                let checkData = {
+                console.log("API HIT DONE. CHECKING TRX")
+                let checkData = qs.stringify({
                     "MobileNo": "9947539329",
                     "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
                     "REQTYPE": "STATUS",
                     "REFNO": refno,
                     "RESPTYPE": "JSON"
-                }
+                })
 
-                var formData = [];
-                for (var property in checkData) {
-                    var encodedKey = encodeURIComponent(property);
-                    var encodedValue = encodeURIComponent(details[property]);
-                    formData.push(encodedKey + "=" + encodedValue);
-                }
-                formData = formData.join("&");
+                // var formData = [];
+                // for (var property in checkData) {
+                //     var encodedKey = encodeURIComponent(property);
+                //     var encodedValue = encodeURIComponent(checkData[property]);
+                //     formData.push(encodedKey + "=" + encodedValue);
+                // }
+                // formData = formData.join("&");
 
                 const trxCheck = await fetch(checkUrl, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: formBody
+                    body: checkData
                 })
                 .then(response => response.json())
                 .then(async data => {
