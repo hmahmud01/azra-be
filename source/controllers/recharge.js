@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 const fetch = require("node-fetch-commonjs");
 const qs = require('qs');
+const axios = require('axios');
 
 const rechargeModule = require('./recharge_module');
 
@@ -859,15 +860,26 @@ exports.recharge = async(req, res, next) => {
             // }
             // formBody = formBody.join("&");
 
-            const apiCall = await fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+            let config = {
+                method: 'get',
+                maxBodyLength: Infinity,
+                url: apiUrl,
+                headers: { 
+                  'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: resData
-            })
-            .then(response => response.json())
-            .then(async data => {
+                data : resData
+            };
+
+            // const apiCall = await fetch(apiUrl, {
+            //     method: 'GET',
+            //     headers: {
+            //         'Content-Type': 'application/x-www-form-urlencoded'
+            //     },
+            //     body: resData
+            // })
+            await axios.request(config)
+            // .then(response => response.json())
+            .then(async ({data}) => {
                 console.log("API HIT DONE. CHECKING TRX")
                 let checkData = qs.stringify({
                     "MobileNo": "9947539329",
@@ -877,6 +889,16 @@ exports.recharge = async(req, res, next) => {
                     "RESPTYPE": "JSON"
                 })
 
+                let config2 = {
+                    method: 'get',
+                    maxBodyLength: Infinity,
+                    url: checkUrl,
+                    headers: { 
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data : checkData
+                };
+
                 // var formData = [];
                 // for (var property in checkData) {
                 //     var encodedKey = encodeURIComponent(property);
@@ -885,15 +907,16 @@ exports.recharge = async(req, res, next) => {
                 // }
                 // formData = formData.join("&");
 
-                const trxCheck = await fetch(checkUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: checkData
-                })
+                // const trxCheck = await fetch(checkUrl, {
+                //     method: 'GET',
+                //     headers: {
+                //         'Content-Type': 'application/x-www-form-urlencoded'
+                //     },
+                //     body: checkData
+                // })
+                await axios.request(config2)
                 .then(response => response.json())
-                .then(async data => {
+                .then(async ({data}) => {
                     console.log(data);
                     // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
                     const respMsg = `StatusCode: ${data.STATUSCODE}, StatusMSG: ${data.STATUSMSG} , REFNO: ${data.REFNO} , TRNID: ${data.TRNID} , TRNSTATUS : ${data.TRNSTATUS} , OPRID : ${data.OPRID}`
