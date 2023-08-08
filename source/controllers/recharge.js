@@ -881,6 +881,7 @@ exports.recharge = async(req, res, next) => {
             // .then(response => response.json())
             .then(async ({data}) => {
                 console.log("API HIT DONE. CHECKING TRX")
+                console.log(data);
                 let checkData = qs.stringify({
                     "MobileNo": "9947539329",
                     "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
@@ -915,7 +916,7 @@ exports.recharge = async(req, res, next) => {
                 //     body: checkData
                 // })
                 await axios.request(config2)
-                .then(response => response.json())
+                // .then(response => response.json())
                 .then(async ({data}) => {
                     console.log(data);
                     // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
