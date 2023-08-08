@@ -28,6 +28,63 @@ exports.userDashboard = async(req, res, next) => {
     res.json(data)
 }
 
+exports.orderHistory = async(req, res, next) => {
+    let reqdata = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
+
+    let order_history = [
+        {
+            "trans_id":"TRMRGNP_TOP04082023121916139984",
+            "trans_code":"LIV-5S34SXP",
+            "ui_number":"1768865114",
+            "service_code":"MR",
+            "credit_amount":"79.00000",
+            "credit_currency":"BDT",
+            "debit_amount":"3.59091",
+            "debit_currency":"AED",
+            "operator_name":"Grameenphone",
+            "operator_code":"GNP",
+            "country_code":"BD",
+            "status":"success",
+            "trans_date":"2023-08-04 12:19:20.139185",
+            "deducted_amount":"3.16000",
+            "commission_percent":"12.00000",
+            "commission":"0.43091",
+            "service_type":"Recharge",
+            "sub_operator_code":"GNP_TOP",
+            "sub_operator_name":"Top up",
+            "operator_reference":"194730",
+            "plan_description":"50-1000"
+        }, 
+        {
+            "trans_id":"TRMRGNP_TOP01082023142026685829",
+            "trans_code":"LIV-WF9165G",
+            "ui_number":"1716920198",
+            "service_code":"MR",
+            "credit_amount":"50.00000",
+            "credit_currency":"BDT",
+            "debit_amount":"2.27273",
+            "debit_currency":"AED",
+            "operator_name":"Grameenphone",
+            "operator_code":"GNP",
+            "country_code":"BD",
+            "status":"success",
+            "trans_date":"2023-08-01 14:20:29.094669",
+            "deducted_amount":"2.00000",
+            "commission_percent":"12.00000",
+            "commission":"0.27273",
+            "service_type":"Recharge",
+            "sub_operator_code":"GNP_TOP",
+            "sub_operator_name":"Top up",
+            "operator_reference":"194316",
+            "plan_description":"50-1000"
+        }
+    ]
+
+    res.json({
+        order_history: order_history
+    })
+}
+
 exports.walletHistory = async(req, res, next) => {
     let reqData = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
 

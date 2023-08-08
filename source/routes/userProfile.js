@@ -5,6 +5,7 @@ module.exports = app => {
     profileRouter = express.Router();
     profileRouter.post('/user-dashboard', controller.userDashboard);
     profileRouter.post('/user-wallet-history', controller.walletHistory);
+    profileRouter.post('/order-history', controller.orderHistory);
 
     app.use(profileRouter);
 }
