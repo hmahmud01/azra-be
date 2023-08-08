@@ -511,9 +511,22 @@ exports.recharge = async(req, res, next) => {
         let msg = `This number is already engaged with a pending recharge : ${mobile}`;
         console.log(msg)
         console.log(lockedNumber)
-        res.status(200).json({
-            message: msg
-        })
+        // res.status(200).json({
+        //     apiResp: msg
+        // })
+        apiResp = {
+            status: "failed",
+            balance: userbalance,
+            api_trans_code: api.id,
+            message: [{
+                "description": "Transaction was unsuccessfull, Number Is busy for another trx",
+                "code": "200",
+            }],
+            trans_id: null,
+            trans_code: null,
+            trans_date: null,
+            request_endtime: null
+        }
     } else {
         let transaction_data = {
             phone: mobile,
