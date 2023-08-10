@@ -839,13 +839,24 @@ exports.recharge = async(req, res, next) => {
             //     "RESPTYPE": "JSON"
 
             // }
+            let sercode = ""
+
+            if (network.name == "Airtel"){
+                sercode = "AR"
+            }else if(network.name == "BSNL") {
+                sercode = "BS"
+            }else if(network.name == "Vodafone") {
+                sercode = "VF"
+            }else if(network.name == "Idea") {
+                sercode = "ID"
+            }
 
             let resData = qs.stringify({
                 "MobileNo": "9947539329",
                 "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
                 "REQTYPE": "RECH",
                 "REFNO": refno,
-                "SERCODE": "VF",
+                "SERCODE": sercode,
                 "CUSTNO": data.ui_number,
                 "AMT": parseInt(data.plan_amount),
                 "STV": 0,
@@ -933,7 +944,7 @@ exports.recharge = async(req, res, next) => {
                 })
                 .catch(e=> {
                     console.log(e)
-                    console.log("EZL didnt work")
+                    console.log("RDY didnt work")
                 })
             })
             // DUMMY RESPONSE
