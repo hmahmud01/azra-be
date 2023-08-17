@@ -3,6 +3,10 @@ const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 
 exports.createPlan = async(req, res, next) => {
+    let is_range = false
+    if(req.body.is_range == "True"){
+        is_range = true
+    }
     let data = {
         operator_code: req.body.operator_code,
         circle_code: req.body.circle_code,
@@ -13,7 +17,7 @@ exports.createPlan = async(req, res, next) => {
         debit_currency: req.body.debit_currency,
         validity: req.body.validity,
         narration: req.body.narration,
-        is_range: req.body.is_range,
+        is_range: is_range,
         api_plan_id: req.body.api_plan_id
     }
 
