@@ -207,7 +207,7 @@ module.exports = app => {
                     can_add_reseller: true,
                     server_address: "localhost",
                     "has_token": accessToken,
-                    "auth_id": existingUser.id
+                    "auth_id": existingUser.uuid
                 })
             }else if(post == "Reseller") {
                 res.json({
@@ -220,7 +220,7 @@ module.exports = app => {
                     can_add_customer: true,
                     server_address: "localhost",
                     "has_token": accessToken,
-                    "auth_id": existingUser.id
+                    "auth_id": existingUser.uuid
                 })
             }else if(post == "Customer") {
                 let uid = existingUser.id
