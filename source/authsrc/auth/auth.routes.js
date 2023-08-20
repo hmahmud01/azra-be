@@ -17,7 +17,7 @@ module.exports = app => {
 
     const authRoute = express.Router();
     // import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
-    const { findUserByPhone, createUserByEmailAndPassword, createSuperUser  } = require("../users/users.services.js")
+    const { findUserByPhone, createUserByEmailAndPassword, createSuperUser, findUserType  } = require("../users/users.services.js")
 
     const findMobileSetting = async(id) => {
         console.log(id);
@@ -190,149 +190,184 @@ module.exports = app => {
                 throw new Error('Invalid login credentials.');
             }
 
+            const post = findUserType(existingUser.usertype);
+
             const jti = uuidv4();
             const { accessToken, refreshToken } = generateTokens(existingUser, jti);
             await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
 
-            let uid = existingUser.id
-            let usertype = existingUser.usertype
-            let store = existingUser.store
-            let uuid = existingUser.uuid
-            let email = existingUser.email
-            let phone = existingUser.phone
-            let status = existingUser.status
-            let address = "addr"
-            let name = profileData.f_name + " " + profileData.l_name
-            let setting = {}
-
-            let countryServices = []
-
-            const countries = await db.country.findAll()
-            
-            for (let i=0; i<countries.length; i++){
-                
-                let cid = countries[i].uuid
-                let networkdata = []
-                const network = await db.mobile.findAll({
-                    where: {
-                        countryId: cid
-                    }
+            if(post == "Sales") {
+                res.json({
+                    status: true,
+                    name: existingUser.store,
+                    phone: existingUser.phone,
+                    post: post,
+                    credit_limit: "0.00000",
+                    balance: userbalance,
+                    can_add_reseller: true,
+                    server_address: "localhost",
+                    "has_token": accessToken,
+                    "auth_id": existingUser.id
                 })
+            }else if(post == "Reseller") {
+                res.json({
+                    status: true,
+                    name: existingUser.store,
+                    phone: existingUser.phone,
+                    post: post,
+                    credit_limit: "0.00000",
+                    balance: userbalance,
+                    can_add_customer: true,
+                    server_address: "localhost",
+                    "has_token": accessToken,
+                    "auth_id": existingUser.id
+                })
+            }else if(post == "Customer") {
+                let uid = existingUser.id
+                let usertype = existingUser.usertype
+                let store = existingUser.store
+                let uuid = existingUser.uuid
+                let email = existingUser.email
+                let phone = existingUser.phone
+                let status = existingUser.status
+                let address = "addr"
+                let name = profileData.f_name + " " + profileData.l_name
+                let setting = {}
 
+                let countryServices = []
 
-
-                for (let j=0; j<network.length; j++){
-
-                    const operatorcode = await db.operatorCode.findOne({
+                const countries = await db.country.findAll()
+                
+                for (let i=0; i<countries.length; i++){
+                    
+                    let cid = countries[i].uuid
+                    let networkdata = []
+                    const network = await db.mobile.findAll({
                         where: {
-                            countryId: cid,
-                            mobileId: network[j].uuid
+                            countryId: cid
                         }
                     })
 
-                    const settingdata = await db.mobilesetting.findOne({
-                        where: {
-                            mobileId: network[j].uuid
-                        }
-                    }).then(data => {
-                        if (data){
-                            let settingdat = {
-                                name: network[j].name,
-                                group: "recharge",
-                                category: "mobile",
-                                type: "operator",
-                                logo: data.logo,
-                                service_code: data.serviceCode,
-                                calling_code: [
-                                    data.callingCode,
-                                ],
-                                settings: {
-                                    code: data.serviceCode,
-                                    regex: data.regex,
-                                    max_length: data.max_length,
-                                    data: []
-                                },
-                                config: {
-                                    code: data.api_code,
-                                    regex: data.regex,
-                                    denomination_step: data.denominationStep
-                                },
-                                country_code: countries[i].short,
-                                data : [
-                                    // countries[i].name,
-                                    // countries[i].name,
-                                    // countries[i].short,
-                                    
-                                    network[j].name,
-                                    network[j].name,
-                                    operatorcode.operatorCode,
-                                    // settingdata.max_length
-                                    (data.max_length).toString(),
-                                ]
+
+
+                    for (let j=0; j<network.length; j++){
+
+                        const operatorcode = await db.operatorCode.findOne({
+                            where: {
+                                countryId: cid,
+                                mobileId: network[j].uuid
                             }
-                            console.log("Network DATA");
-                            networkdata.push(settingdat);
-                            console.log(networkdata);
-                        }
+                        })
+
+                        const settingdata = await db.mobilesetting.findOne({
+                            where: {
+                                mobileId: network[j].uuid
+                            }
+                        }).then(data => {
+                            if (data){
+                                let settingdat = {
+                                    name: network[j].name,
+                                    group: "recharge",
+                                    category: "mobile",
+                                    type: "operator",
+                                    logo: data.logo,
+                                    service_code: data.serviceCode,
+                                    calling_code: [
+                                        data.callingCode,
+                                    ],
+                                    settings: {
+                                        code: data.serviceCode,
+                                        regex: data.regex,
+                                        max_length: data.max_length,
+                                        data: []
+                                    },
+                                    config: {
+                                        code: data.api_code,
+                                        regex: data.regex,
+                                        denomination_step: data.denominationStep
+                                    },
+                                    country_code: countries[i].short,
+                                    data : [
+                                        // countries[i].name,
+                                        // countries[i].name,
+                                        // countries[i].short,
+                                        
+                                        network[j].name,
+                                        network[j].name,
+                                        operatorcode.operatorCode,
+                                        // settingdata.max_length
+                                        (data.max_length).toString(),
+                                    ]
+                                }
+                                console.log("Network DATA");
+                                networkdata.push(settingdat);
+                                console.log(networkdata);
+                            }
+                            
+                        })  
                         
-                    })  
-                    
+                    }
+                    let countryData = {
+                        name: countries[i].name,
+                        iso_2: countries[i].short,
+                        services: networkdata
+                    }
+                    countryServices.push(countryData);
+                    console.log(countryServices);
                 }
-                let countryData = {
-                    name: countries[i].name,
-                    iso_2: countries[i].short,
-                    services: networkdata
-                }
-                countryServices.push(countryData);
+
+                console.log("outside loop country services");
                 console.log(countryServices);
-            }
 
-            console.log("outside loop country services");
-            console.log(countryServices);
-
-            const headerData = {
-                name: "android_settings",
-                chk_status: "chk_running",
-                header: "Sorry",
-                content: "Application is under construction",
-                description: "",
-                highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
-                status: "running",
-                min_app_version: "68",
-                latest_app_version: "76"
-            }
-
-            res.setHeader(
-                'service_status', JSON.stringify(headerData)
-            )
-
-            res.json({
-                status: status,
-                balance: userbalance,
-                address: address,
-                currency: "United Arab Emirates Dirham",
-                email: email,
-                name: name,
-                contact_no: phone,
-                post: "Customer",
-                credit_limit: "0.000000",
-                reward_enabled: false,
-                service_status: {
-                    status: "running",
+                const headerData = {
+                    name: "android_settings",
+                    chk_status: "chk_running",
                     header: "Sorry",
                     content: "Application is under construction",
                     description: "",
                     highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                    status: "running",
                     min_app_version: "68",
                     latest_app_version: "76"
-                },
-                min_app_version: "68",
-                latest_app_version: "76",
-                server_address: process.env.SERVER_URL,
-                countries: countryServices,
-                has_token: accessToken,
-	            auth_id: uuid
-            });
+                }
+
+                const responseData = {
+                    status: status,
+                    balance: userbalance,
+                    address: address,
+                    currency: "United Arab Emirates Dirham",
+                    email: email,
+                    name: name,
+                    contact_no: phone,
+                    post: post,
+                    credit_limit: "0.000000",
+                    reward_enabled: false,
+                    service_status: {
+                        status: "running",
+                        header: "Sorry",
+                        content: "Application is under construction",
+                        description: "",
+                        highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                        min_app_version: "68",
+                        latest_app_version: "76"
+                    },
+                    min_app_version: "68",
+                    latest_app_version: "76",
+                    server_address: process.env.SERVER_URL,
+                    countries: countryServices,
+                    has_token: accessToken,
+                    auth_id: uuid
+                }
+
+                res.setHeader(
+                    'service_status', JSON.stringify(headerData)
+                )
+    
+                res.json(responseData);
+
+            }        
+
+            
 
         } catch (error) {
             res.status(200).json(

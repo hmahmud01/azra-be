@@ -4,6 +4,7 @@ const db = require("../models");
 const rechargeModule = require("./recharge");
 const calculator = require("./userprofilecalculator");
 
+// CUSTMER DASHBAORD AREA
 exports.userDashboard = async(req, res, next) => {
     let reqData = {"username":"iftay","from_date":"2023-8-2","to_date":"2023-8-2"}
 
@@ -122,4 +123,98 @@ exports.walletHistory = async(req, res, next) => {
         balance_info: balance_info,
         payment_info: payment_info
     })
+}
+
+// SALES DASHBAORD AREA
+exports.salesDashboard = async(req, res, next) => {
+    let data = {
+        "credit_balance": "11808.06000",
+        "total_credited": "10000.00000",
+        "total_transferred": "1350.00000",
+        "no_of_sales": 100,
+        "total_sales": "1097.55833",
+        "total_commission": "10.17551",
+        "total_paid": "0",
+        "total_balance_to_pay": 1087.38282,
+        "credit_total": 20849255.60281,
+        "transfer_credit": 10000.0,
+        "sub_reseller": {
+            "total_transferred": "0",
+            "no_of_sales": 32,
+            "total_sales": "448.68750",
+            "total_paid": "0",
+            "total_commission": "2.41250",
+            "total_balance_to_pay": 446.275
+        },
+        "credit_limit": "0.00000"
+    }
+
+    res.json(data)
+}
+
+exports.salesmanTransactionHistory = async(req, res, next) => {
+    let data = {
+        "transfer_info": [{
+            "code": 16,
+            "voucher_no": "BTC 58098",
+            "customer_name": "shuaa439",
+            "voucher_date": "2023-08-20 08:32:37",
+            "paid_amount": "500.00000",
+            "balance_amount": "500.00000",
+            "narration": "#APP #N/A",
+            "status": "Pending"
+        }, {
+            "code": 16,
+            "voucher_no": "BTC 58097",
+            "customer_name": "tareeq14146",
+            "voucher_date": "2023-08-20 07:49:59",
+            "paid_amount": "350.00000",
+            "balance_amount": "350.00000",
+            "narration": "#APP #N/A",
+            "status": "Pending"
+        }, {
+            "code": 16,
+            "voucher_no": "BTC 58096",
+            "customer_name": "salalla",
+            "voucher_date": "2023-08-20 07:48:47",
+            "paid_amount": "500.00000",
+            "balance_amount": "500.00000",
+            "narration": "#APP #N/A",
+            "status": "Pending"
+        }],
+        "receipt_info": [],
+        "sub_reseller_transfer_info": [],
+        "sub_reseller_receipt_info": [],
+        "sub_customer_transfer_info": [],
+        "sub_customer_receipt_info": []
+    }
+
+    res.json(data)
+}
+
+// RESELLER DASHBOARD AREA
+exports.resellerDashboard = async(req, res, next) => {
+    let data = {
+        "credit_balance": "11808.06000",
+        "total_credited": "10000.00000",
+        "total_transferred": "1350.00000",
+        "no_of_sales": 100,
+        "total_sales": "1097.55833",
+        "total_commission": "10.17551",
+        "total_paid": "0",
+        "total_balance_to_pay": 1087.38282,
+        "credit_total": 20849255.60281,
+        "transfer_credit": 10000.0,
+        "sub_reseller": {
+            "total_transferred": "0",
+            "no_of_sales": 32,
+            "total_sales": "448.68750",
+            "total_paid": "0",
+            "total_commission": "2.41250",
+            "total_balance_to_pay": 446.275
+        },
+        "credit_limit": "0.00000"
+    }
+
+    res.json(data)
 }

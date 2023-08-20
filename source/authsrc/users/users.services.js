@@ -24,6 +24,19 @@ function findUserByPhone(phone){
     })
 }
 
+function findUserType(usertype) {
+    let type = ""
+    if (usertype == "agent"){
+        type = "Customer"
+    }else if (usertype == "dealer"){
+        type = "Sales"
+    }else if (usertype == "subdealer"){
+        type = "Reseller"
+    }
+
+    return type
+}
+
 async function createSuperUser(user){
 
     const data = {
@@ -102,6 +115,7 @@ function findUserById(id){
 module.exports = {
     findUserByEmail,
     findUserByPhone,
+    findUserType,
     createSuperUser,
     findUserById,
     createUserByEmailAndPassword
