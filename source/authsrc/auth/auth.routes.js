@@ -205,9 +205,11 @@ module.exports = app => {
                     credit_limit: "0.00000",
                     balance: userbalance,
                     can_add_reseller: true,
-                    server_address: "localhost",
-                    "has_token": accessToken,
-                    "auth_id": existingUser.uuid
+                    min_app_version: "68",
+                    latest_app_version: "76",
+                    server_address: process.env.SERVER_URL,
+                    has_token: accessToken,
+                    auth_id: existingUser.uuid
                 })
             }else if(post == "Reseller") {
                 res.json({
@@ -218,9 +220,11 @@ module.exports = app => {
                     credit_limit: "0.00000",
                     balance: userbalance,
                     can_add_customer: true,
-                    server_address: "localhost",
-                    "has_token": accessToken,
-                    "auth_id": existingUser.uuid
+                    min_app_version: "68",
+                    latest_app_version: "76",
+                    server_address: process.env.SERVER_URL,
+                    has_token: accessToken,
+                    auth_id: existingUser.uuid
                 })
             }else if(post == "Customer") {
                 let uid = existingUser.id
