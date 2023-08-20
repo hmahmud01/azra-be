@@ -192,6 +192,91 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     res.json(data)
 }
 
+exports.getAllUsers = async(req, res, next) => {
+    let data = {
+        "sub_reseller_info": [{
+            "full_name": "Hossain Ali Ali Ali",
+            "address": "Sharjah Near Khanseeb Building",
+            "contact_no": "0565687120",
+            "credit_limit": "2000.00000",
+            "credit_balance": "1100.00000",
+            "username": "hossainali120"
+        }, {
+            "full_name": "Md Mijanul Hoque Hoque Hoque",
+            "address": "Abu Dhabi, UAE",
+            "contact_no": "0543676649",
+            "credit_limit": "900000.00000",
+            "credit_balance": "0.15000",
+            "username": "mijanul"
+        }, {
+            "full_name": "AL IHSAN MOBILE RESELLER RESELLER",
+            "address": "Sharjah",
+            "contact_no": "0502701971",
+            "credit_limit": "1000.00000",
+            "credit_balance": "200.00000",
+            "username": "ihsan971"
+        }, {
+            "full_name": "Aziz  Usman",
+            "address": "784198116283791 ",
+            "contact_no": "0554168654",
+            "credit_limit": "0.00000",
+            "credit_balance": "200.00000",
+            "username": "aziz6124"
+        }, {
+            "full_name": "Mohammad Shohel",
+            "address": "Rola, Shj",
+            "contact_no": "0506081646",
+            "credit_limit": "0.00000",
+            "credit_balance": "0.00000",
+            "username": "shohel646"
+        }, {
+            "full_name": "ABDUL RAHMAN Supermarket Supermarket Supermarket",
+            "address": "INTERNATIONAL CITY",
+            "contact_no": "0558090469",
+            "credit_limit": "2000.00000",
+            "credit_balance": "3.75500",
+            "username": "olaalmadina"
+        }, {
+            "full_name": "HARUN BHAI",
+            "address": "Dhira, Dubai",
+            "contact_no": "0564859738",
+            "credit_limit": "0.00000",
+            "credit_balance": "0.00000",
+            "username": "joynal738"
+        }, {
+            "full_name": "Omar Rahid ",
+            "address": "Shj@near Maga Mall",
+            "contact_no": "0567674940",
+            "credit_limit": "0.00000",
+            "credit_balance": "0.00000",
+            "username": "rahiddxb"
+        }, {
+            "full_name": "Mansoor & Rahees  RAK",
+            "address": "RAK",
+            "contact_no": "0558455516",
+            "credit_limit": "0.00000",
+            "credit_balance": "0.00000",
+            "username": "rakteam"
+        }, {
+            "full_name": "JANE ALAM ABDUL RAHMAN FREELANCER FREELANCER FREELANCER FREELANCER",
+            "address": "Used Parts Area Shj@salalim Shop",
+            "contact_no": "0566310655",
+            "credit_limit": "6000.00000",
+            "credit_balance": "1000.00000",
+            "username": "alam655"
+        }, {
+            "full_name": "RISHU MANAYIL DXB",
+            "address": "DXB AREAS",
+            "contact_no": "0501509204",
+            "credit_limit": "0.00000",
+            "credit_balance": "0.00000",
+            "username": "rishu204"
+        }]
+    }
+
+    res.json(data);
+}
+
 // RESELLER DASHBOARD AREA
 exports.resellerDashboard = async(req, res, next) => {
     let data = {
