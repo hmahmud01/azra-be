@@ -271,7 +271,57 @@ exports.getAllUsers = async(req, res, next) => {
             "credit_limit": "0.00000",
             "credit_balance": "0.00000",
             "username": "rishu204"
-        }]
+        }],
+        "customer_info":[
+            {
+               "full_name":"Madinat Al Damam Grocery",
+               "address":"Al Yarmook, Sharjah",
+               "contact_no":"0588630503",
+               "credit_limit":"2000.00000",
+               "portal_balance":"2.23978",
+               "username":"madinat503"
+            },
+            {
+               "full_name":"Rubel7099",
+               "address":"Shj ",
+               "contact_no":"0556081647",
+               "credit_limit":"1000.00000",
+               "portal_balance":"2.72000",
+               "username":"rubel7099"
+            },
+            {
+               "full_name":"DAR AL HAYAH MOBILE PHONE LLC",
+               "address":"Sharjah",
+               "contact_no":"0523115997",
+               "credit_limit":"3000.00000",
+               "portal_balance":"404.83209",
+               "username":"daralhayah"
+            },
+            {
+               "full_name":"ANIS MOBILE PHONE",
+               "address":"DXB DHIRA ",
+               "contact_no":"0502506162",
+               "credit_limit":"305.00000",
+               "portal_balance":"346.96014",
+               "username":"anisul"
+            },
+            {
+               "full_name":"AL ALAMA ELECTRONIC DEVICES",
+               "address":"Nasseriya",
+               "contact_no":"0556405999",
+               "credit_limit":"200.00000",
+               "portal_balance":"1.84011",
+               "username":"alalama999"
+            },
+            {
+               "full_name":"Al WAHA Al JADEED GROCERY",
+               "address":"RAK, UAE",
+               "contact_no":"0501721751",
+               "credit_limit":"0.00000",
+               "portal_balance":"478.27353",
+               "username":"waha751"
+            }
+         ]
     }
 
     res.json(data);

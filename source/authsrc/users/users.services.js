@@ -31,7 +31,7 @@ function findUserType(usertype) {
     }else if (usertype == "dealer"){
         type = "Sales"
     }else if (usertype == "subdealer"){
-        type = "Reseller"
+        type = "Sub Reseller"
     }
 
     return type

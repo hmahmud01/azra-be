@@ -211,7 +211,7 @@ module.exports = app => {
                     has_token: accessToken,
                     auth_id: existingUser.uuid
                 })
-            }else if(post == "Reseller") {
+            }else if(post == "Sub Reseller") {
                 res.json({
                     status: true,
                     name: existingUser.store,
