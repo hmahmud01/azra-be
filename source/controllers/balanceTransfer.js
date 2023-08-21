@@ -1,5 +1,6 @@
 const fetch = require("node-fetch-commonjs");
 const db = require("../models");
+const { stringify } = require("qs");
 
 exports.customerBalanceTransferRequestList = async(req, res, next) => {
     let data = {"voucher_no":"N/A","username_customer":"N/A","username_reseller":"iftaykher","request_status":"All"}
@@ -46,21 +47,33 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
 }
 
 exports.createBalanceTransfer = async(req, res, next) => {
+
     const transfer = await db.agenttransferrequest.create({
-        customer_name: req.body.username,
-        provider_name: req.body.username_customer,
-        prefis: "BTR",
+        customer_name: req.body.username_customer,
+        provider_name: req.body.username_provider,
+        prefix: "BTR",
         status: "Pending",
-        request_amount: req.body.amount,
+        transfer_type: null,
+        voucher_no: null,
+        requested_amount: req.body.requested_amount,
         narration: req.body.narration
     })
 
-    const trfUpdate = await db.agenttransferrequest.update({
-        voucher_no: transfer.id,
-        where: {
-            id : transfer.id
+    console.log(transfer);
+
+    const trfUpdate = await db.agenttransferrequest.update(
+        {
+            voucher_no: stringify(transfer.id)
+        },
+        {
+            where: {
+                id : transfer.id
+            }
         }
-    })
+    )
+
+    console.log("after Update")
+    console.log(trfUpdate)
 
     res.json({
         msg: "Created"
@@ -68,6 +81,17 @@ exports.createBalanceTransfer = async(req, res, next) => {
 }
 
 exports.approveTransfer = async(req, res, next) => {
+
+    let data = {
+        "username_reseller": "iftaykher",
+        "username_customer": "fulkoli038",
+        "voucher_date": "2023-8-21",
+        "amount": "30.00000",
+        "narration": "#APP #N/A",
+        "transfer_type": "credit",
+        "request_voucher_no": "6077",
+        "status": "Approved"
+    }
     let usertype = ""
     const trf = await db.agenttransferrequest.update({
         status: "Approved",
@@ -119,20 +143,129 @@ exports.approveTransfer = async(req, res, next) => {
         detail: logmsg
     })
 
-    res.json({
-        msg: "Success"
-    })
+    let resp_Data = {
+        status: "success",
+        prefix: "BTC",
+        voucher_no: "0",
+        balance: "0"
+    }
+
+    res.json(resp_Data)
 }
 
 exports.declineTransfer = async(req, res, next) => {
+    let data = {
+        "username_reseller": "iftaykher",
+        "username_customer": "fulkoli038",
+        "voucher_date": "2023-07-26",
+        "amount": "30.00000",
+        "narration": "APPROVED AGAINST #BTR 6077",
+        "request_voucher_no": "6077",
+        "status": "Rejected"
+    }
     const transfer = await db.agenttransferrequest.update({
-        status: "Rejected",
+        status: data.status,
         where: {
-            uuid: req.body.trfId
+            voucher_no: req.body.request_voucher_no
         }
     })
 
-    res.json({
-        msg: "Success"
+    let resp_Data = {
+        status: "success",
+        prefix: "BTC",
+        voucher_no: "0",
+        balance: "0"
+    }
+
+    res.json(resp_Data)
+}
+
+exports.salesmanBalanceTransfer = async(req, res, next) => {
+    let data = req.body
+
+    if(data.status == "Rejected"){
+        const transfer = await db.agenttransferrequest.update(
+            {
+                status: req.body.status,
+                transfer_type: data.transfer_type,
+            },{
+                where: {
+                    id: parseInt(req.body.request_voucher_no)
+                }
+            }
+        )
+    }else if(data.status == "Approved"){
+        let usertype = ""
+        const trfx = await db.agenttransferrequest.update(
+            {
+                status: req.body.status
+            },{
+                where: {
+                    id: parseInt(req.body.request_voucher_no)
+                }
+            }
+        )
+
+        const trf = await db.agenttransferrequest.findOne({
+            where: {
+                id: parseInt(req.body.request_voucher_no)
+            }
+        })
+
+
+
+        const user = await db.user.findOne({
+            where: {
+                phone: trf.customer_name
+            }
+        })
+
+        console.log(user)
+
+        if(user.userType == "agent"){
+            usertype = "Customer"
+        }else if(user.userType == "subdealer"){
+            usertype = "Sub Reseller"
+        }else if(user.userType == "agent"){
+            usertype = "Sales"
+        }
+
+        const transfer = await db.agenttransaction.create({
+            userId: user.uuid,
+            transferedAmount: parseInt(data.amount),
+            dedcutedAmount: 0.00
+        })
+        
+        console.log("transfer data, ", transfer);
+
+        const settlement = await db.useramountsettlement.create({
+            userId: user.uuid,
+            debit: 0.00,
+            credit: parseInt(data.amount),
+            note: "User Credit Data"
+        })
+
+        const history = await db.agenttransferhistory.create({
+            transferId: trf.uuid,
+            from: trf.provider_name,
+            to: trf.custmer_name,
+            amount: trf.requested_amount,
+            transferredToUserType: usertype
+        })
+    }
+
+    const logmsg = `${req.body.request_voucher_no} got ${req.body.status}`
+    const syslog = await db.systemlog.create({
+        type: "Credit Transfer",
+        detail: logmsg
     })
+
+    let resp_Data = {
+        status: "success",
+        prefix: "BTC",
+        voucher_no: "0",
+        balance: "0"
+    }
+
+    res.json(resp_Data)
 }
