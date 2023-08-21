@@ -7,13 +7,13 @@ module.exports = (sequelize, Sequelize) => {
         transferId: Sequelize.STRING,
         from: Sequelize.STRING,
         to: Sequelize.STRING,
+        amount: Sequelize.STRING,
         transferredToUserType: Sequelize.STRING,
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,
             defaultValue: Sequelize.NOW
         },
-        transactionId: Sequelize.STRING // Transaction Model UUID
     })
     return AgentTransferHistory;
 }
