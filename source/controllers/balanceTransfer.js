@@ -6,9 +6,9 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
     let data = {"voucher_no":"N/A","username_customer":"N/A","username_reseller":"iftaykher","request_status":"All"}
 
     const list = await db.agenttransferrequest.findAll({
-        // where: {
-        //     provider_name: req.body.username_reseller
-        // }
+        where: {
+            provider_name: req.body.username_reseller
+        }
     })
 
     let respData = {
@@ -43,7 +43,9 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
         ]
     }
 
-    res.json(respData)
+    res.json({
+        invoices: list
+    })
 }
 
 exports.createBalanceTransfer = async(req, res, next) => {
