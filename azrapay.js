@@ -59,6 +59,7 @@ require("./source/routes/recharge")(app);
 require("./source/routes/plans")(app);
 require("./source/routes/currency")(app);
 require("./source/routes/userProfile")(app);
+require("./source/routes/balanceTransfer")(app);
 
 const httpServer = http.createServer(app);
 

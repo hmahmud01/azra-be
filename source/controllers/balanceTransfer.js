@@ -10,7 +10,39 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
         }
     })
 
-    res.json(list)
+    let respData = {
+        invoices: [
+            {
+                "customer_name": "mini5005",
+                "prefix": "BTR",
+                "voucher_no": "6105",
+                "voucher_date": "2023-08-18 09:06:44",
+                "status": "Pending",
+                "requested_amount": "500.00000",
+                "narration": "Befreshminmart "
+            },
+            {
+                "customer_name": "mini5005",
+                "prefix": "BTR",
+                "voucher_no": "6105",
+                "voucher_date": "2023-08-18 09:06:44",
+                "status": "Rejected",
+                "requested_amount": "500.00000",
+                "narration": "Befreshminmart "
+            },
+            {
+                "customer_name": "mini5005",
+                "prefix": "BTR",
+                "voucher_no": "6105",
+                "voucher_date": "2023-08-18 09:06:44",
+                "status": "Approved",
+                "requested_amount": "500.00000",
+                "narration": "Befreshminmart "
+            }
+        ]
+    }
+
+    res.json(respData)
 }
 
 exports.createBalanceTransfer = async(req, res, next) => {
