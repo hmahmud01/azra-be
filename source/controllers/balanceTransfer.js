@@ -4,10 +4,10 @@ const db = require("../models");
 exports.customerBalanceTransferRequestList = async(req, res, next) => {
     let data = {"voucher_no":"N/A","username_customer":"N/A","username_reseller":"iftaykher","request_status":"All"}
 
-    const list = await db.agenttransferrequest({
-        where: {
-            provider_name: req.body.username_customer
-        }
+    const list = await db.agenttransferrequest.findAll({
+        // where: {
+        //     provider_name: req.body.username_reseller
+        // }
     })
 
     let respData = {
