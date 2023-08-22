@@ -108,7 +108,9 @@ exports.createBalanceTransfer = async(req, res, next) => {
     console.log(trfUpdate)
 
     res.json({
-        status: "Success"
+        status: "success",
+        prefix: "BTR",
+        voucher_no: transfer.id
     })
 }
 
