@@ -18,6 +18,10 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: true,
         },
         narration: Sequelize.STRING,
+        ui_voucher_date: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
         voucher_date: {
             type: Sequelize.DATE,
             allowNull: false,

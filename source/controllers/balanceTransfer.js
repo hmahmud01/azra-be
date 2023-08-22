@@ -49,18 +49,48 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
 }
 
 exports.createBalanceTransfer = async(req, res, next) => {
+    let d = {
+        "username_customer": "01646442323",
+        "voucher_date": "2023-8-22",
+        "amount": "100",
+        "narration": "bfbgbtvtv"
+    }
 
+    let data = req.body
+
+    const user = await db.user.findOne({
+        where: {
+            phone: data.username_customer
+        }
+    })
+    console.log("USER")
+    console.log(user)
+    const userprofile = await db.userprofile.findOne({
+        where: {
+            userId: user.uuid
+        }
+    })
+    console.log("USER PROFILE")
+    console.log(userprofile)
+    const username_provider = await db.user.findOne({
+        where: {
+            uuid: userprofile.connectedUser
+        }
+    })
+    console.log("USER PORVIDER")
+    console.log(username_provider)
     const transfer = await db.agenttransferrequest.create({
-        customer_name: req.body.username_customer,
-        provider_name: req.body.username_provider,
+        customer_name: data.username_customer,
+        provider_name: username_provider.phone,
         prefix: "BTR",
         status: "Pending",
         transfer_type: null,
         voucher_no: null,
-        requested_amount: req.body.requested_amount,
-        narration: req.body.narration
+        requested_amount: data.amount,
+        narration: data.narration,
+        ui_voucher_date: data.voucher_date
     })
-
+    console.log("TRANSFER DATA")
     console.log(transfer);
 
     const trfUpdate = await db.agenttransferrequest.update(
