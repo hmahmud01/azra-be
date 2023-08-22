@@ -188,7 +188,7 @@ exports.operatorCheck = async(req, res, next) => {
     res.json(res_data)
 }
 
-exports.customerBalanceTransferRequest = async(req, res, next) => {
+exports.BalanceTransfer = async(req, res, next) => {
     let customer = req.body.username_customer
     let amount = req.body.amount
     let narration = req.body.narration

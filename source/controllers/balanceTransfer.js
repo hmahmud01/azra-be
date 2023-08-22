@@ -108,7 +108,7 @@ exports.createBalanceTransfer = async(req, res, next) => {
     console.log(trfUpdate)
 
     res.json({
-        msg: "Created"
+        status: "Success"
     })
 }
 
