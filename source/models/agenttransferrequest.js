@@ -7,10 +7,16 @@ module.exports = (sequelize, Sequelize) => {
         customer_name: Sequelize.STRING,
         provider_name: Sequelize.STRING,
         prefix: Sequelize.STRING,
-        voucher_no: Sequelize.STRING,
+        voucher_no: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
         status: Sequelize.STRING,
         requested_amount: Sequelize.STRING,
-        transfer_type: Sequelize.STRING,
+        transfer_type: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
         narration: Sequelize.STRING,
         voucher_date: {
             type: Sequelize.DATE,
