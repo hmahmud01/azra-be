@@ -304,10 +304,10 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     for(let i=0; i<trx.length; i++){
         let data = {
             code: trx[i].id,
-            voucher_no: trx[i].voucher_no,
+            voucher_no: trx[i].id,
             customer_name: trx[i].customer_name,
             voucher_date: trx[i].voucher_date,
-            paid_amount: trx[i].request_amount,
+            paid_amount: trx[i].requested_amount,
             balance_amount: trx[i].request_amount,
             narration: trx[i].narration,
             status: trx[i].status
@@ -396,8 +396,8 @@ exports.getAllUsers = async(req, res, next) => {
                 full_name: `${connected_users[i].f_name} ${connected_users[i].l_name}`,
                 address: connected_users[i].address,
                 contact_no: connected_users[i].phone,
-                credit_limit: credit_info.credit_limit,
-                credit_balance: credit_info.credit,
+                credit_limit: credit_info.credit_limit.toString(),
+                credit_balance: credit_info.credit.toString(),
                 username: connected_users[i].phone
             }
 
@@ -407,8 +407,8 @@ exports.getAllUsers = async(req, res, next) => {
                 full_name: `${connected_users[i].f_name} ${connected_users[i].l_name}`,
                 address: connected_users[i].address,
                 contact_no: connected_users[i].phone,
-                credit_limit: "",
-                credit_balance: "",
+                credit_limit: "0.0000",
+                credit_balance: "0.0000",
                 username: connected_users[i].phone
             }
             data = data_1
