@@ -31,6 +31,125 @@ exports.userDashboard = async(req, res, next) => {
 
 exports.orderHistory = async(req, res, next) => {
     let reqdata = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
+    let history = []
+    const user = await db.user.findOne({
+        where: {
+            phone: req.body.username
+        }
+    })
+
+    const userPercent = await db.agentpercentage.findOne({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    const agnttrx = await db.agenttransaction.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    console.log(agnttrx)
+
+
+    for(let i=0; i<agnttrx.length; i++){
+        console.log(`agetrsx ${i}`)
+
+        if (agnttrx[i].transactionId != null){
+            const trx = await db.transaction.findOne({
+                where:{
+                    uuid: agnttrx[i].transactionId
+                }  
+            })
+    
+            const earning = await db.agentearning.findOne({
+                where: {
+                    trxId: agnttrx[i].transactionId   
+                }
+            })
+    
+            const apiTrx = await db.apitransaction.findOne({
+                where: {
+                    transactionId: agnttrx[i].transactionId
+                }
+            })
+    
+            const country = await db.country.findOne({
+                where: {
+                    uuid: trx.countryId
+                }
+            })
+    
+            const network = await db.mobile.findOne({
+                where:{
+                    uuid: trx.mobileId
+                }
+            })
+    
+            const service = await db.service.findOne({
+                where: {
+                    uuid: trx.serviceId
+                }
+            })
+
+            console.log(service)
+    
+            const operatorcode = await db.operatorCode.findOne({
+                where: {
+                    mobileId: network.uuid
+                }
+            })
+
+            const plan = await db.plans.findOne({
+                where: {
+                    uuid: trx.planId
+                }
+            })
+
+            const planType = await db.plantypes.findOne({
+                where: {
+                    operator_code: plan.operator_code
+                }
+            })
+
+            let earned = 0.00
+
+            if(earning != null){
+                earned = earning.amount
+            }
+            
+            let data = {
+                trans_id: trx.uuid,
+                trans_code: trx.uuid,
+                ui_number: trx.phone,
+                service_code: trx.serviceId,
+                credit_amount: plan.credit_amount,
+                credit_currency: plan.credit_currency,
+                debit_amount: plan.debit_amount,
+                debit_currency: plan.debit_currency,
+                operator_name: network.name,
+                operator_code: operatorcode.operatorCode,
+                country_code: country.short,
+                status: trx.rechargeStatus,
+                trans_date: trx.createdAt,
+                deducted_amount: agnttrx[i].dedcutedAmount,
+                commission_percent: userPercent.percentage,
+                commission: earned,
+                service_type: plan.rechargeType,
+                sub_operator_code: plan.operator_code,
+                sub_operator_name: planType.type,
+                operator_reference: operatorcode.id,
+                plan_description: plan.narration
+            }
+            console.log("USER TRX HISTORY")
+            console.log(data)
+    
+            history.push(data)
+        }
+    }
+
+    
 
     let order_history = [
         {
@@ -81,8 +200,11 @@ exports.orderHistory = async(req, res, next) => {
         }
     ]
 
+    console.log("USER TRX HISTORY total")
+    console.log(history)
+
     res.json({
-        order_history: order_history
+        order_history: history
     })
 }
 
@@ -127,6 +249,24 @@ exports.walletHistory = async(req, res, next) => {
 
 // SALES DASHBAORD AREA
 exports.salesDashboard = async(req, res, next) => {
+    let dt = {"username":"iftaykher","from_date":"N/A","to_date":"N/A"}
+    let credit_limit = "0.0000"
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    let credit = await db.usercredit.findOne({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    if(credit != null){
+        credit_limit = credit.credit_limit
+    }
+    
     let data = {
         "credit_balance": "11808.06000",
         "total_credited": "10000.00000",
@@ -146,13 +286,37 @@ exports.salesDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": "0.00000"
+        "credit_limit": credit_limit
     }
 
     res.json(data)
 }
 
 exports.salesmanTransactionHistory = async(req, res, next) => {
+    let dt = {"username":"iftaykher","from_date":"2023-8-20","to_date":"2023-8-20"}
+    let transfer_info = []
+    const trx = await db.agenttransferrequest.findAll({
+        where: {
+            provider_name: req.body.username
+        }
+    })
+
+    for(let i=0; i<trx.length; i++){
+        let data = {
+            code: trx[i].id,
+            voucher_no: trx[i].voucher_no,
+            customer_name: trx[i].customer_name,
+            voucher_date: trx[i].voucher_date,
+            paid_amount: trx[i].request_amount,
+            balance_amount: trx[i].request_amount,
+            narration: trx[i].narration,
+            status: trx[i].status
+        }
+
+        transfer_info.push(data)
+    }
+
+
     let data = {
         "transfer_info": [{
             "code": 16,
@@ -182,6 +346,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
             "narration": "#APP #N/A",
             "status": "Pending"
         }],
+
         "receipt_info": [],
         "sub_reseller_transfer_info": [],
         "sub_reseller_receipt_info": [],
@@ -189,10 +354,78 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
         "sub_customer_receipt_info": []
     }
 
-    res.json(data)
+    res.json({
+        transfer_info: transfer_info,
+        receipt_info: [],
+        sub_reseller_transfer_info: [],
+        sub_reseller_receipt_info: [],
+        sub_customer_transfer_info: [],
+        sub_customer_receipt_info: []
+    })
 }
 
 exports.getAllUsers = async(req, res, next) => {
+    let data_user = {"username_reseller":"iftaykher"}
+    let sub_reseller_info = []
+    let customer_info = []
+    const user = await db.user.findOne({
+        where:{
+            phone: req.body.username_reseller
+        }
+    })
+
+    const connected_users = await db.userprofile.findAll({
+        where:{
+            connectedUser: user.uuid
+        }
+    })
+
+
+    for(let i=0; i<connected_users.length; i++){
+
+        const credit_info = await db.usercredit.findOne({
+            where: {
+                userId: connected_users[i].userId
+            }
+        })
+
+        let data = {}
+
+        if (credit_info != null){
+            let data_1 = {
+                full_name: `${connected_users[i].f_name} ${connected_users[i].l_name}`,
+                address: connected_users[i].address,
+                contact_no: connected_users[i].phone,
+                credit_limit: credit_info.credit_limit,
+                credit_balance: credit_info.credit,
+                username: connected_users[i].phone
+            }
+
+            data = data_1
+        }else{
+            let data_1 = {
+                full_name: `${connected_users[i].f_name} ${connected_users[i].l_name}`,
+                address: connected_users[i].address,
+                contact_no: connected_users[i].phone,
+                credit_limit: "",
+                credit_balance: "",
+                username: connected_users[i].phone
+            }
+            data = data_1
+        }
+
+        if(connected_users[i].role == "subdealer"){
+            sub_reseller_info.push(data)
+        }else if(connected_users[i].role == "agent"){
+            customer_info.push(data)
+        }
+    }
+
+    let res_data = {
+        sub_reseller_info: sub_reseller_info,
+        customer_info: customer_info
+    }
+
     let data = {
         "sub_reseller_info": [{
             "full_name": "Hossain Ali Ali Ali",
@@ -324,11 +557,28 @@ exports.getAllUsers = async(req, res, next) => {
          ]
     }
 
-    res.json(data);
+    res.json(res_data);
 }
 
 // RESELLER DASHBOARD AREA
 exports.resellerDashboard = async(req, res, next) => {
+    let dt = {"username":"iftaykher","from_date":"N/A","to_date":"N/A"}
+    let credit_limit = "0.0000"
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    let credit = await db.usercredit.findOne({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    if(credit != null){
+        credit_limit = credit.credit_limit
+    }
     let data = {
         "credit_balance": "11808.06000",
         "total_credited": "10000.00000",
@@ -348,7 +598,7 @@ exports.resellerDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": "0.00000"
+        "credit_limit": credit_limit
     }
 
     res.json(data)

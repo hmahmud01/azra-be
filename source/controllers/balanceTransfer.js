@@ -254,6 +254,12 @@ exports.salesmanBalanceTransfer = async(req, res, next) => {
             }
         })
 
+        const superuser = await db.user.findOne({
+            where: {
+                phone: trf.provider_name
+            }
+        })
+
         console.log(user)
 
         if(user.userType == "agent"){
@@ -286,6 +292,23 @@ exports.salesmanBalanceTransfer = async(req, res, next) => {
             amount: trf.requested_amount,
             transferredToUserType: usertype
         })
+
+        if (superuser.type != "admin"){
+            const transfer = await db.agenttransaction.create({
+                userId: superuser.uuid,
+                transferedAmount: 0.00,
+                dedcutedAmount: parseInt(data.amount)
+            })
+            
+            console.log("transfer data, ", transfer);
+    
+            const settlement = await db.useramountsettlement.create({
+                userId: user.uuid,
+                debit: parseInt(data.amount),
+                credit: 0.00,
+                note: "User Credit Amount Sent"
+            })
+        }
     }
 
     const logmsg = `${req.body.request_voucher_no} got ${req.body.status}`

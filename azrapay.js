@@ -60,6 +60,7 @@ require("./source/routes/plans")(app);
 require("./source/routes/currency")(app);
 require("./source/routes/userProfile")(app);
 require("./source/routes/balanceTransfer")(app);
+require("./source/routes/usercredit")(app);
 
 const httpServer = http.createServer(app);
 

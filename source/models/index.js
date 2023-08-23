@@ -46,6 +46,7 @@ db.transactionsource = require("./transactionsource.model.js")(sequelize, Sequel
 db.useramountsettlement = require("./useramountsettlement.model.js")(sequelize, Sequelize);
 db.userprofile = require("./userprofile.model.js")(sequelize, Sequelize);
 db.userbalance = require("./userbalance.model.js")(sequelize, Sequelize);
+db.usercredit = require("./usercredit.model.js")(sequelize, Sequelize);
 db.transactionadjustments = require("./transactionadjustments.model.js")(sequelize, Sequelize);
 db.operatorCode = require("./operatorcode.model.js")(sequelize, Sequelize);
 db.plans = require("./plans.model.js")(sequelize, Sequelize);

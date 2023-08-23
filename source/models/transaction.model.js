@@ -12,6 +12,10 @@ module.exports = (sequelize, Sequelize) => {
         countryId: Sequelize.STRING,
         mobileId: Sequelize.STRING,
         serviceId: Sequelize.STRING,
+        planId: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,

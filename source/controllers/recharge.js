@@ -537,7 +537,8 @@ exports.recharge = async(req, res, next) => {
             rechargeStatus: true,
             countryId: network.countryId,
             mobileId: network.uuid,
-            serviceId: req.body.service_code
+            serviceId: req.body.service_code,
+            planId: data.plan_id
         }
 
         const transaction = await db.transaction.create(transaction_data)
