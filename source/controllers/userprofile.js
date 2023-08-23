@@ -306,7 +306,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
             code: trx[i].id,
             voucher_no: trx[i].id,
             customer_name: trx[i].customer_name,
-            voucher_date: trx[i].voucher_date,
+            voucher_date: "2023-08-20 08:32:37",
             paid_amount: trx[i].requested_amount,
             balance_amount: trx[i].request_amount,
             narration: trx[i].narration,
