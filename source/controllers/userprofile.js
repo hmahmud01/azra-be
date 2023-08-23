@@ -286,7 +286,7 @@ exports.salesDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": credit_limit
+        "credit_limit": credit_limit.toString()
     }
 
     res.json(data)
@@ -598,7 +598,7 @@ exports.resellerDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": credit_limit
+        "credit_limit": credit_limit.toString()
     }
 
     res.json(data)
