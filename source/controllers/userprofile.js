@@ -155,10 +155,6 @@ exports.orderHistory = async(req, res, next) => {
         }
     }
 
-    
-
-    
-
     let order_history = [
         {
             "trans_id":"TRMRGNP_TOP04082023121916139984",
@@ -294,7 +290,8 @@ exports.salesDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": "0.000"
+        "credit_limit": "0.000",
+        "portal_balance": "15000.000"
     }
 
     res.json(data)
@@ -406,7 +403,8 @@ exports.getAllUsers = async(req, res, next) => {
                 contact_no: connected_users[i].phone,
                 credit_limit: credit_info.credit_limit.toString(),
                 credit_balance: credit_info.credit.toString(),
-                username: connected_users[i].phone
+                username: connected_users[i].phone,
+                portal_balance: "15000.000"
             }
 
             data = data_1
@@ -417,7 +415,8 @@ exports.getAllUsers = async(req, res, next) => {
                 contact_no: connected_users[i].phone,
                 credit_limit: "0.0000",
                 credit_balance: "0.0000",
-                username: connected_users[i].phone
+                username: connected_users[i].phone,
+                portal_balance: "15000.000"
             }
             data = data_1
         }
@@ -606,7 +605,8 @@ exports.resellerDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": "0.00"
+        "credit_limit": "0.00",
+        "portal_balance": "15000.000"
     }
 
     res.json(data)
