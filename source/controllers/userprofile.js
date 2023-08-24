@@ -119,6 +119,12 @@ exports.orderHistory = async(req, res, next) => {
                 earned = earning.amount
             }
             
+            let status = "failed"
+
+            if (trx.rechargeStatus == true){
+                status = "success"
+            }
+            
             let data = {
                 trans_id: trx.uuid,
                 trans_code: trx.uuid,
@@ -131,15 +137,15 @@ exports.orderHistory = async(req, res, next) => {
                 operator_name: network.name,
                 operator_code: operatorcode.operatorCode,
                 country_code: country.short,
-                status: trx.rechargeStatus,
+                status: status,
                 trans_date: trx.createdAt,
-                deducted_amount: agnttrx[i].dedcutedAmount,
-                commission_percent: userPercent.percentage,
-                commission: earned,
+                deducted_amount: agnttrx[i].dedcutedAmount.toString(),
+                commission_percent: userPercent.percentage.toString(),
+                commission: earned.toString(),
                 service_type: plan.rechargeType,
                 sub_operator_code: plan.operator_code,
                 sub_operator_name: planType.type,
-                operator_reference: operatorcode.id,
+                operator_reference: operatorcode.id.toString(),
                 plan_description: plan.narration
             }
             console.log("USER TRX HISTORY")
@@ -148,6 +154,8 @@ exports.orderHistory = async(req, res, next) => {
             history.push(data)
         }
     }
+
+    
 
     
 
@@ -554,7 +562,7 @@ exports.getAllUsers = async(req, res, next) => {
                "portal_balance":"478.27353",
                "username":"waha751"
             }
-         ]
+        ]
     }
 
     res.json(res_data);
