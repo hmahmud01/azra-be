@@ -369,6 +369,128 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     })
 }
 
+exports.sendBalanceToSales = async(req, res, next) => {
+    const transfer = await db.agenttransferrequest.create({
+        customer_name: req.body.customer_name,
+        provider_name: req.body.provider_name,
+        prefix: req.body.prefix,
+        status: req.body.status,
+        requested_amount: req.body.requested_amount,
+        transfer_type: req.body.transfer_type,
+        narration: req.body.narration,
+        voucher_date: req.body.voucher_date
+    })
+
+    const user = await db.user.findOne({
+        where: {
+            phone: req.body.customer_name
+        }
+    })
+
+    let usertype = ""
+
+    if(user.userType == "agent"){
+        usertype = "Customer"
+    }else if(user.userType == "subdealer"){
+        usertype = "Sub Reseller"
+    }else if(user.userType == "dealer"){
+        usertype = "Sales"
+    }
+
+    const trx = await db.agenttransaction.create({
+        userId: user.uuid,
+        transferedAmount: req.body.requested_amount,
+        dedcutedAmount: 0.00
+    })
+    
+
+    const settlement = await db.useramountsettlement.create({
+        userId: user.uuid,
+        debit: 0.00,
+        credit: req.body.requested_amount,
+        note: "User Credit Data"
+    })
+
+    const history = await db.agenttransferhistory.create({
+        transferId: transfer.uuid,
+        from: req.body.provider_name,
+        to: req.body.custmer_name,
+        amount: req.body.requested_amount,
+        transferredToUserType: usertype
+    })
+    
+    res.json({
+        status: "success"
+    })
+}
+
+exports.salesmanWalletHistory = async(req,res, next) => {
+    let data = {"username":"iftaykher","from_date":"2023-8-24","to_date":"2023-8-24"}
+
+    const user = await db.user.findOne({
+        where: {
+            phone: req.body.username
+        }
+    })
+
+    const balance_list = await db.agenttransferrequest.findAll({
+        where:{
+            customer_name: req.body.username,
+            status: "Approved"
+        }
+    })
+
+    const payment_list = await db.agenttransferrequest.findAll({
+        where:{
+            provider_name: req.body.username,
+            status: "Approved"
+        }
+    })
+
+    let balance_info = []
+    let payment_info = []
+
+    for (let i = 0; i<balance_list.length; i++){
+        let data = {
+            voucher_no: `${balance_list[i].prefix} ${balance_list[i].id}`,
+            voucher_date: balance_list[i].voucher_date,
+            paid_amount: balance_list[i].requested_amount,
+            narration: balance_list[i].narration
+        }
+
+        balance_info.push(data)
+    }
+
+    for (let i = 0; i<payment_list.length; i++){
+        let data = {
+            voucher_no: `${payment_list[i].prefix} ${payment_list[i].id}`,
+            voucher_date: payment_list[i].voucher_date,
+            paid_amount: payment_list[i].requested_amount,
+            narration: payment_list[i].narration
+        }
+
+        payment_info.push(data)
+    }
+
+    let response_data = {
+        balance_info: balance_info,
+        payment_info: payment_info
+    }
+
+    let resp_data = {
+        "balance_info": [{
+            "voucher_no": "BTR 3706",
+            "voucher_date": "2023-08-24 11:16:02",
+            "paid_amount": "10000.00000",
+            "narration": ""
+        }],
+        "payment_info": []
+    }
+
+    res.json(response_data)
+    
+}
+
 exports.getAllUsers = async(req, res, next) => {
     let data_user = {"username_reseller":"iftaykher"}
     let sub_reseller_info = []

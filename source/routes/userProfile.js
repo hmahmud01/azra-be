@@ -9,6 +9,8 @@ module.exports = app => {
     profileRouter.post('/salesman-dashboard', controller.salesDashboard);
     profileRouter.post('/get-all-users', controller.getAllUsers);
     profileRouter.post('/salesman-transaction-history', controller.salesmanTransactionHistory);
+    profileRouter.post('/salesman-wallet-history', controller.salesmanWalletHistory);
+    profileRouter.post('/send-balance-to-sales', controller.sendBalanceToSales);
     profileRouter.post('/subreseller-dashboard', controller.resellerDashboard);
 
     app.use(profileRouter);
