@@ -436,6 +436,7 @@ exports.recharge = async(req, res, next) => {
     const userbalance = await this.userPortalBalance(data.username);
 
     let debit_amount = 0.0
+    let credit_amount = 0.0
 
     let apiResp = {
         status: "failed",
@@ -503,7 +504,7 @@ exports.recharge = async(req, res, next) => {
         })
 
         debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
-
+        
     }else{
         debit_amount = plan.debit_amount
     }
@@ -1132,15 +1133,17 @@ exports.recharge = async(req, res, next) => {
             const apiUrl = "https://payments-central.com/api/User/Transaction"
             const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
 
+            const phonenumber = data.prefix + data.ui_number
+            
             // phonenumber can be with prefix or not
             const send_data ={
                 "SessionId":"aaead679d0aa42acbc43a62a154279a2",
                 "ServiceId":3,
                 "Input":{
                     "Amount": parseInt(req.body.plan_amount),
-                    "PhoneNumber": data.ui_number
+                    "PhoneNumber": phonenumber
                 },
-                "Reference": "01" + transaction.uuid
+                "Reference": "EZL-" + transaction.uuid
             }
 
             const apiCall = await fetch(apiUrl, {

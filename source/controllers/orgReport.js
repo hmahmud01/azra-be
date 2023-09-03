@@ -206,13 +206,18 @@ exports.orgReport = async(req, res, next) => {
                 uuid: result[i].apiId
             }
         })
+
+        let api_name = "API"
+        if(api != null){
+            api_name = api.name
+        }
         let data = {
             id: result[i].id,
             transactionId: result[i].transactionId,
             trxuuid: result[i].transactionId,
             rechargeAmount: trx.amount,
             apiId: result[i].apiId,
-            api: api.name,
+            api: api_name,
             cutAmount: result[i].cutAmount,
             status: trx.rechargeStatus,
             createdAt: result[i].createdAt
@@ -341,7 +346,12 @@ exports.allTransactions = async(req, res, next) => {
         const country = await db.country.findOne({where: {uuid: result[i].countryId}})
         const mobile = await db.mobile.findOne({where: {uuid: result[i].mobileId}})
         const service = await db.service.findOne({where: {uuid: result[i].serviceId}})
+        console.log(service)
 
+        let service_name = "N/A"
+        if (service != null) {
+            service_name = service.name
+        }
         let data = {
             trxId: result[i].id,
             uuid: result[i].uuid,
@@ -352,7 +362,7 @@ exports.allTransactions = async(req, res, next) => {
             store: doneBy.store,
             country: country.name,
             network: mobile.name,
-            service: service.name,
+            service: service_name,
             createdAt: result[i].createdAt
         }
         trx.push(data);
@@ -444,6 +454,16 @@ exports.trxDetail = async(req, res, next) => {
         trx_stat = trxResponse.status
     }
 
+    let service_name = "N/A"
+    if (service != null) {
+        service_name = service.name
+    }
+
+    let cutAmount = 0.00
+    if (orgEarned != null){
+        cutAmount = orgEarned.cutAmount
+    }
+
     let trx = {
         id: result.id,
         phone: result.phone,
@@ -454,13 +474,13 @@ exports.trxDetail = async(req, res, next) => {
         store: doneBy.store,
         ctry: country.name,
         mno: mobile.name,
-        service: service.name,
+        service: service_name,
         device: source.device,
         ip_addr: source.ip_addr,
         trx_resp: trx_resp,
         trx_stat: trx_stat,
         agentCut: agentEarned.amount,
-        orgCut: orgEarned.cutAmount
+        orgCut: cutAmount
     }
 
     console.log("trx : ", trx)
