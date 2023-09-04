@@ -378,8 +378,19 @@ exports.sendBalanceToSales = async(req, res, next) => {
         requested_amount: req.body.requested_amount,
         transfer_type: req.body.transfer_type,
         narration: req.body.narration,
-        voucher_date: req.body.voucher_date
+        ui_voucher_date: req.body.voucher_date
     })
+
+    // {
+    //     "customer_name": "01646442321",
+    //     "provider_name": "01797568609",
+    //     "prefix": "BTR",
+    //     "status": "Approved",
+    //     "requested_amount": "1000",
+    //     "transfer_type": "credit",
+    //     "narration": "TRANSFER TEST",
+    //     "voucher_date": "2023-08-24 11:16:02"
+    // }
 
     const user = await db.user.findOne({
         where: {
@@ -389,11 +400,11 @@ exports.sendBalanceToSales = async(req, res, next) => {
 
     let usertype = ""
 
-    if(user.userType == "agent"){
+    if(user.usertype == "agent"){
         usertype = "Customer"
-    }else if(user.userType == "subdealer"){
+    }else if(user.usertype == "subdealer"){
         usertype = "Sub Reseller"
-    }else if(user.userType == "dealer"){
+    }else if(user.usertype == "dealer"){
         usertype = "Sales"
     }
 

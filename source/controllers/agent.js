@@ -100,6 +100,29 @@ exports.balanceTransfer = async(req, res, next) => {
     let amount = req.body.amount
     let id = req.params.id
 
+    const admin_user = await db.user.findOne({
+        where: {
+            usertype: "admin"
+        }
+    })
+
+    let provider_phone = admin_user.phone
+
+    const user = await db.user.findOne({
+        where: {
+            uuid: id
+        }
+    })
+
+    let usertype = ""
+    if(user.userType == "agent"){
+        usertype = "Customer"
+    }else if(user.userType == "subdealer"){
+        usertype = "Sub Reseller"
+    }else if(user.userType == "dealer"){
+        usertype = "Sales"
+    }
+
     console.log(`Id is :${id}`)
 
     await findId(id).then(res => {uid = res});
@@ -117,6 +140,29 @@ exports.balanceTransfer = async(req, res, next) => {
         debit: 0.00,
         credit: amount,
         note: "User Credit Data"
+    })
+
+    const d = new Date()
+
+    let v_date = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+
+    const transferreq = await db.agenttransferrequest.create({
+        customer_name: user.phone,
+        provider_name: provider_phone,
+        prefix: "BTR",
+        status: "Approved",
+        requested_amount: amount,
+        transfer_type: "credit",
+        narration: "BALANCE TRANSFER",
+        ui_voucher_date: v_date
+    })
+
+    const history = await db.agenttransferhistory.create({
+        transferId: transferreq.uuid,
+        from: provider_phone,
+        to: user.phone,
+        amount: amount,
+        transferredToUserType: usertype
     })
 
     const logmsg = `Amount ${amount} has been transferred to ${id}'s account`
