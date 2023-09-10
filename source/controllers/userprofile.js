@@ -12,6 +12,24 @@ exports.userDashboard = async(req, res, next) => {
     const earn = await calculator.calculateEarning(req.body.username);
     const sales = await calculator.calculateSale(req.body.username);
     const transfer = await calculator.calculateBalance(req.body.username);
+
+    let credit_limit = "0.0000"
+    const user = await db.user.findOne({
+        where: {
+            phone: req.body.username
+        }
+    })
+
+    let credit = await db.usercredit.findOne({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    if(credit != null){
+        credit_limit = credit.credit_limit
+    }
+    
     let data = {
         portal_balance: portalBalance.toString(),
         credit_total: "5060.0",
@@ -23,7 +41,7 @@ exports.userDashboard = async(req, res, next) => {
         total_transferred: transfer.received.toString(),
         total_received: transfer.transfer.toString(),
         credit_recharge_total: transfer.balance.toString(),
-        credit_limit: "5000.00000"
+        credit_limit: credit_limit.toString()
     }
 
     res.json(data)
@@ -257,7 +275,7 @@ exports.salesDashboard = async(req, res, next) => {
     let credit_limit = "0.0000"
     const user = await db.user.findOne({
         where: {
-            phone: username
+            phone: req.body.username
         }
     })
 
@@ -290,7 +308,7 @@ exports.salesDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_limit": "0.000",
+        "credit_limit": credit_limit.toString(),
         "portal_balance": "15000.000"
     }
 
@@ -706,7 +724,7 @@ exports.resellerDashboard = async(req, res, next) => {
     let credit_limit = "0.0000"
     const user = await db.user.findOne({
         where: {
-            phone: username
+            phone: req.body.username
         }
     })
 

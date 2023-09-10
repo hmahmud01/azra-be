@@ -115,11 +115,11 @@ exports.balanceTransfer = async(req, res, next) => {
     })
 
     let usertype = ""
-    if(user.userType == "agent"){
+    if(user.usertype == "agent"){
         usertype = "Customer"
-    }else if(user.userType == "subdealer"){
+    }else if(user.usertype == "subdealer"){
         usertype = "Sub Reseller"
-    }else if(user.userType == "dealer"){
+    }else if(user.usertype == "dealer"){
         usertype = "Sales"
     }
 
