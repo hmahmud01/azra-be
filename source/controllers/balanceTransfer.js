@@ -544,3 +544,63 @@ exports.cashWithdrawal = async(req, res, next) => {
         status: "success"
     })
 }
+
+exports.getCustReceiptInfo = async(req, res, next) => {
+    let body_data = {"username_reseller":"01646442322","voucher_no":"8"}
+
+    // data['voucher_no'] = this.voucherNo;
+    // data['voucher_date'] = this.voucherDate;
+    // data['total_credit'] = this.totalCredit;
+    // data['total_received'] = this.totalReceived;
+    // data['current_outstanding'] = this.currentOutstanding;
+    // data['wallet_balance'] = this.walletBalance;
+    // data['customer_name'] = this.customerName;
+    // data['reseller_name'] = this.resellerName;
+
+    res.json({
+        status: "success",
+        data: {
+            voucher_no: "",
+            voucher_date: "",
+            total_credit: "",
+            total_received: "",
+            current_outstanding: "",
+            wallet_balance: "",
+            customer_name: "",
+            reseller_name: "",
+            transfer_invoices: [
+                {
+                    voucher_no: "",
+                    voucher_date: "",
+                    invoice_amount: "",
+                    received_amount: "",
+                    balance_amount: ""
+                }
+            ]
+        },
+        voucher_no: "",
+        voucher_date: "",
+        total_credit: "",
+        total_received: "",
+        current_outstanding: "",
+        wallet_balance: "",
+        customer_name: "",
+        reseller_name: "",
+        transfer_invoices: [
+            {
+                voucher_no: "",
+                voucher_date: "",
+                invoice_amount: "",
+                received_amount: "",
+                balance_amount: ""
+            }
+        ]
+    })
+}
+
+exports.resellerPaymentCollection = async(req, res, next) => {
+    let body_data = {"data":"{\"username_reseller\":\"01646442321\",\"voucher_date\":\"2023-9-13\",\"total_received\":\"10\",\"narration\":\"gfgdfft\",\"collection_data\":[{\"username_sub_reseller\":\"01646442322\",\"received_amount\":\"10\"}]}"}
+    res.json({
+        status: "success"
+    })
+}
