@@ -562,37 +562,37 @@ exports.getCustReceiptInfo = async(req, res, next) => {
         data: {
             voucher_no: "",
             voucher_date: "",
-            total_credit: 0.00,
-            total_received: 0.00,
-            current_outstanding: 0.00,
-            wallet_balance: 0.00,
+            total_credit: 0.1,
+            total_received: 0.1,
+            current_outstanding: 0.1,
+            wallet_balance: 0.1,
             customer_name: "",
             reseller_name: "",
             transfer_invoices: [
                 {
                     voucher_no: "",
                     voucher_date: "",
-                    invoice_amount: 0.00,
-                    received_amount: 0.00,
-                    balance_amount: 0.00
+                    invoice_amount: 0.1,
+                    received_amount: 0.1,
+                    balance_amount: 0.1
                 }
             ]
         },
         voucher_no: "",
         voucher_date: "",
-        total_credit: 0.00,
-        total_received: 0.00,
-        current_outstanding: 0.00,
-        wallet_balance: 0.00,
+        total_credit: 0.1,
+        total_received: 0.1,
+        current_outstanding: 0.1,
+        wallet_balance: 0.1,
         customer_name: "",
         reseller_name: "",
         transfer_invoices: [
             {
                 voucher_no: "",
                 voucher_date: "",
-                invoice_amount: 0.00,
-                received_amount: 0.00,
-                balance_amount: 0.00
+                invoice_amount: 0.1,
+                received_amount: 0.1,
+                balance_amount: 0.1
             }
         ]
     })
