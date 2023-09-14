@@ -291,7 +291,7 @@ exports.salesmanBalanceTransfer = async(req, res, next) => {
         const history = await db.agenttransferhistory.create({
             transferId: trf.uuid,
             from: trf.provider_name,
-            to: trf.custmer_name,
+            to: trf.customer_name,
             amount: trf.requested_amount,
             transferredToUserType: usertype
         })
@@ -382,7 +382,7 @@ exports.salesmanBalanceTransfer = async(req, res, next) => {
         const history = await db.agenttransferhistory.create({
             transferId: trf.uuid,
             from: trf.provider_name,
-            to: trf.custmer_name,
+            to: trf.customer_name,
             amount: trf.requested_amount,
             transferredToUserType: usertype
         })

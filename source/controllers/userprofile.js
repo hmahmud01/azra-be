@@ -274,6 +274,7 @@ exports.salesDashboard = async(req, res, next) => {
     let dt = {"username":"iftaykher","from_date":"N/A","to_date":"N/A"}
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     let credit_limit = "0.0000"
+    let credit_total = 0.0000
     const user = await db.user.findOne({
         where: {
             phone: req.body.username
@@ -289,6 +290,18 @@ exports.salesDashboard = async(req, res, next) => {
     if(credit != null){
         credit_limit = credit.credit_limit
     }
+
+    const trf_history = await db.agenttransferhistory.findAll({
+        where: {
+            to: req.body.username
+        }
+    })
+
+    if(trf_history != null){
+        for(let i=0; i<trf_history.length; i++){
+            credit_total += trf_history[i].amount
+        }
+    }
     
     let data = {
         "credit_balance": "11808.06000",
@@ -299,7 +312,7 @@ exports.salesDashboard = async(req, res, next) => {
         "total_commission": "10.17551",
         "total_paid": "0",
         "total_balance_to_pay": 1087.38282,
-        "credit_total": 20849255.60281,
+        "credit_total": credit_total.toString(),
         "transfer_credit": 10000.0,
         "sub_reseller": {
             "total_transferred": "0",
@@ -556,7 +569,7 @@ exports.getAllUsers = async(req, res, next) => {
                 credit_limit: credit_info.credit_limit.toString(),
                 credit_balance: credit_info.credit.toString(),
                 username: connected_users[i].phone,
-                portal_balance: portalBalance.toString()
+                portal_balance: portalBalance.toFixed(2).toString()
             }
 
             data = data_1
@@ -568,7 +581,7 @@ exports.getAllUsers = async(req, res, next) => {
                 credit_limit: "0.0000",
                 credit_balance: "0.0000",
                 username: connected_users[i].phone,
-                portal_balance: portalBalance.toString()
+                portal_balance: portalBalance.toFixed(2).toString()
             }
             data = data_1
         }
@@ -724,6 +737,7 @@ exports.resellerDashboard = async(req, res, next) => {
     let dt = {"username":"iftaykher","from_date":"N/A","to_date":"N/A"}
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     let credit_limit = "0.0000"
+    let credit_total = 0.0000
     const user = await db.user.findOne({
         where: {
             phone: req.body.username
@@ -739,6 +753,19 @@ exports.resellerDashboard = async(req, res, next) => {
     if(credit != null){
         credit_limit = credit.credit_limit
     }
+
+    const trf_history = await db.agenttransferhistory.findAll({
+        where: {
+            to: req.body.username
+        }
+    })
+
+    if(trf_history != null){
+        for(let i=0; i<trf_history.length; i++){
+            credit_total += trf_history[i].amount
+        }
+    }
+
     let data = {
         "credit_balance": "11808.06000",
         "total_credited": "10000.00000",
@@ -748,7 +775,7 @@ exports.resellerDashboard = async(req, res, next) => {
         "total_commission": "10.17551",
         "total_paid": "0",
         "total_balance_to_pay": 1087.38282,
-        "credit_total": 10.00,
+        "credit_total": credit_total.toString(),
         "transfer_credit": 10000.0,
         "sub_reseller": {
             "total_transferred": "0",
