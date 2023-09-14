@@ -3,6 +3,7 @@ const db = require("../models");
 const { stringify, parse } = require("qs");
 
 const rechargeModule = require('./recharge');
+const { prototype } = require("node-rsa");
 
 exports.customerBalanceTransferRequestList = async(req, res, next) => {
     let data = {"voucher_no":"N/A","username_customer":"N/A","username_reseller":"iftaykher","request_status":"All"}
@@ -510,6 +511,93 @@ exports.resellerBalanceTransfer = async(req, res, next) => {
     })
 }
 
+exports.balanceTransferSubReseller = async(req, res, next) =>{
+    let dt = {"username_reseller":"01646442322","username_sub_customer":"01646442323","voucher_date":"2023-9-14","amount":"100","narration":"","transfer_type":"credit"}
+
+    const reseller = await db.user.findOne({
+        where: {
+            phone: req.body.username_reseller
+        }
+    })
+
+    const sub_customer = await db.user.findOne({
+        where: {
+            phone: req.body.username_sub_customer
+        }
+    })
+
+    const transfer = await db.agenttransferrequest.create({
+        customer_name: sub_customer.phone,
+        provider_name: reseller.phone,
+        prefix: "BTSRC",
+        status: "Approved",
+        transfer_type: req.body.transfer_type,
+        voucher_no: null,
+        requested_amount: req.body.amount,
+        narration: req.body.narration,
+        ui_voucher_date: req.body.voucher_date
+    })
+
+    const history = await db.agenttransferhistory.create({
+        transferId: transfer.uuid,
+        from: transfer.provider_name,
+        to: transfer.customer_name,
+        amount: transfer.requested_amount,
+        transferredToUserType: "Customer"
+    })
+
+    const trx = await db.agenttransaction.create({
+        userId: sub_customer.uuid,
+        transfer: parseInt(req.body.amount),
+        dedcutedAmount: 0.00,
+    })
+
+    const trfx = await db.agenttransferrequest.update(
+        {
+            voucher_no: transfer.id
+        },
+        {
+            where: {
+                id: transfer.id
+            }
+        }
+    )
+
+    const settlement = await db.useramountsettlement.create({
+        userId: sub_customer.uuid,
+        debit: 0.00,
+        credit: parseInt(req.body.amount),
+        note: "User Credit Data"
+    })
+
+    if (reseller.type != "admin"){
+        const transfer = await db.agenttransaction.create({
+            userId: reseller.uuid,
+            transferedAmount: 0.00,
+            dedcutedAmount: parseInt(req.body.amount)
+        })
+        
+        console.log("transfer data, ", transfer);
+
+        const settlement = await db.useramountsettlement.create({
+            userId: reseller.uuid,
+            debit: parseInt(req.body.amount),
+            credit: 0.00,
+            note: "User Credit Amount Sent"
+        })
+    }
+
+    const portalBalance = await rechargeModule.userPortalBalance(req.body.username_reseller)
+
+    res.json({
+        status: "success",
+        message: "Transferred Successfully",
+        prefix: "BTSRC",
+        voucher_no: transfer.id,
+        portal_balance: portalBalance.toString()
+    })
+}
+
 exports.getUserOutstanding = async(req, res, next) => {
     let req_data = {"username_reseller":"iftaykher","username_sub_user":"roy415","user_type":"SUB_RESELLER"}
 
@@ -533,9 +621,9 @@ exports.getUserOutstanding = async(req, res, next) => {
     total_outstanding = total_transferred - total_received
     // {"total_transferred": "65746.0", "total_received": "64336.0", "total_outstanding": "1410.0"}
     res.json({
-        total_transferred: total_transferred,
-        total_received: total_received,
-        total_outstanding: total_outstanding
+        total_transferred: total_transferred.toFixed(2).toString(),
+        total_received: total_received.toFixed(2).toString(),
+        total_outstanding: total_outstanding.toFixed(2).toString()
     })
 }
 
