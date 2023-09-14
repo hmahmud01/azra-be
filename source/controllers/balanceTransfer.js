@@ -471,7 +471,7 @@ exports.resellerBalanceTransfer = async(req, res, next) => {
 
     const trx = await db.agenttransaction.create({
         userId: sub_reseller.uuid,
-        transfer: parseInt(req.body.amount),
+        transferedAmount: parseInt(req.body.amount),
         dedcutedAmount: 0.00,
     })
 
