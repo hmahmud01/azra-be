@@ -520,11 +520,17 @@ exports.balanceTransferSubReseller = async(req, res, next) =>{
         }
     })
 
+    console.log("RESELLER")
+    console.log(reseller)
+
     const sub_customer = await db.user.findOne({
         where: {
             phone: req.body.username_sub_customer
         }
     })
+
+    console.log("SUB CUSTOMER")
+    console.log(sub_customer)
 
     const transfer = await db.agenttransferrequest.create({
         customer_name: sub_customer.phone,
@@ -548,7 +554,7 @@ exports.balanceTransferSubReseller = async(req, res, next) =>{
 
     const trx = await db.agenttransaction.create({
         userId: sub_customer.uuid,
-        transfer: parseInt(req.body.amount),
+        transferedAmount: parseInt(req.body.amount),
         dedcutedAmount: 0.00,
     })
 
