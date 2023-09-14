@@ -272,6 +272,7 @@ exports.walletHistory = async(req, res, next) => {
 // SALES DASHBAORD AREA
 exports.salesDashboard = async(req, res, next) => {
     let dt = {"username":"iftaykher","from_date":"N/A","to_date":"N/A"}
+    const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     let credit_limit = "0.0000"
     const user = await db.user.findOne({
         where: {
@@ -538,7 +539,7 @@ exports.getAllUsers = async(req, res, next) => {
 
 
     for(let i=0; i<connected_users.length; i++){
-        const portalBalance = await rechargeModule.userGetPortalBalance(connected_users[i].phone)
+        const portalBalance = await rechargeModule.userPortalBalance(connected_users[i].phone)
         const credit_info = await db.usercredit.findOne({
             where: {
                 userId: connected_users[i].userId
