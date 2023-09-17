@@ -7,13 +7,13 @@ const calculator = require("./userprofilecalculator");
 // CUSTMER DASHBAORD AREA
 exports.userDashboard = async(req, res, next) => {
     let reqData = {"username":"iftay","from_date":"2023-8-2","to_date":"2023-8-2"}
-
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     const earn = await calculator.calculateEarning(req.body.username);
     const sales = await calculator.calculateSale(req.body.username);
     const transfer = await calculator.calculateBalance(req.body.username);
 
     let credit_limit = "0.0000"
+    let credit_total = 0.0000
     const user = await db.user.findOne({
         where: {
             phone: req.body.username
@@ -29,10 +29,22 @@ exports.userDashboard = async(req, res, next) => {
     if(credit != null){
         credit_limit = credit.credit_limit
     }
+
+    const trf_history = await db.agenttransferhistory.findAll({
+        where: {
+            to: req.body.username
+        }
+    })
+
+    if(trf_history != null){
+        for(let i=0; i<trf_history.length; i++){
+            credit_total += trf_history[i].amount
+        }
+    }
     
     let data = {
         portal_balance: portalBalance.toString(),
-        credit_total: "5060.0",
+        credit_total: credit_total.toString(),
         no_of_sales: 0,
         total_sales: sales.sale.toString(),
         total_commission: earn.earn.toString(),
@@ -304,7 +316,7 @@ exports.salesDashboard = async(req, res, next) => {
     }
     
     let data = {
-        "credit_balance": "11808.06000",
+        "credit_balance": portalBalance.toString(),
         "total_credited": "10000.00000",
         "total_transferred": "1350.00000",
         "no_of_sales": 100,
@@ -767,7 +779,7 @@ exports.resellerDashboard = async(req, res, next) => {
     }
 
     let data = {
-        "credit_balance": "11808.06000",
+        "credit_balance": portalBalance.toString(),
         "total_credited": "10000.00000",
         "total_transferred": "1350.00000",
         "no_of_sales": 100,
