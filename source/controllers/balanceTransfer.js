@@ -218,225 +218,233 @@ exports.declineTransfer = async(req, res, next) => {
 }
 
 exports.salesmanBalanceTransfer = async(req, res, next) => {
-    let data = req.body
-    console.log(data.status)
-    if(data.status == "Rejected"){
-        const transfer = await db.agenttransferrequest.update(
-            {
-                status: req.body.status,
-                transfer_type: data.transfer_type,
-            },{
-                where: {
-                    id: parseInt(req.body.request_voucher_no)
-                }
-            }
-        )
-    }else if(data.status == "Approved"){
-        let usertype = ""
-        console.log("INSIDE NUMBER")
-        const trfx = await db.agenttransferrequest.update(
-            {
-                status: req.body.status
-            },{
-                where: {
-                    id: parseInt(req.body.request_voucher_no)
-                }
-            }
-        )
-
-        const trf = await db.agenttransferrequest.findOne({
-            where: {
-                id: parseInt(req.body.request_voucher_no)
-            }
-        })
-        voucher_no = parseInt(req.body.request_voucher_no)
-    
-
-        const user = await db.user.findOne({
-            where: {
-                phone: trf.customer_name
-            }
-        })
-
-        const superuser = await db.user.findOne({
-            where: {
-                phone: trf.provider_name
-            }
-        })
-
-        console.log(user)
-
-        if(user.usertype == "agent"){
-            usertype = "Customer"
-        }else if(user.usertype == "subdealer"){
-            usertype = "Sub Reseller"
-        }else if(user.usertype == "agent"){
-            usertype = "Sales"
-        }
-
-        const transfer = await db.agenttransaction.create({
-            userId: user.uuid,
-            transferedAmount: parseInt(data.amount),
-            dedcutedAmount: 0.00
-        })
-        
-        console.log("transfer data, ", transfer);
-
-        const settlement = await db.useramountsettlement.create({
-            userId: user.uuid,
-            debit: 0.00,
-            credit: parseInt(data.amount),
-            note: "User Credit Data"
-        })
-
-        const history = await db.agenttransferhistory.create({
-            transferId: trf.uuid,
-            from: trf.provider_name,
-            to: trf.customer_name,
-            amount: trf.requested_amount,
-            transferredToUserType: usertype
-        })
-
-        if (superuser.type != "admin"){
-            const transfer = await db.agenttransaction.create({
-                userId: superuser.uuid,
-                transferedAmount: 0.00,
-                dedcutedAmount: parseInt(data.amount)
-            })
-            
-            console.log("transfer data, ", transfer);
-    
-            const settlement = await db.useramountsettlement.create({
-                userId: superuser.uuid,
-                debit: parseInt(data.amount),
-                credit: 0.00,
-                note: "User Credit Amount Sent"
-            })
-        }
-    }else if(data.status == undefined){
-        console.log("UNDEFINED AREA")
-        let usertype = ""
-        const trf = await db.agenttransferrequest.create({
-            customer_name: req.body.username_customer,
-            provider_name: req.body.username_reseller,
-            prefix: "BTR",
-            status: "Approved",
-            transfer_type: req.body.transfer_type,
-            voucher_no: null,
-            requested_amount: req.body.amount,
-            narration: req.body.narration,
-            ui_voucher_date: req.body.voucher_date
-        })
-
-        console.log(trf)
-
-        const trfx = await db.agenttransferrequest.update(
-            {
-                voucher_no: trf.id
-            },
-            {
-                where: {
-                    id: trf.id
-                }
-            }
-        )
-
-        console.log(trf.id)
-
-        const user = await db.user.findOne({
-            where: {
-                phone: trf.customer_name
-            }
-        })
-
-        const superuser = await db.user.findOne({
-            where: {
-                phone: trf.provider_name
-            }
-        })
-
-        console.log(user)
-
-        if(user.usertype == "agent"){
-            usertype = "Customer"
-        }else if(user.usertype == "subdealer"){
-            usertype = "Sub Reseller"
-        }else if(user.usertype == "agent"){
-            usertype = "Sales"
-        }
-
-        const transfer = await db.agenttransaction.create({
-            userId: user.uuid,
-            transferedAmount: parseInt(data.amount),
-            dedcutedAmount: 0.00
-        })
-        
-        console.log("transfer data, ", transfer);
-
-        const settlement = await db.useramountsettlement.create({
-            userId: user.uuid,
-            debit: 0.00,
-            credit: parseInt(data.amount),
-            note: "User Credit Data"
-        })
-
-        const history = await db.agenttransferhistory.create({
-            transferId: trf.uuid,
-            from: trf.provider_name,
-            to: trf.customer_name,
-            amount: trf.requested_amount,
-            transferredToUserType: usertype
-        })
-        if (superuser.type != "admin"){
-            const transfer = await db.agenttransaction.create({
-                userId: superuser.uuid,
-                transferedAmount: 0.00,
-                dedcutedAmount: parseInt(data.amount)
-            })
-            
-            console.log("transfer data, ", transfer);
-    
-            const settlement = await db.useramountsettlement.create({
-                userId: superuser.uuid,
-                debit: parseInt(data.amount),
-                credit: 0.00,
-                note: "User Credit Amount Sent"
-            })
-        }
-    }
-
-    // console.log(voucher_no)
-    // if(parseInt(req.body.request_voucher_no) != NaN){
-    //     const trx = await db.agenttransferrequest.findOne({
-    //         where: {
-    //             id: parseInt(req.body.request_voucher_no)
-    //         }
-    //     })
-    // }
-
-
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username_reseller)
+    let resp_Data = {}
+    let data = req.body
+    if(parseInt(data.amount) > portalBalance) {
+        console.log("INSIDE FAILED")
+        const logmsg = `${req.body.request_voucher_no} got ${req.body.status}`
+        const syslog = await db.systemlog.create({
+            type: "Credit Transfer",
+            detail: logmsg
+        })
 
-    const logmsg = `${req.body.request_voucher_no} got ${req.body.status}`
-    const syslog = await db.systemlog.create({
-        type: "Credit Transfer",
-        detail: logmsg
-    })
+        resp_Data = {
+            status: "failed",
+            prefix: "BTC",
+            voucher_no: "0",
+            portal_balance: portalBalance.toString()
+        }
+    }else{
+        console.log("INSIDE PASS")
+        if(data.status == "Rejected"){
+            const transfer = await db.agenttransferrequest.update(
+                {
+                    status: req.body.status,
+                    transfer_type: data.transfer_type,
+                },{
+                    where: {
+                        id: parseInt(req.body.request_voucher_no)
+                    }
+                }
+            )
+        }else if(data.status == "Approved"){
+            let usertype = ""
+            console.log("INSIDE NUMBER")
+            const trfx = await db.agenttransferrequest.update(
+                {
+                    status: req.body.status
+                },{
+                    where: {
+                        id: parseInt(req.body.request_voucher_no)
+                    }
+                }
+            )
+    
+            const trf = await db.agenttransferrequest.findOne({
+                where: {
+                    id: parseInt(req.body.request_voucher_no)
+                }
+            })
+            voucher_no = parseInt(req.body.request_voucher_no)
+        
+    
+            const user = await db.user.findOne({
+                where: {
+                    phone: trf.customer_name
+                }
+            })
+    
+            const superuser = await db.user.findOne({
+                where: {
+                    phone: trf.provider_name
+                }
+            })
+    
+            console.log(user)
+    
+            if(user.usertype == "agent"){
+                usertype = "Customer"
+            }else if(user.usertype == "subdealer"){
+                usertype = "Sub Reseller"
+            }else if(user.usertype == "agent"){
+                usertype = "Sales"
+            }
+    
+            const transfer = await db.agenttransaction.create({
+                userId: user.uuid,
+                transferedAmount: parseInt(data.amount),
+                dedcutedAmount: 0.00
+            })
+            
+            console.log("transfer data, ", transfer);
+    
+            const settlement = await db.useramountsettlement.create({
+                userId: user.uuid,
+                debit: 0.00,
+                credit: parseInt(data.amount),
+                note: "User Credit Data"
+            })
+    
+            const history = await db.agenttransferhistory.create({
+                transferId: trf.uuid,
+                from: trf.provider_name,
+                to: trf.customer_name,
+                amount: trf.requested_amount,
+                transferredToUserType: usertype
+            })
+    
+            if (superuser.type != "admin"){
+                const transfer = await db.agenttransaction.create({
+                    userId: superuser.uuid,
+                    transferedAmount: 0.00,
+                    dedcutedAmount: parseInt(data.amount)
+                })
+                
+                console.log("transfer data, ", transfer);
+        
+                const settlement = await db.useramountsettlement.create({
+                    userId: superuser.uuid,
+                    debit: parseInt(data.amount),
+                    credit: 0.00,
+                    note: "User Credit Amount Sent"
+                })
+            }
+        }else if(data.status == undefined){
+            console.log("UNDEFINED AREA")
+            let usertype = ""
+            const trf = await db.agenttransferrequest.create({
+                customer_name: req.body.username_customer,
+                provider_name: req.body.username_reseller,
+                prefix: "BTR",
+                status: "Approved",
+                transfer_type: req.body.transfer_type,
+                voucher_no: null,
+                requested_amount: req.body.amount,
+                narration: req.body.narration,
+                ui_voucher_date: req.body.voucher_date
+            })
+    
+            console.log(trf)
+    
+            const trfx = await db.agenttransferrequest.update(
+                {
+                    voucher_no: trf.id
+                },
+                {
+                    where: {
+                        id: trf.id
+                    }
+                }
+            )
+    
+            console.log(trf.id)
+    
+            const user = await db.user.findOne({
+                where: {
+                    phone: trf.customer_name
+                }
+            })
+    
+            const superuser = await db.user.findOne({
+                where: {
+                    phone: trf.provider_name
+                }
+            })
+    
+            console.log(user)
+    
+            if(user.usertype == "agent"){
+                usertype = "Customer"
+            }else if(user.usertype == "subdealer"){
+                usertype = "Sub Reseller"
+            }else if(user.usertype == "agent"){
+                usertype = "Sales"
+            }
+    
+            const transfer = await db.agenttransaction.create({
+                userId: user.uuid,
+                transferedAmount: parseInt(data.amount),
+                dedcutedAmount: 0.00
+            })
+            
+            console.log("transfer data, ", transfer);
+    
+            const settlement = await db.useramountsettlement.create({
+                userId: user.uuid,
+                debit: 0.00,
+                credit: parseInt(data.amount),
+                note: "User Credit Data"
+            })
+    
+            const history = await db.agenttransferhistory.create({
+                transferId: trf.uuid,
+                from: trf.provider_name,
+                to: trf.customer_name,
+                amount: trf.requested_amount,
+                transferredToUserType: usertype
+            })
+            if (superuser.type != "admin"){
+                const transfer = await db.agenttransaction.create({
+                    userId: superuser.uuid,
+                    transferedAmount: 0.00,
+                    dedcutedAmount: parseInt(data.amount)
+                })
+                
+                console.log("transfer data, ", transfer);
+        
+                const settlement = await db.useramountsettlement.create({
+                    userId: superuser.uuid,
+                    debit: parseInt(data.amount),
+                    credit: 0.00,
+                    note: "User Credit Amount Sent"
+                })
+            }
+        }
+        const logmsg = `${req.body.request_voucher_no} got ${req.body.status}`
+        const syslog = await db.systemlog.create({
+            type: "Credit Transfer",
+            detail: logmsg
+        })
 
-    let resp_Data = {
-        status: "success",
-        prefix: "BTC",
-        voucher_no: "0",
-        portal_balance: portalBalance.toString()
+        resp_Data = {
+            status: "success",
+            prefix: "BTC",
+            voucher_no: "0",
+            portal_balance: portalBalance.toString()
+        }
     }
 
+    console.log("BEFORE RESPONSE")
+    
     res.json(resp_Data)
 }
 
 exports.resellerBalanceTransfer = async(req, res, next) => {
     let body_data = {"username_reseller":"iftaykher","username_sub_reseller":"roy415","voucher_date":"2023-9-12","amount":"5","narration":"#APP #N/A","transfer_type":"credit"}
     let response_data = {"status": "success", "message": "Saved successfully", "prefix": "BTSR", "voucher_no": 12195, "portal_balance": "1557.06000"}
-
+    // TODO
+    // DO A PORTAL BALANCE CHECK HERE
     const reseller = await db.user.findOne({
         where: {
             phone: req.body.username_reseller
@@ -513,7 +521,9 @@ exports.resellerBalanceTransfer = async(req, res, next) => {
 
 exports.balanceTransferSubReseller = async(req, res, next) =>{
     let dt = {"username_reseller":"01646442322","username_sub_customer":"01646442323","voucher_date":"2023-9-14","amount":"100","narration":"","transfer_type":"credit"}
-
+    // TODO
+    // DO A PORTAL BALANCE CHECK HERE
+    
     const reseller = await db.user.findOne({
         where: {
             phone: req.body.username_reseller
@@ -592,8 +602,6 @@ exports.balanceTransferSubReseller = async(req, res, next) =>{
             note: "User Credit Amount Sent"
         })
     }
-
-    const portalBalance = await rechargeModule.userPortalBalance(req.body.username_reseller)
 
     res.json({
         status: "success",
