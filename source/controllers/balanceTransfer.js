@@ -51,6 +51,21 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
     })
 }
 
+exports.agentTransferHistory = async(req, res, next) => {
+    let data = {"username": "01925995658"}
+
+    const list = await db.agenttransferrequest.findAll({
+        where: {
+            customer_name: req.body.username
+        }
+    })
+
+    res.json({
+        status: "success",
+        invoices: list
+    })
+}
+
 exports.createBalanceTransfer = async(req, res, next) => {
     let d = {
         "username_customer": "01646442323",

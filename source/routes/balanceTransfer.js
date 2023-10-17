@@ -4,6 +4,7 @@ module.exports = app => {
     const balanceTransferRoutes = express.Router();
 
     balanceTransferRoutes.post('/customer-balance-transfer-request-list', controller.customerBalanceTransferRequestList);
+    balanceTransferRoutes.post('/agent-transfer-histroy', controller.agentTransferHistory);
     balanceTransferRoutes.post('/salesman-balance-transfer', controller.salesmanBalanceTransfer);
     balanceTransferRoutes.post('/reseller-balance-transfer', controller.resellerBalanceTransfer);
     balanceTransferRoutes.post('/balance-transfer-sub-customer', controller.balanceTransferSubReseller);
