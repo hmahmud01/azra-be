@@ -52,7 +52,14 @@ exports.customerBalanceTransferRequestList = async(req, res, next) => {
 }
 
 exports.agentTransferHistory = async(req, res, next) => {
+    // let testdata = {
+    //     voucher_no: `BTC 00 ${trx[i].id}`,
+    //     voucher_date: trx[i].createdAt,
+    //     paid_amount: trx[i].transferedAmount.toString()
+    // }
+
     let data = {"username": "01925995658"}
+    let respData = []
 
     const list = await db.agenttransferrequest.findAll({
         where: {
@@ -60,9 +67,19 @@ exports.agentTransferHistory = async(req, res, next) => {
         }
     })
 
+    for (let i =0; i<list.length; i++){
+        let listData = {
+            voucher_no: `BTR 00 ${list[i].id}`,
+            voucher_date: list[i].createdAt,
+            paid_amount: list[i].requested_amount.toString(),
+            status: list[i].status
+        }
+        respData.push(listData)
+    }
+
     res.json({
         status: "success",
-        invoices: list
+        invoices: respData
     })
 }
 

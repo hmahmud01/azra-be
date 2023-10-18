@@ -54,5 +54,7 @@ db.plantypes = require("./plantype.model.js")(sequelize, Sequelize);
 db.currency = require("./currency.model.js")(sequelize, Sequelize);
 db.circle = require("./circle.model.js")(sequelize, Sequelize);
 db.purchase = require("./reportpurchase.model.js")(sequelize, Sequelize);
+db.sales = require("./reportsales.model.js")(sequelize, Sequelize);
+db.agentcommission = require("./agentcommission.model.js")(sequelize, Sequelize);
 
 module.exports = db;
