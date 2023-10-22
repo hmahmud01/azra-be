@@ -63,7 +63,8 @@ exports.agentTransferHistory = async(req, res, next) => {
 
     const list = await db.agenttransferrequest.findAll({
         where: {
-            customer_name: req.body.username
+            customer_name: req.body.username,
+            status: req.body.status
         }
     })
 
