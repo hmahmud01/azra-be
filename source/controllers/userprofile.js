@@ -85,8 +85,10 @@ exports.orderHistory = async(req, res, next) => {
 
     for(let i=0; i<agnttrx.length; i++){
         console.log(`agetrsx ${i}`)
+        console.log(agnttrx[i].transactionId)
 
         if (agnttrx[i].transactionId != null){
+            console.log(agnttrx[i].transactionId)
             const trx = await db.transaction.findOne({
                 where:{
                     uuid: agnttrx[i].transactionId
@@ -104,6 +106,9 @@ exports.orderHistory = async(req, res, next) => {
                     transactionId: agnttrx[i].transactionId
                 }
             })
+
+            console.log("API TRX")
+            console.log(apiTrx)
     
             const country = await db.country.findOne({
                 where: {
@@ -178,8 +183,8 @@ exports.orderHistory = async(req, res, next) => {
                 operator_reference: operatorcode.id.toString(),
                 plan_description: plan.narration
             }
-            console.log("USER TRX HISTORY")
-            console.log(data)
+            // console.log("USER TRX HISTORY")
+            // console.log(data)
     
             history.push(data)
         }
@@ -235,7 +240,7 @@ exports.orderHistory = async(req, res, next) => {
     ]
 
     console.log("USER TRX HISTORY total")
-    console.log(history)
+    // console.log(history)
 
     res.json({
         order_history: history
@@ -351,13 +356,27 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     })
 
     for(let i=0; i<trx.length; i++){
+        const userprofile = await db.userprofile.findOne({
+            where: {
+                phone: trx[i].customer_name
+            }
+        })
+
+        const user = await db.user.findOne({
+            where: {
+                phone: trx[i].customer_name
+            }
+        })
+
+        let name = `${userprofile.f_name} + " " + ${userprofile.l_name}`
+
         let data = {
             code: trx[i].id,
             voucher_no: trx[i].id,
-            customer_name: trx[i].customer_name,
-            voucher_date: "2023-08-20 08:32:37",
+            customer_name: name,
+            voucher_date: trx[i].voucher_date,
             paid_amount: trx[i].requested_amount,
-            balance_amount: trx[i].request_amount,
+            balance_amount: trx[i].requested_amount,
             narration: trx[i].narration,
             status: trx[i].status
         }

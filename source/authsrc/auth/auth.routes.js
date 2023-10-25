@@ -173,12 +173,6 @@ module.exports = app => {
 
             const existingUser = await findUserByPhone(username);
 
-            const profileData = await db.userprofile.findOne({
-                where: {
-                    userId: existingUser.uuid
-                }
-            })
-
             if (!existingUser) {
                 res.status(403);
                 throw new Error('Invalid login credentials.');
@@ -189,6 +183,12 @@ module.exports = app => {
                 res.status(403);
                 throw new Error('Invalid login credentials.');
             }
+
+            const profileData = await db.userprofile.findOne({
+                where: {
+                    userId: existingUser.uuid
+                }
+            })
 
             const post = findUserType(existingUser.usertype);
 
@@ -201,6 +201,7 @@ module.exports = app => {
                     status: true,
                     name: existingUser.store,
                     phone: existingUser.phone,
+                    superior: "admin",
                     post: post,
                     credit_limit: "0.00000",
                     balance: userbalance,
@@ -209,13 +210,20 @@ module.exports = app => {
                     latest_app_version: "76",
                     server_address: process.env.SERVER_URL,
                     has_token: accessToken,
-                    auth_id: existingUser.uuid
+                    auth_id: existingUser.uuid,
+                    // superior: existingUser.connectedUsesr
                 })
             }else if(post == "Sub Reseller") {
+                const superiorUser = await db.user.findOne({
+                    where: {
+                        uuid: profileData.connectedUser
+                    }
+                })
                 res.json({
                     status: true,
                     name: existingUser.store,
                     phone: existingUser.phone,
+                    superior: superiorUser.store,
                     post: post,
                     credit_limit: "0.00000",
                     balance: userbalance,
@@ -236,7 +244,16 @@ module.exports = app => {
                 let status = existingUser.status
                 let address = "addr"
                 let name = profileData.f_name + " " + profileData.l_name
+                
                 let setting = {}
+
+                const superiorUser = await db.user.findOne({
+                    where: {
+                        uuid: profileData.connectedUser
+                    }
+                })
+
+                let superior = superiorUser.store
 
                 let countryServices = []
 
@@ -346,6 +363,7 @@ module.exports = app => {
                     post: post,
                     credit_limit: "0.000000",
                     reward_enabled: false,
+                    superior: superior,
                     service_status: {
                         status: "running",
                         header: "Sorry",
