@@ -368,7 +368,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
             }
         })
 
-        let name = `${userprofile.f_name} + " " + ${userprofile.l_name}`
+        let name = `${userprofile.f_name} ${userprofile.l_name}`
 
         let data = {
             code: trx[i].id,
