@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+const db = require("../models");
+const Country = db.country;
+const Op = db.Sequelize.Op;
 
-const getCountries = async(req, res, next) => {
-    let countries = await prisma.nation.findMany();
+exports.getCountries = async(req, res, next) => {
+    let countries = await Country.findAll();
     console.log(countries);
 
     return res.status(200).json({
@@ -10,28 +11,21 @@ const getCountries = async(req, res, next) => {
     })
 }
 
-const listCountry = async(req, res, next) => {
-    let result = [
-        {id: 1, name: "Bangladesh"},
-        {id: 2, name: "India"},
-        {id: 3, name: "Pakistan"}
-    ]
-
-    result = await prisma.nation.findMany();
+exports.listCountry = async(req, res, next) => {
+    let result = await Country.findAll();
 
     return res.status(200).json({
         message: result
     })
 }
 
-const getCountry = async(req, res, next) => {
+exports.getCountry = async(req, res, next) => {
     let id = req.params.id;
     console.log(id);
 
-    let result = {id:1, name: "Bangladesh", short:"BD"}
-    result = await prisma.country.findFirst({
+    result = await Country.findOne({
         where:{
-            id: id
+            uuid: id
         }
     });
     console.log(result);
@@ -40,13 +34,13 @@ const getCountry = async(req, res, next) => {
     })
 }
 
-const updateCountry = async(req, res, next) => {
+exports.updateCountry = async(req, res, next) => {
     return res.status(200).json({
         message: "update"
     })
 }
 
-const deleteCountry = async(req, res, next) => {
+exports.deleteCountry = async(req, res, next) => {
     let id = req.params.id;
     let msg = "Deleting id";
 
@@ -55,24 +49,20 @@ const deleteCountry = async(req, res, next) => {
     })
 }
 
-const addCountry = async(req, res, next) => {
+exports.addCountry = async(req, res, next) => {
     let name = req.body.name
     let short = req.body.short
     let code = req.body.code
-
-    console.log("name : ", name, "short : ", short);
     let data = {
         name: name,
         short: short,
         code: code
     }
-    const country = await prisma.nation.create({ data: data });
+    const country = await Country.create(data);
     console.log(country);
-    let response = `creating the data ${country}`;
+    let response = `Country Created with the Name ${country.name}`;
 
     return res.status(200).json({
         message: response
     })
 }
-
-export default { getCountries, listCountry, getCountry, updateCountry, deleteCountry, addCountry };

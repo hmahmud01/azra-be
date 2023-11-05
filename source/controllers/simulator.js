@@ -1,47 +1,13 @@
-import fetch from "node-fetch";
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import fetch from "node-fetch";
+// import { Prisma, PrismaClient } from '@prisma/client';
+// import pkg from "crypto-js";
+// const prisma = new PrismaClient();
+// const { MD5 } = pkg;
+const fetch = require("node-fetch-commonjs");
+const db = require("../models");
+const { MD5 } = require("crypto-js");
 
-// AGENT ID is 6 - currently under used from DATABASE
-const uid = 6
-
-let mainBalance = 0.00;
-const agentTrx = await prisma.agentTransaction.findMany({
-    where: {
-        userId: uid
-    }
-})
-
-for (let i = 0; i<agentTrx.length; i++){
-    mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].deductedAmount
-}
-console.log(`main balance from trasaction calculation , ${mainBalance}`)
-const lockedbalances = await prisma.lockedBalance.findMany({
-    where: {
-        lockedStatus: true
-    }
-})
-
-
-
-let pendingRecharge = 0.00
-
-for(let i = 0; i<lockedbalances.length; i++){
-    pendingRecharge += lockedbalances[i].amountLocked
-}
-
-console.log(`Pending Balance: ${pendingRecharge}`);
-let actualbalance = mainBalance - pendingRecharge
-
-console.log(`Actual Balance ${actualbalance}`);
-
-const agentBalance = async(req, res, next) => {
-    res.status(200).json({
-        balance: actualbalance
-    })
-}
-
-const asyncTest = async(req, res, next) => {
+exports.asyncTest = async (req, res, next) => {
     let responseurl = "http://localhost:3000/asynchit";
 
     res.status(200).json({
@@ -50,7 +16,7 @@ const asyncTest = async(req, res, next) => {
     });
 }
 
-const asyncURL = async(req, res, next) => {
+exports.asyncURL = async (req, res, next) => {
     let response = "Recharge success";
     let loopData = req.body.loop
     let data = {
@@ -69,52 +35,72 @@ const asyncURL = async(req, res, next) => {
     })
 
     let randomRepeater = Math.floor(Math.random() * 5);
-
-    // if(loopData == randomRepeater){
-    //     console.log("repeater matched with looper")
-    //     res.status(400).json(data);
-    // }else{
-    //     res.status(500).json(failedmsg);
-    // }
-
-    // let result = await promise;
     res.status(400).json(data);
-}   
+}
 
-const asyncHit = async(req, res, next) => {
-    // let i = 1
 
-    // let status = false
+// TEST API FOR RECHARGE
+exports.etisalatTest = async(req, res, next) => {
+    const balance = 500
+    const req_bal = parseInt(req.body.bal)
 
-    // while(status == false){
-    //     await new Promise((resolve) => {
-    //         console.log("promise count ", i);
-    //         setTimeout(() => resolve(
-    //             fetch('http://localhost:3000/asyncurl', {method: 'POST'})
-    //             .then(response => response.json())
-    //             .then(response => {
-    //                 console.log(response);
-    //                 if( response.msg == "SUCCESS" ){
-    //                     status = true
-    //                 }
-    //             })
-    //         ), 30000)
-    //     })
-    //     i++;
-    // }
+    let status = ""
+    let message = ""
+
+    if (req_bal > balance) {
+        status = "failed"
+        message = "Requested Balance is more than the API balance"
+    }else {
+        status = "success"
+        message = "Recharge Request Success"
+    }
+
+    res.status(200).json({
+        message: {
+            status : status,
+            msg : message
+        }
+    })
+}
+
+exports.zoloTest = async(req, res, next) => {
+    const balance = 900
+
+    let status = ""
+    let message = ""
+
+    if (req_bal > balance) {
+        status = "failed"
+        message = "Requested Balance is more than the API balance"
+    }else {
+        status = "success"
+        message = "Recharge Request Success"
+    }
+
+    res.status(200).json({
+        message: {
+            status : status,
+            msg: message
+        }
+    })
+}
+
+
+// ASYNC HIT EXAMPLE WITH RETRY COUNT
+exports.asyncHit = async (req, res, next) => {
 
     console.log("asyn hit coming");
 
     let retry = 5;
     let respMsg = {}
-    for(retry; retry > 0; retry--){
+    for (retry; retry > 0; retry--) {
         console.log(retry);
         let data = {
             "loop": retry
         }
-        await new Promise((resolve)=> {
+        await new Promise((resolve) => {
             setTimeout(() => resolve(
-                fetch('http://localhost:3000/asyncurl', 
+                fetch('http://localhost:3000/asyncurl',
                     {
                         method: 'POST',
                         headers: {
@@ -125,7 +111,7 @@ const asyncHit = async(req, res, next) => {
                     .then(response => response.json())
                     .then(response => {
                         console.log(response);
-                        if (response.msg == 'SUCCESS'){
+                        if (response.msg == 'SUCCESS') {
                             respMsg = {
                                 msg: "SUCCESS"
                             }
@@ -135,70 +121,115 @@ const asyncHit = async(req, res, next) => {
                             }
                         }
                     })
-            ), 60000);
+            ), 30000);
         })
         console.log(`controller retry ${retry}`)
         if (respMsg.msg == "SUCCESS")
             break;
-        
     }
-
-    // const urlreq = 
-
-    // console.log("REQUEST DONE");
-
     res.status(200).json(respMsg);
 }
 
-const submitData = async(req, res, next) => {
 
-    const lockedbalances = await prisma.lockedBalance.findMany({
-        where: {
-            userId: uid,
-            lockedStatus: true
-        }
+const saveResponse = async (response, trxId) => {
+    const trxResp = await db.transactionresponse.create({
+        transactionId: trxId,
+        status: true,
+        response: response
     })
-    
-    
-    let pendingRecharge = 0.00
-    
-    for(let i = 0; i<lockedbalances.length; i++){
-        pendingRecharge += lockedbalances[i].amountLocked
-    }
-    
-    console.log(`Pending Balance: ${pendingRecharge}`);
-    let actualbalanceagent = mainBalance - pendingRecharge
-    
-    console.log(`Actual Balance ${actualbalanceagent}`);
 
-    const apicreds = await prisma.api.findMany({
-        where: {
-            status: true
-        }
-    });
+    // response cannot be an array or an object
 
-    // let uid = req.body.userId
+    console.log("TRX RESPONSE: ", trxResp);
 
+    return trxResp;
+}
+
+exports.submitData = async (req, res, next) => {
+    const ip_addr = req.socket.remoteAddress;
+    const device = req.headers['user-agent']
+
+    // let userId = parseInt(req.body.userId)
     let mobile = req.body.mobile
     let amount = req.body.amount
     let country = req.body.country
     let network = req.body.network
     let service = req.body.service
+    let uuid = req.body.uuid
 
-    let recharge_status_func = {
-        status: true,
-        uid: uid
-    }
+    const operator_name = await db.mobile.findOne({
+        where: {
+            uuid: network
+        }
+    })
 
+    // FLAGS FOR TRX AND STATUS DATA
     let trx_data = {}
     let trx_api_id = 0
     let trx_status = false
 
-    let agent_balance = 800.0;
+    // BALANCE AND PREVIOUS LOCKED BALANCE CALCULATION
+
+    let mainBalance = 0.00;
+    const agentTrx = await db.agenttransaction.findAll({
+        where: {
+            // userId: userId
+            userId: uuid
+        }
+    })
+
+    for (let i = 0; i < agentTrx.length; i++) {
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
+    }
+    console.log(`main balance from trasaction calculation , ${mainBalance}`)
+
+    const lockedbalances = await db.lockedbalance.findAll({
+        where: {
+            // userId: userId,
+            userId: uuid,
+            lockedStatus: true
+        }
+    })
+
+
+    let pendingRecharge = 0.00
+
+    for (let i = 0; i < lockedbalances.length; i++) {
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalanceagent = mainBalance - pendingRecharge
+
+    console.log(`Actual Balance ${actualbalanceagent}`);
+
+    // BALANCE CALCULATION ENDS
+
+    // API LISTING AND SORTED ACCORDING TO PRIORITY
+    const apis = await db.apicountrypriority.findAll({
+        where: {
+            countryId: country
+        }
+    })
+
+    let apicredunsorted = []
+    for (let i = 0; i < apis.length; i++) {
+        const api = await db.api.findOne({where: {uuid: apis[i].apiId}})
+        if (api.status == true) {
+            apicredunsorted.push(apis[i])
+        }
+    }
+
+    let apicreds = apicredunsorted.sort(
+        (a1, a2) => (a1.priority < a2.priority) ? 1 : (a1.priority > a2.priority) ? -1 : 0);
+
+    // API LIST AND SORT DONE
+
+    console.log("Enlisted Apis to work with : ", apicreds);
     console.log("Amount to be recharge for : ", amount);
 
-    // find locked balances
-    const lockedNumber = await prisma.lockedNumber.findMany({
+    // find locked number
+    const lockedNumber = await db.lockednumber.findAll({
         where: {
             phone: mobile,
             status: true
@@ -207,6 +238,17 @@ const submitData = async(req, res, next) => {
 
     console.log(`loccked status: ${lockedNumber}`)
 
+
+    console.log(uuid)
+    const user = await db.user.findOne({
+        where: {
+            uuid: uuid
+        }
+    })
+    console.log(user)
+
+    let userId = user.uuid
+
     if (lockedNumber.length > 0) {
         let msg = `This number is already engaged with a pending recharge : ${mobile}`;
         console.log(msg)
@@ -214,352 +256,415 @@ const submitData = async(req, res, next) => {
         res.status(200).json({
             message: msg
         })
-    }else{
+    } else {
         let transaction_data = {
             phone: mobile,
             amount: parseFloat(amount),
-            agent: "Anonymous",
+            agent: user.store,
+            userId: userId,
             rechargeStatus: true,
-            country: {
-                connect: {
-                    id: country
-                }
-            },
-            mobile: {
-                connect: {
-                    id: network
-                }
-            },
-            service: {
-                connect: {
-                    id: service
-                }
-            }
+            countryId: country,
+            mobileId: network,
+            serviceId: service
         }
-        if (actualbalanceagent > amount){
+        if (actualbalanceagent > amount) {
+            console.log("User Id : ", uuid);
 
-            const transfer = await prisma.agentTransaction.create({
-                data: {
-                    user: {
-                        connect: {
-                            id: uid
-                        }
-                    },
-                    transferedAmount: 0.00,
-                    deductedAmount: parseFloat(amount)
-                }
+            const transaction = await db.transaction.create(transaction_data)
+
+            const trxSource = await db.transactionsource.create({
+                ip_addr: ip_addr,
+                device: device,
+                transactionId: transaction.uuid
             })
-        
-            const transaction = await prisma.transaction.create({
-                data: transaction_data
+
+            const transfer = await db.agenttransaction.create({
+                userId: userId,
+                transferedAmount: 0.00,
+                dedcutedAmount: parseFloat(amount),
+                transactionId: transaction.uuid
             })
-    
-            const lockedBalance = await prisma.lockedBalance.create({
-                data: {
-                    user: {
-                        connect:{
-                            id: uid
-                        }
-                    },
-                    currentBalance: actualbalanceagent,
-                    amountLocked: parseFloat(amount),
-                    lockedStatus: true
-                }
+
+            const lockedBalance = await db.lockedbalance.create({
+                userId: userId,
+                currentBalance: actualbalanceagent,
+                amountLocked: parseFloat(amount),
+                lockedStatus: true
             })
-    
-            const lockedNumber = await prisma.lockedNumber.create({
-                data: {
-                    phone: mobile,
-                    status: true,
-                    trx: {
-                        connect: {
-                            id: transaction.id
-                        }
-                    }
-                }
+
+            const lockedNumber = await db.lockednumber.create({
+                phone: mobile,
+                status: true,
+                trx_id: transaction.uuid
             })
-    
+
             console.log("TRANSACATION BUILT > BALANCE LOCKED > NUMBER LOCKED");
-    
-            for (let i=0; i<apicreds.length; i++){
-                if(apicreds[i].code == "TST"){
-                    const res = await fetch(
-                        'http://127.0.0.1:8090/api/collections/testbalance/records'
-                    );
+
+            for (let i = 0; i < apicreds.length; i++) {
+                const api = await db.api.findOne({where: {uuid: apicreds[i].apiId}})
+                if (api.code == "TST") {
+                    const res = await fetch(process.env.TSTBAL);
                     const data = await res.json();
-                    
+
                     console.log("Available Balance for TEST : ", data.items[0].balance);
-                    if (data.items[0].balance >= amount){
+                    if (data.items[0].balance >= amount) {
                         console.log("TEST API WORKING");
-                        const res = await fetch(
-                            'http://127.0.0.1:8090/api/collections/testrecharge/records'
-                        );
+                        const res = await fetch(process.env.TSTREC);
                         const response = await res.json();
                         console.log(response.items[0].message);
                         trx_data = {
-                            trx : {
-                                connect: {
-                                    id: transaction.id
-                                }
-                            },
-                            api:{
-                                connect:{
-                                    id: apicreds[i].id
-                                }
-                            }
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
                         }
-                        trx_api_id = apicreds[i].id
+                        trx_api_id = api.uuid
                         trx_status = true
                         break;
-                    }else{
+                    } else {
                         console.log("TEST API DIDN't WORK");
                     }
-                    
-                }else if(apicreds[i].code == "ETS"){    
-                    const res = await fetch(
-                        'http://127.0.0.1:8090/api/collections/etisalatbalance/records'
-                    );
-                    const data = await res.json();
-        
-                    console.log("Available Balance for ETS : ", data.items[0].balance);
-                    if (data.items[0].balance >= amount){
-                        console.log("ETS API WORKING");
-                        const res = await fetch(
-                            'http://127.0.0.1:8090/api/collections/etisalatrecharge/records'
-                        );
-                        const response = await res.json();
-                        console.log(response.items[0].message);
+
+                } else if (api.code == "ETS") {
+                    const send_data = {
+                        bal : amount
+                    }
+                    // const res = await fetch(process.env.ETSTST)
+                    const apiCall = await fetch(process.env.ETSTST, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'  
+                        },
+                        body: JSON.stringify(send_data),
+                    })
+                    const data = await apiCall.json()
+                    console.log(data)
+                    const resp = saveResponse(data.message, transaction.uuid);
+                    if (data.message.status == "success"){
                         trx_data = {
-                            trx : {
-                                connect: {
-                                    id: transaction.id
-                                }
-                            },
-                            api:{
-                                connect:{
-                                    id: apicreds[i].id
-                                }
-                            }
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
                         }
-                        trx_api_id = apicreds[i].id
+                        trx_api_id = api.uuid
                         trx_status = true
                         break;
                     }else{
                         console.log("ETS DIDN'T WORK")
                     }
-        
-                }else if(apicreds[i].code == "ZLO"){
-                    const res = await fetch(
-                        'http://127.0.0.1:8090/api/collections/zolobalance/records'
-                    );
-                    const data = await res.json();
-        
-                    console.log("Available Balance for ZOLO : ", data.items[0].balance);
-                    if (data.items[0].balance >= amount){
-                        console.log("ZOLO API WORKING");
-                        const res = await fetch(
-                            'http://127.0.0.1:8090/api/collections/zolorecharge/records'
-                        );
-                        const response = await res.json();
-                        console.log(response.items[0].message);
+
+                } else if (api.code == "ZLO") {
+                    const send_data = {
+                        bal : amount
+                    }
+                    // const res = await fetch(process.env.ETSTST)
+                    const apiCall = await fetch(process.env.ETSTST, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'  
+                        },
+                        body: JSON.stringify(send_data),
+                    })
+                    const data = await apiCall.json()
+                    console.log(data)
+                    const resp = saveResponse("Transation from ETS zlo", transaction.id);
+                    if (data.message.status == "success"){
                         trx_data = {
-                            trx : {
-                                connect: {
-                                    id: transaction.id
-                                }
-                            },
-                            api:{
-                                connect:{
-                                    id: apicreds[i].id
-                                }
-                            }
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
                         }
-                        trx_api_id = apicreds[i].id
+                        trx_api_id = api.uuid
                         trx_status = true
                         break;
                     }else{
-                        console.log("ZOLO DIDN'T WORK");
+                        console.log("ZLO DIDN'T WORK")
                     }
-                }else if(apicreds[i].code == "DU"){
+
+                } else if (api.code == "DU") {
                     console.log("INSIDE DU SIM");
 
                     let balance = 1000.00
 
                     console.log(`Available balance for DU Sim : ${balance}`);
-                    if(balance >= amount){
-                        await fetch('http://localhost:3000/asynctest', {
+                    if (balance >= amount) {
+                        await fetch(process.env.DUSIM, {
                             method: 'POST'
                         })
-                        .then(response => response.json())
-                        .then(async response => {
-                            console.log(response.url);
-                            return await fetch(response.url, {method: 'POST'});
-                        })
-                        .then(response => response.json())
-                        .then(response => {
-                            console.log(response);
-                            console.log(trx_status, " before trx ");
-                            trx_data = {
-                                trx : {
-                                    connect: {
-                                        id: transaction.id
+                            .then(response => response.json())
+                            .then(async response => {
+                                console.log(response.url);
+                                return await fetch(response.url, { method: 'POST' });
+                            })
+                            .then(response => response.json())
+                            .then(response => {
+                                console.log(response);
+                                if (response.msg == 'SUCCESS') {
+                                    console.log(trx_status, " before trx ");
+                                    trx_data = {
+                                        transactionId: transaction.uuid,
+                                        apiId: api.uuid
                                     }
-                                },
-                                api:{
-                                    connect:{
-                                        id: apicreds[i].id
-                                    }
+                                    trx_api_id = api.uuid
+                                    trx_status = true
+                                    console.log(trx_status, " after trx ");
+                                    console.log(trx_data);
                                 }
-                            }
-                            trx_api_id = apicreds[i].id
-                            trx_status = true
-                            console.log(trx_status, " after trx ");
-                            console.log(trx_data);
-                        })
-                        break;
-                    }else{
+                            })
+                        if (trx_status == true) {
+                            break;
+                        }
+                    } else {
                         console.log("DU SIM API DIDNT WORK");
                     }
+                } else if (api.code == "LIV") {
+                    console.log("inside LIVE API")
+                    const apiurl = process.env.LIV
+                    const apikey = process.env.LIV_APIKEY
+                    const client_id = process.env.LIV_CLIENT_ID
+                    const transaction_id = '00' + transaction.id
+                    const msisdn = mobile
+                    if (operator_name.name == "grameen"){
+                        const operator = "grameen"
+                    }else{
+                        const operator = operator_name.name
+                    }
+                        
+                    const sendAmout = amount
+
+                    const send_data = {
+                        "data": {
+                            "msisdn": msisdn,
+                            "amount": parseInt(sendAmout),
+                            "transaction_id": transaction_id,
+                            "client_id": client_id,
+                            "operator": operator
+                        }
+                    }
+
+                    console.log("sending Data : ", send_data)
+
+                    const apiCall = await fetch(apiurl, {
+                        method: 'POST',
+                        headers: {
+                            'x-api-key' : apikey,
+                            'Content-Type': 'application/json'  
+                        },
+                        body: JSON.stringify(send_data),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("data from live : ", data)
+                        const resp = saveResponse(data, transaction.id);
+                        console.log(resp);
+                        trx_data = {
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
+                        }
+                        trx_api_id = api.uuid
+                        trx_status = true
+                    }) 
+                    .catch(e => {
+                        console.log(e);
+                        console.log("LIVE DIDNT WORK");
+                    }) 
                 }
             }
+
+            // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);
             console.log("Api ID: ", trx_api_id);
             console.log("Transaction Status : ", trx_status);
-    
-            if(trx_status){
-                const apitrx = await prisma.apiTransaction.create({
-                    data: trx_data,
+
+            if (trx_status) {
+                const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${userId} for the amount ${amount}`
+                const syslog = await db.systemlog.create({
+                    type: "Recharge",
+                    detail: logmsg
                 })
-    
-                const updateNumber = await prisma.lockedNumber.update({
-                    where: {
-                        id: lockedNumber.id
-                    },
-                    data: {
+                const apitrx = await db.apitransaction.create(trx_data)
+
+                const updateNumber = await db.lockednumber.update(
+                    {
                         status: false,
-                    }
-                })
-    
-                const updateBalance = await prisma.lockedBalance.update({
-                    where: {
-                        id: lockedBalance.id
                     },
-                    data: {
+                    {
+                        where: {
+                            id: lockedNumber.id
+                        }
+                    })
+
+                const updateBalance = await db.lockedbalance.update(
+                    {
                         lockedStatus: false,
-                        trx_id: {
-                            connect: {
-                                id: apitrx.id
-                            }
+                        api_trx_id: apitrx.uuid
+                    },
+                    {
+                        where: {
+                            id: lockedBalance.id
                         }
                     }
-                })
-    
-                const record = await prisma.transactionRecordApi.create({
-                    data: {
-                        transaction:{
-                            connect: {
-                                id: apitrx.id
-                            }
-                        },
-                        status: true,
-                        statement: "Successfully recharged"
-                    }
+                )
+
+                const record = await db.transactionrecordapi.create({
+                    apiTransactionId: apitrx.uuid,
+                    status: true,
+                    statement: "Successfully recharged"
                 })
 
-                
+
                 console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                 console.log("Add a entry of success recharge balance and adjust the agents real balance");
-            }else{
-                const transaction = await prisma.transaction.create({
-                    data: {
-                        phone: mobile,
-                        amount: parseFloat(amount),
-                        agent: "Anonymous",
-                        rechargeStatus: false,
-                        country: {
-                            connect: {
-                                id: country
-                            }
-                        },
-                        mobile: {
-                            connect: {
-                                id: network
-                            }
-                        },
-                        service: {
-                            connect: {
-                                id: service
-                            }
-                        }
+
+
+
+                // TODO
+                // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
+                const percent = await db.agentpercentage.findOne({
+                    where: {
+                        userId: uuid,
                     }
                 })
 
-                const transfer = await prisma.agentTransaction.create({
-                    data: {
-                        user: {
-                            connect: {
-                                id: uid
-                            }
-                        },
-                        transferedAmount: parseFloat(amount),
-                        deductedAmount: 0.00
+                console.log("Agent Percentage : ", percent.percentage);
+
+                let earned = amount / 100 * percent.percentage
+
+                const earnedData = {
+                    userId: uuid,
+                    amount: earned,
+                    trxId: transaction.uuid
+                }
+
+                const agentEarning = await db.agentearning.create(earnedData)
+
+                console.log("Agent Earned : ", agentEarning);
+
+                // CREATE ENTRY ON AGENTEARNING TABLE
+                // GET API PERCENTAGE FROM APIPERCENT TABLE
+                // const orgPercent = 2.0
+
+                const orgPercent = await db.apipercent.findOne({
+                    where: {
+                        apiId: trx_api_id,
+                        mobileId: network
                     }
+                })
+
+                console.log("Organization Percent : ", orgPercent);
+                let perc = 0.0
+                if (orgPercent == null){
+                    perc = 0.1
+                }else{
+                    perc = orgPercent.percent
+                }
+
+                let orgCut = amount / 100 * perc
+                const orgEarnedData = {
+                    transactionId: transaction.uuid,
+                    apiId: trx_api_id,
+                    cutAmount: orgCut
+                }
+                const orgEarning = await db.organizationearned.create(orgEarnedData)
+                console.log("Organization earning : ", orgEarning);
+                // CREATE ENTRY ORGANIZATION EARNED TABLE
+
+            } else {
+                const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${userId} for the amount ${amount}`
+                const syslog = await db.systemlog.create({
+                    type: "Recharge",
+                    detail: logmsg
+                })
+                const upd_transaction = await db.transaction.update(
+                    {
+                        rechargeStatus: false
+                    },
+                    {
+                        where: {
+                            id: transaction.id,
+                        }
+                })
+
+                const transfer = await db.agenttransaction.create({
+                    userId: userId,
+                    transferedAmount: parseFloat(amount),
+                    dedcutedAmount: 0.00,
+                    transactionId: transaction.uuid
                 })
 
                 console.log("transaction returned");
-    
-                const updateNumber = await prisma.lockedNumber.update({
-                    where: {
-                        id: lockedNumber.id
-                    },
-                    data: {
+
+                const updateNumber = await db.lockednumber.update(
+                    {
                         status: false,
-                        trx: {
-                            connect: {
-                                id: transaction.id
-                            }
+                        trx_id: transaction.uuid
+                    },
+                    {
+                        where: {
+                            id: lockedNumber.id
                         }
                     }
-                })
-    
-                const updateBalance = await prisma.lockedBalance.update({
-                    where: {
-                        id: lockedBalance.id
-                    },
-                    data: {
+                )
+
+                const updateBalance = await db.lockedbalance.update(
+                    {
                         lockedStatus: false,
+                    },
+                    {
+                        where: {
+                            id: lockedBalance.id
+                        }
                     }
-                })
+                )
                 console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                 console.log("Balance Unavailable");
             }
-        }else{
+        } else {
             console.log("INSUFFICIENT AGENT BALANCE, RECHARGE FAILED !!!");
         }
     }
 
-    // res.status(200).json({
-    //     message: `data got for ${req.body.mobile}`
-    // })
+    if (trx_status) {
+        res.status(200).json({
+            message: "TRX has been completed"
+        })
+    }else{
+        res.json({
+            message: "TRX FAILED"
+        })
+    }
+
 }
 
-const allTransactions = async(req, res, next) => {
-    const trx = await prisma.apiTransaction.findMany({ include: {api: true, trx: true} });
-    console.log(trx); 
+exports.allTransactions = async (req, res, next) => {
+    const trx = await db.apitransaction.findAll();
 
+    let result = []
+
+    for(let i=0; i<trx.length; i++){
+        // API AND TRANSACTIONS ARE UNDEFINED DUE TO PROMISE
+        const api = await db.api.findOne({where: {uuid: trx[i].apiId}})
+        console.log("API : ", api);
+        const transaction = await db.transaction.findOne({where: {uuid: trx[i].transactionId}})
+        console.log("API : ", transaction);
+        let data = {
+            id: trx[i].id,
+            createdAt: trx[i].createdAt,
+            api: api.code,
+            phone: transaction.phone,
+            amount: transaction.amount,
+            agent: transaction.agent
+        }
+        result.push(data);
+    }
+    console.log("TRX LIST")
+    console.log(result);
     res.status(200).json({
-        message: trx
+        message: result
     })
 }
 
-const allagentTrx = async(req, res, next) => {
-    const atrx = await prisma.agentTransaction.findMany(
+exports.allagentTrx = async (req, res, next) => {
+    const atrx = await db.agenttransaction.findAll(
         {
             where: {
-                userId: uid
-            },
-            include: {
-                user: true
+                userId: uuid
             }
         }
     )
@@ -569,5 +674,44 @@ const allagentTrx = async(req, res, next) => {
     })
 }
 
-export default {submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit};
+exports.agentBalance = async (req, res, next) => {
+    const uid = req.params.id
 
+    let mainBalance = 0.00;
+    const agentTrx = await db.agenttransaction.findAll({
+        where: {
+            userId: uid
+        }
+    })
+
+    console.log(agentTrx)
+
+    for (let i = 0; i < agentTrx.length; i++) {
+        console.log(typeof(agentTrx[i].transferedAmount));
+        console.log(typeof(agentTrx[i].dedcutedAmount), typeof(agentTrx[i].dedcutedAmount))
+        mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
+    }
+    console.log(`main balance from trasaction calculation , ${mainBalance}`)
+    const lockedbalances = await db.lockedbalance.findAll({
+        where: {
+            lockedStatus: true,
+            userId: uid
+        }
+    })
+
+    let pendingRecharge = 0.00
+
+    for (let i = 0; i < lockedbalances.length; i++) {
+        pendingRecharge += lockedbalances[i].amountLocked
+    }
+
+    console.log(`Pending Balance: ${pendingRecharge}`);
+    let actualbalance = mainBalance - pendingRecharge
+
+    console.log(`Actual Balance ${actualbalance}`);
+    res.status(200).json({
+        balance: actualbalance
+    })
+}
+
+// export default { submitData, allTransactions, agentBalance, asyncTest, asyncURL, allagentTrx, asyncHit, etisalatTest, zoloTest };

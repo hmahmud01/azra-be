@@ -1,53 +1,122 @@
-import { hashSync } from "bcrypt";
-import { db } from '../utls/db.js';
+// import { hashSync } from "bcrypt";
+// import { db } from '../utls/db.js';
 
-export function findUserByEmail(email){
-    return db.user.findUnique({
+const { hashSync } = require("bcrypt");
+const db = require("../../models");
+const User = db.user
+const UserProfile = db.userprofile
+const AgentTransaction = db.agenttransaction
+const AgentPercentage = db.agentpercentage
+
+function findUserByEmail(email){
+    return User.findOne({
         where: {
             email,
         }
     })
 }
 
-export async function createUserByEmailAndPassword(user){
-    user.password = hashSync(user.password, 12);
-    const dbuser = await db.user.create({
-        data: user
+function findUserByPhone(phone){
+    return User.findOne({
+        where: {
+            phone
+        }
     })
+}
 
-    console.log(dbuser)
-
-    const trx = {
-        user: {
-            connect: {
-                id: dbuser.id
-            }
-        },
-        transferedAmount: 0.00,
-        deductedAmount: 0.00
+function findUserType(usertype) {
+    let type = ""
+    if (usertype == "agent"){
+        type = "Customer"
+    }else if (usertype == "dealer"){
+        type = "Sales"
+    }else if (usertype == "subdealer"){
+        type = "Sub Reseller"
     }
 
-    console.log(trx);
+    return type
+}
 
-    const agentTrx = await db.agentTransaction.create({
-        data: trx
-    })
+async function createSuperUser(user){
 
-    console.log(`first trx from ${dbuser.id}`, agentTrx);
+    const data = {
+        email: user.email,
+        phone: user.phone,
+        password: hashSync(user.password, 12),
+        userType: user.type,
+        status: true
+    }
+
+    console.log(data)
+    const dbuser = await User.create(data)
 
     return dbuser;
 }
 
-export function findUserById(id){
-    return db.user.findUnique({
+async function createUserByEmailAndPassword(user){
+    const data = {
+        email: user.email,
+        store: user.store,
+        phone: user.phone,
+        password: hashSync(user.password, 12),
+        usertype: user.type,
+        status: true
+    }
+
+
+    console.log("user value : ",user);
+    const dbuser = await User.create(data)
+
+    console.log(dbuser)
+
+    const profile = await UserProfile.create({
+        f_name: user.fname,
+        l_name: user.lname,
+        age: parseInt(user.age),
+        email: user.email,
+        role: user.type,
+        phone: user.phone,
+        address: user.address,
+        userId: dbuser.uuid,
+        connectedUser: user.ref
+    })
+
+    const trx = {
+        userId: dbuser.uuid,
+        transferedAmount: 0.00,
+        dedcutedAmount: 0.00,
+        note: "New Account TRX"
+    }
+
+    console.log(trx);
+
+    const agentTrx = await AgentTransaction.create(trx)
+
+    const openingPercent = {
+        userId: dbuser.uuid,
+        percentage: 0.10
+    }
+
+    const agentPercent = await AgentPercentage.create(openingPercent)
+
+    console.log(`first trx from ${dbuser.id}`, agentTrx, agentPercent);
+
+    return dbuser;
+}
+
+function findUserById(id){
+    return User.findOne({
         where: {
             id,
         }
     })
 }
 
-// module.exports = {
-//     findUserByEmail,
-//     findUserById,
-//     createUserByEmailAndPassword
-// }
+module.exports = {
+    findUserByEmail,
+    findUserByPhone,
+    findUserType,
+    createSuperUser,
+    findUserById,
+    createUserByEmailAndPassword
+}

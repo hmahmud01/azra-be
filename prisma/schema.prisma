@@ -2,52 +2,103 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
+// USER INFORMATION 
 model User {
-  id               Int                @default(autoincrement()) @id
+  id                   Int                    @id @default(autoincrement())
+  uuid                 String?                @default(uuid())
+  email                String?                @unique
+  phone                String                 @unique
+  password             String
+  store                String?                @default("No Store")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  RefreshToken         RefreshToken[]
+  AgentTransaction     AgentTransaction[]
+  LockedBalance        LockedBalance[]
+  type                 String
+  status               Boolean                @default(true)
+  AgentPercentage      AgentPercentage[]
+  AgentEarning         AgentEarning[]
+  Transaction          Transaction[]
+  UserAmountSettlement UserAmountSettlement[]
+  AgentProfile         AgentProfile[]
+  DealerProfile        DealerProfile[]
+  SubDealerProfile     SubDealerProfile[]
+  UserProfile          UserProfile[]
+}
+
+model DealerProfile {
+  id               Int                @id @default(autoincrement())
+  f_name           String
+  l_name           String
+  age              Int?
   email            String             @unique
-  password         String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  RefreshToken     RefreshToken[]
-  AgentTransaction AgentTransaction[]
-  LockedBalance    LockedBalance[]
-  Profile          Profile[]
-  type             String
-}
-
-model UserBalance {
-  id                 Int              @default(autoincrement()) @id
-  balance            Float
-  previousBalance    Float
-  agentTrx           AgentTransaction @relation(fields: [agentTransactionId], references: [id])
-  createdAt          DateTime         @default(now())
-  agentTransactionId Int
-}
-
-model AgentTransaction {
-  id               Int           @default(autoincrement()) @id
-  user             User          @relation(fields: [userId], references: [id])
+  role             String
+  phone            String
+  address          String
+  user             User               @relation(fields: [userId], references: [id])
   userId           Int
-  transferedAmount Float
-  deductedAmount   Float
-  createdAt        DateTime      @default(now())
-  updateAt         DateTime      @updatedAt
-  UserBalance      UserBalance[]
+  SubDealerProfile SubDealerProfile[]
 }
 
-model Profile {
-  id     Int  @default(autoincrement()) @id
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
+model SubDealerProfile {
+  id              Int            @id @default(autoincrement())
+  f_name          String
+  l_name          String
+  age             Int?
+  email           String         @unique
+  role            String
+  phone           String
+  address         String
+  user            User           @relation(fields: [userId], references: [id])
+  userId          Int
+  dealerRef       DealerProfile  @relation(fields: [dealerProfileId], references: [id])
+  dealerProfileId Int
+  AgentProfile    AgentProfile[]
+}
+
+model AgentProfile {
+  id                 Int              @id @default(autoincrement())
+  f_name             String
+  l_name             String
+  age                Int?
+  email              String           @unique
+  role               String
+  phone              String
+  address            String
+  user               User             @relation(fields: [userId], references: [id])
+  userId             Int
+  subDealerRef       SubDealerProfile @relation(fields: [subDealerProfileId], references: [id])
+  subDealerProfileId Int
+}
+
+model UserProfile {
+  id              Int    @id @default(autoincrement())
+  uuid            String @default(uuid())
+  f_name          String
+  l_name          String
+  age             Int?
+  email           String @unique
+  role            String
+  phone           String
+  address         String
+  user            User   @relation(fields: [userId], references: [id])
+  userId          Int
+  connectedUserId Int?
 }
 
 model RefreshToken {
-  id          Int      @default(autoincrement()) @id
+  id          Int      @id @default(autoincrement())
   hashedToken String
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
@@ -56,8 +107,67 @@ model RefreshToken {
   udpatedAt   DateTime @updatedAt
 }
 
+// USER balance and earning tables
+model UserBalance {
+  id                 Int              @id @default(autoincrement())
+  uuid               String           @default(uuid())
+  balance            Float
+  previousBalance    Float
+  agentTrx           AgentTransaction @relation(fields: [agentTransactionId], references: [id])
+  createdAt          DateTime         @default(now())
+  agentTransactionId Int
+}
+
+model AgentTransaction {
+  id               Int           @id @default(autoincrement())
+  uuid             String?       @default(uuid())
+  user             User          @relation(fields: [userId], references: [id])
+  userId           Int
+  transferedAmount Float
+  deductedAmount   Float
+  note             String?
+  createdAt        DateTime      @default(now())
+  updateAt         DateTime      @updatedAt
+  UserBalance      UserBalance[]
+  trx              Transaction?  @relation(fields: [transactionId], references: [id])
+  transactionId    Int?
+}
+
+model UserAmountSettlement {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @default(uuid())
+  note      String
+  debit     Float
+  credit    Float
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime? @default(now())
+}
+
+// AGENT PERCENTAGE VARIABLE
+model AgentPercentage {
+  id         Int      @id @default(autoincrement())
+  uuid       String?  @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int      @unique
+  percentage Float
+  createdAt  DateTime @default(now())
+}
+
+model AgentEarning {
+  id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
+  agent         User        @relation(fields: [userId], references: [id])
+  userId        Int
+  amount        Float
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  createdAt     DateTime    @default(now())
+}
+
 model LockedBalance {
-  id               Int             @default(autoincrement()) @id
+  id               Int             @id @default(autoincrement())
+  uuid             String          @default(uuid())
   user             User            @relation(fields: [userId], references: [id])
   userId           Int
   currentBalance   Float
@@ -68,27 +178,45 @@ model LockedBalance {
   apiTransactionId Int?
 }
 
-model Nation {
-  id          Int           @default(autoincrement()) @id
-  name        String
-  short       String
-  code        String
-  Mobile      Mobile[]
-  Transaction Transaction[]
+model LockedNumber {
+  id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
+  phone         String
+  status        Boolean
+  createdAt     DateTime    @default(now())
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
 }
 
+// COUNTRY NAME
+model Nation {
+  id                 Int                  @id @default(autoincrement())
+  uuid               String               @default(uuid())
+  name               String
+  short              String
+  code               String
+  Mobile             Mobile[]
+  Transaction        Transaction[]
+  ApiCountryPriority ApiCountryPriority[]
+}
+
+// MOBILE NETWORK
 model Mobile {
-  id          Int           @default(autoincrement()) @id
+  id          Int           @id @default(autoincrement())
+  uuid        String        @default(uuid())
   name        String
   createAt    DateTime      @default(now())
   nation      Nation        @relation(fields: [nationId], references: [id])
   nationId    Int
   TeleService TeleService[]
   Transaction Transaction[]
+  ApiPercent  ApiPercent[]
 }
 
+// MOBILE NETWORK SERVICES
 model TeleService {
-  id          Int           @default(autoincrement()) @id
+  id          Int           @id @default(autoincrement())
+  uuid        String        @default(uuid())
   name        String
   createAt    DateTime      @default(now())
   mobile      Mobile        @relation(fields: [mobileId], references: [id])
@@ -97,42 +225,99 @@ model TeleService {
 }
 
 model Api {
-  id             Int              @default(autoincrement()) @id
-  name           String
-  code           String
-  status         Boolean
-  createdAt      DateTime         @default(now())
-  ApiTransaction ApiTransaction[]
+  id                 Int                  @id @default(autoincrement())
+  uuid               String               @unique @default(uuid())
+  name               String
+  code               String
+  status             Boolean
+  createdAt          DateTime             @default(now())
+  ApiTransaction     ApiTransaction[]
+  OrganizationEarned OrganizationEarned[]
+  ApiPercent         ApiPercent[]
+  ApiCountryPriority ApiCountryPriority[]
 }
 
-model LockedNumber {
-  id            Int         @default(autoincrement()) @id
-  phone         String
-  status        Boolean
-  createdAt     DateTime    @default(now())
-  trx           Transaction @relation(fields: [transactionId], references: [id])
-  transactionId Int
+model ApiPercent {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  api       Api      @relation(fields: [apiId], references: [id])
+  apiId     Int
+  network   Mobile   @relation(fields: [mobileId], references: [id])
+  mobileId  Int
+  percent   Float
+  createdAt DateTime @default(now())
+}
+
+model ApiCountryPriority {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  ctry      Nation   @relation(fields: [nationId], references: [id])
+  nationId  Int
+  api       Api      @relation(fields: [apiId], references: [id])
+  apiId     Int
+  priority  Int      @default(1)
+  createdAt DateTime @default(now())
 }
 
 model Transaction {
-  id             Int              @default(autoincrement()) @id
-  phone          String
-  amount         Float
-  agent          String
-  rechargeStatus Boolean
-  country        Nation?          @relation(fields: [nationId], references: [id])
-  mobile         Mobile?          @relation(fields: [mobileId], references: [id])
-  service        TeleService?     @relation(fields: [teleServiceId], references: [id])
-  createdAt      DateTime         @default(now())
-  nationId       Int?
-  mobileId       Int?
-  teleServiceId  Int?
-  ApiTransaction ApiTransaction[]
-  LockedNumber   LockedNumber[]
+  id                     Int                      @id @default(autoincrement())
+  uuid                   String                   @unique @default(uuid())
+  phone                  String
+  amount                 Float
+  agent                  String?
+  doneBy                 User                     @relation(fields: [userId], references: [id])
+  rechargeStatus         Boolean
+  country                Nation?                  @relation(fields: [nationId], references: [id])
+  mobile                 Mobile?                  @relation(fields: [mobileId], references: [id])
+  service                TeleService?             @relation(fields: [teleServiceId], references: [id])
+  createdAt              DateTime                 @default(now())
+  nationId               Int?
+  mobileId               Int?
+  teleServiceId          Int?
+  ApiTransaction         ApiTransaction[]
+  LockedNumber           LockedNumber[]
+  AgentEarning           AgentEarning[]
+  userId                 Int
+  OrganizationEarned     OrganizationEarned[]
+  AgentTransaction       AgentTransaction[]
+  TransactionResponse    TransactionResponse[]
+  TransactionSource      TransactionSource[]
+  TransactionAdjustments TransactionAdjustments[]
+}
+
+model TransactionResponse {
+  id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
+  response      Json
+  status        Boolean
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  createdAt     DateTime    @default(now())
+}
+
+model TransactionSource {
+  id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
+  ip_addr       String
+  device        String
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  createdAt     DateTime    @default(now())
+}
+
+model TransactionAdjustments {
+  id              Int         @id @default(autoincrement())
+  uuid            String      @default(uuid())
+  adjusted_profit Float
+  trx             Transaction @relation(fields: [transactionId], references: [id])
+  refund_note     String
+  createdAt       DateTime    @default(now())
+  transactionId   Int
 }
 
 model ApiTransaction {
-  id                   Int                    @default(autoincrement()) @id
+  id                   Int                    @id @default(autoincrement())
+  uuid                 String                 @default(uuid())
   trx                  Transaction            @relation(fields: [transactionId], references: [id])
   createdAt            DateTime               @default(now())
   api                  Api                    @relation(fields: [apiId], references: [id])
@@ -144,7 +329,8 @@ model ApiTransaction {
 
 // This will track the record for a transaction which api has been called and if that is success or failed
 model TransactionRecordApi {
-  id               Int            @default(autoincrement()) @id
+  id               Int            @id @default(autoincrement())
+  uuid             String         @default(uuid())
   transaction      ApiTransaction @relation(fields: [apiTransactionId], references: [id])
   apiTransactionId Int
   status           Boolean
@@ -152,7 +338,30 @@ model TransactionRecordApi {
   createdAt        DateTime       @default(now())
 }
 
+model OrganizationEarned {
+  id            Int         @id @default(autoincrement())
+  uuid          String      @default(uuid())
+  trx           Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  api           Api         @relation(fields: [apiId], references: [id])
+  apiId         Int
+  cutAmount     Float
+  createdAt     DateTime    @default(now())
+}
+
+model SystemLog {
+  id     Int      @id @default(autoincrement())
+  uuid   String   @default(uuid())
+  type   String
+  detail String
+  date   DateTime @default(now())
+}
+
+// USER ROLES
 enum Role {
   BASIC
   ADMIN
+  AGENT
+  DEALER
+  SUBDEALER
 }
