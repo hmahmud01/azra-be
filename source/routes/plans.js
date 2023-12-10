@@ -8,6 +8,5 @@ module.exports = app => {
     planRouter.post('/createplantype', controller.createPlanType);
     planRouter.get('/listplantype', controller.listPlanType);
 
-
     app.use(planRouter);
 }

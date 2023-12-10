@@ -62,6 +62,7 @@ require("./source/routes/userProfile")(app);
 require("./source/routes/balanceTransfer")(app);
 require("./source/routes/usercredit")(app);
 require("./source/routes/mainreport")(app);
+require("./source/routes/planding")(app);
 
 const httpServer = http.createServer(app);
 

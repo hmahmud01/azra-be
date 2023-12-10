@@ -300,7 +300,7 @@ exports.submitData = async (req, res, next) => {
 
             console.log("TRANSACATION BUILT > BALANCE LOCKED > NUMBER LOCKED");
 
-            for (let i = 0; i < apicreds.length; i++) {
+            for (let i = 0; i <  v.length; i++) {
                 const api = await db.api.findOne({where: {uuid: apicreds[i].apiId}})
                 if (api.code == "TST") {
                     const res = await fetch(process.env.TSTBAL);
@@ -464,6 +464,70 @@ exports.submitData = async (req, res, next) => {
                         console.log(e);
                         console.log("LIVE DIDNT WORK");
                     }) 
+                }else if (api.code == "DNG"){
+                    console.log("inside DING API")
+                    const priceurl = process.env.DNG_PRICE
+                    const apiurl = process.env.DNG_API
+                    const apikey = process.env.DNG_APIKEY
+                    const transaction_id = transaction.uuid
+                    const account = mobile
+                    const dingplan = await db.planding.findOne({
+                        where: {
+                            plan_id: plan_id
+                        }
+                    })
+
+                    const estimate_data = [{
+                        SkuCode: dingplan.skucode,
+                        SendValue: 0,
+                        ReceiveCurrencyIso: dingplan.send_currency,
+                        ReceiveValue: dingplan.receive_amount,
+                        BatchItemRef: "string"
+                    }]
+                    
+                    const header = {
+                        'api_key': apikey,
+                        'Cache-Control': 'no-cache',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+
+                    const priceCheck = await fetch(priceurl, {
+                        method: 'POST',
+                        headers: header,
+                        body: JSON.stringify(estimate_data)
+                    })
+                    .then(response => response.json())
+                    .then(async data => {
+                        const send_data = {
+                            SkuCode: dingplan.skucode,
+                            SendValue: data.Items[0].Price.SendValue,
+                            AccountNumber: mobile,
+                            DistributorRef: "01trydingairtel"+transaction.uuid,
+                            ValidateOnly: false
+                        }
+                        const apiCall = await fetch(apiurl, {
+                            method: 'POST',
+                            headers: header,
+                            body: JSON.stringify(send_data)
+                        })
+                        .then(response => response.json())
+                        .then(async data => {
+                            let trxMsg = `Transaction Status`
+                            
+                        })
+                        .catch(e => {
+                            console.log(e);
+                            console.log("DNG api url not working")
+                        })
+                    })
+                    .catch(e => {
+                        console.log(e);
+                        console.log("DNG Price check url didn't work")
+                    })
+
+                    //REQUEST FOR A SUCCESS API CALL
+
                 }
             }
 
