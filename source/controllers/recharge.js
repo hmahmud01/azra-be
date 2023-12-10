@@ -1390,7 +1390,7 @@ exports.recharge = async(req, res, next) => {
             const apiurl = process.env.DNG_API
             const apikey = process.env.DNG_APIKEY
             const transaction_id = transaction.uuid
-            const account = ui_number
+            const account = data.ui_number
             const dingplan = await db.planding.findOne({
                 where: {
                     plan_id: plan_id
