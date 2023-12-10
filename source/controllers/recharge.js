@@ -1390,10 +1390,10 @@ exports.recharge = async(req, res, next) => {
             const apiurl = process.env.DNG_API
             const apikey = process.env.DNG_APIKEY
             const transaction_id = transaction.uuid
-            const account = data.ui_number
+            const account = data.prefix + data.ui_number
             const dingplan = await db.planding.findOne({
                 where: {
-                    plan_id: plan_id
+                    plan_id: data.plan_id
                 }
             })
 
@@ -1418,11 +1418,11 @@ exports.recharge = async(req, res, next) => {
                 body: JSON.stringify(estimate_data)
             })
             .then(response => response.json())
-            .then(async data => {
+            .then(async respdata => {
                 const send_data = {
                     SkuCode: dingplan.skucode,
-                    SendValue: data.Items[0].Price.SendValue,
-                    AccountNumber: mobile,
+                    SendValue: respdata.Items[0].Price.SendValue,
+                    AccountNumber: account,
                     DistributorRef: "01trydingairtel"+transaction.uuid,
                     ValidateOnly: false
                 }
