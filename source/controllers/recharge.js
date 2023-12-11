@@ -1412,14 +1412,14 @@ exports.recharge = async(req, res, next) => {
                 'Accept': 'application/json'
             }
 
-            const priceCheck = await fetch(priceurl, {
+            fetch(priceurl, {
                 method: 'POST',
                 headers: header,
                 body: JSON.stringify(estimate_data)
             })
             .then(response => response.json())
             .then(async respdata => {
-                console.log("SKU DATA CHECK SUCCESS")
+                console.log("SKU DATA CHECK SUCCESS *******************")
                 console.log(respdata)
                 const send_data = {
                     SkuCode: dingplan.skucode,
@@ -1428,7 +1428,11 @@ exports.recharge = async(req, res, next) => {
                     DistributorRef: "01trydingairtel"+transaction.uuid,
                     ValidateOnly: false
                 }
-                const apiCall = await fetch(apiurl, {
+
+                console.log("SEND DATA **************************************")
+                console.log(send_data);
+
+                fetch(apiurl, {
                     method: 'POST',
                     headers: header,
                     body: JSON.stringify(send_data)
