@@ -1920,6 +1920,12 @@ exports.recharge = async(req, res, next) => {
                     trx_api_id = api.uuid
                     trx_status = true
 
+                    if(data.TransferRecord.ProcessingState == 'Complete'){
+                        trx_status = true
+                    }else if(data.TransferRecord.ProcessingState == 'Failed'){
+                        trx_status = false
+                    }
+
                     if (trx_status) {
                         const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
