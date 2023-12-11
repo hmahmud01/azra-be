@@ -1425,7 +1425,7 @@ exports.recharge = async(req, res, next) => {
                     SkuCode: dingplan.skucode,
                     SendValue: respdata.Items[0].Price.SendValue,
                     AccountNumber: account,
-                    DistributorRef: "01trydingairtel"+transaction.uuid,
+                    DistributorRef: "0123232GP",
                     ValidateOnly: false
                 }
 
