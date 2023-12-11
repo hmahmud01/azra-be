@@ -408,6 +408,9 @@ const saveResponse = async (response, trxId) => {
         response: response
     })
 
+    const salesreport = await saleReport(response);
+    console.log("SALE UUID : ", salesreport);
+
     console.log("TRX RESPONSE: ", trxResp);
 
     return trxResp;
@@ -548,6 +551,7 @@ exports.recharge = async(req, res, next) => {
             trans_date: null,
             request_endtime: null
         }
+        
     } else {
         let transaction_data = {
             phone: mobile,
@@ -760,6 +764,7 @@ exports.recharge = async(req, res, next) => {
                         trans_date: now,
                         request_endtime: now
                     }
+                    res.json(apiResp)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -823,6 +828,7 @@ exports.recharge = async(req, res, next) => {
                         trans_date: now,
                         request_endtime: now
                     }
+                    res.json(apiResp)
                 }
             }) 
             .catch(e => {
@@ -1190,6 +1196,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
@@ -1253,6 +1260,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        res.json(apiResp)
                     }
                 })
                 .catch(e=> {
@@ -1594,6 +1602,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
@@ -1657,6 +1666,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        res.json(apiResp)
                     }
                 })
                 .catch(e => {
@@ -2013,6 +2023,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
@@ -2076,6 +2087,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        res.json(apiResp)
                     }
                     
                 })
@@ -2276,7 +2288,8 @@ exports.recharge = async(req, res, next) => {
                 trans_date: now,
                 request_endtime: now
             }
+            res.json(apiResp)
         }
     }
-    res.json(apiResp)
+    // res.json(apiResp)
 }
