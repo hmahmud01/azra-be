@@ -1425,7 +1425,7 @@ exports.recharge = async(req, res, next) => {
                     SkuCode: dingplan.skucode,
                     SendValue: respdata.Items[0].Price.SendValue,
                     AccountNumber: account,
-                    DistributorRef: "0123232GP",
+                    DistributorRef: "AZRAPAY",
                     ValidateOnly: false
                 }
 
@@ -1443,13 +1443,13 @@ exports.recharge = async(req, res, next) => {
                     console.log(data)
                     let trxMsg = `Transaction Status`
                     const resp = saveResponse(trxMsg, transaction.id);
-                        console.log(resp);
-                        trx_data = {
-                            transactionId: transaction.uuid,
-                            apiId: api.uuid
-                        }
-                        trx_api_id = api.uuid
-                        trx_status = true
+                    console.log(resp);
+                    trx_data = {
+                        transactionId: transaction.uuid,
+                        apiId: api.uuid
+                    }
+                    trx_api_id = api.uuid
+                    trx_status = true
                     
                 })
                 .catch(e => {
@@ -1555,6 +1555,7 @@ exports.recharge = async(req, res, next) => {
                 }
                 const orgEarning = await db.organizationearned.create(orgEarnedData)
                 console.log("Organization earning : ", orgEarning);
+                console.log("********SUCCESS API RESPONSE************")
                 apiResp = {
                     status: "success",
                     balance: (userbalance - debit_amount),
@@ -1617,7 +1618,7 @@ exports.recharge = async(req, res, next) => {
                 )
                 console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                 console.log("Balance Unavailable");
-
+                console.log("********FAILED API RESPONSE************")
                 apiResp = {
                     status: "failed",
                     balance: userbalance,
@@ -1634,6 +1635,7 @@ exports.recharge = async(req, res, next) => {
             }
 
         }else{
+            console.log("********FAILED API RESPONSE************")
             apiResp = {
                 status: "failed",
                 balance: userbalance,
