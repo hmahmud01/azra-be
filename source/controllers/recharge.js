@@ -1419,6 +1419,8 @@ exports.recharge = async(req, res, next) => {
             })
             .then(response => response.json())
             .then(async respdata => {
+                console.log("SKU DATA CHECK SUCCESS")
+                console.log(respdata)
                 const send_data = {
                     SkuCode: dingplan.skucode,
                     SendValue: respdata.Items[0].Price.SendValue,
@@ -1433,6 +1435,8 @@ exports.recharge = async(req, res, next) => {
                 })
                 .then(response => response.json())
                 .then(async data => {
+                    console.log("API HIT SUCCESS")
+                    console.log(data)
                     let trxMsg = `Transaction Status`
                     const resp = saveResponse(trxMsg, transaction.id);
                         console.log(resp);
