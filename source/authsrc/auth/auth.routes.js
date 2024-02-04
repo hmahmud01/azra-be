@@ -6,6 +6,7 @@
 // import { db } from '../utls/db.js';
 
 module.exports = app => {
+    const jwt = require("jsonwebtoken");
     const express = require("express");
     const { v4: uuidv4 } = require("uuid")
     const { generateTokens } = require("../utls/jwt.js");
@@ -30,6 +31,25 @@ module.exports = app => {
         return setting;
 
     }
+
+    authRoute.post('/verifytoken', async (req, res, next) => {
+        const AuthId = req.get('AuthId')
+        console.log(`AuthId ${AuthId}`)
+
+        if(!AuthId) {
+            return res.status(401).json({success: false, message: "Invalid token"})
+        }
+
+        try {
+            const decoded = jwt.verify(AuthId, "azraaccesstoken");
+            console.log(`decoded ${decoded}`)
+            req.user = decoded;
+            return res.status(200).json({success: true})
+        } catch (err) {
+            console.log(err);
+            return res.status(401).json({ success: false, message: "Invalid token" });
+        }
+    })
 
     authRoute.get('/users', async (req, res, next) => {
         // const users = await User.findAll({
@@ -152,8 +172,106 @@ module.exports = app => {
         }
     });
 
-    authRoute.post('/applogin', async(req,res,next) => {
+    authRoute.post('/devicechangerequest', async(req, res, next) => {
         try {
+            const update_device = req.body.updateDevice;
+            const username = req.body.username;
+
+            console.log(`TO UPDATE DEVICE : ${update_device}`);
+
+            const existingUser = await findUserByPhone(username);
+
+            if (!existingUser) {
+                res.status(403).json({
+                    msg: "User Don't Exist"
+                });
+                throw new Error('Invalid login credentials.');
+            }
+
+            const deviceData = await db.userdevice.findOne({
+                where: {
+                    userId: existingUser.uuid
+                }
+            })
+
+
+            const request = await db.userdevicerequest.create({
+                deviceId: deviceData.uuid,
+                updateDevice: update_device
+            })
+
+            console.log(`REQUETS CREATED, ${request}`)
+
+            res.status(200).json({
+                msg: "Request Created",
+                request: request
+            })
+
+            
+        }  catch (error) {
+            res.status(200).json(
+                {
+                    "status": false,
+                    "auth_id": "N/A"
+                }
+            )
+        }
+    })
+
+    authRoute.post('/updatedevice', async(req, res, next) => {
+        try {
+            const req_id = req.body.request_id
+
+            const request = await db.userdevicerequest.findOne({
+                where: {
+                    uuid: req_id
+                }
+            })
+
+            const device = await db.userdevice.findOne({
+                where: {
+                    uuid: request.deviceId
+                }
+            })
+
+            let prevDev = device.currentDevice
+
+            const updateDevice = await db.userdevice.update(
+                {
+                    prevDevice: prevDev,
+                    currentDevice: request.updateDevice
+                },
+                {
+                    where: {
+                        uuid: request.deviceId
+                    }
+                }
+            )
+
+            console.log(`updated DEVICE : ${updateDevice}`)
+
+            res.status(200).json({
+                msg: "Device Updated",
+                dev: updateDevice
+            })
+
+
+        }  catch (error) {
+            res.status(200).json(
+                {
+                    "status": false,
+                    "description": "Didn't worked"
+                }
+            )
+        }
+    })
+
+    authRoute.post('/applogin', async(req,res,next) => {
+        
+        try {
+            const device_id = req.get('device')
+            console.log(`DEVICE ID : ${device_id}`)
+
             const username = req.body.username
             const password = req.body.password
 
@@ -190,11 +308,52 @@ module.exports = app => {
                 }
             })
 
+            const deviceData = await db.userdevice.findOne({
+                where: {
+                    userId: existingUser.uuid
+                }
+            })
+
+            if (!deviceData){
+                const device = await db.userdevice.create({
+                    currentDevice: device_id,
+                    userId: existingUser.uuid
+                })
+
+                console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
+
+                if(device.currentDevice != device_id){
+                    res.status(403).json({
+                        msg: {
+                            "status": false,
+                            "auth_id": "N/A",
+                            "desc": "Device Not Matched. Please Use your original Device You logged in with."
+                        }
+                    }) ;
+                    throw new Error('Invalid DEVICE.');
+                }
+            }
+
+            console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
+
+            if(deviceData.currentDevice != device_id){
+                res.status(403).json({
+                    msg: {
+                        "status": false,
+                        "auth_id": "N/A",
+                        "desc": "Device Not Matched. Please Use your original Device You logged in with."
+                    }
+                }) ;
+                throw new Error('Invalid DEVICE.');
+            }
+
+            console.log("Device Matched");
+
             const post = findUserType(existingUser.usertype);
 
             const jti = uuidv4();
             const { accessToken, refreshToken } = generateTokens(existingUser, jti);
-            await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
+            await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.uuid });
 
             if(post == "Sales") {
                 res.json({
@@ -210,7 +369,8 @@ module.exports = app => {
                     latest_app_version: "76",
                     server_address: process.env.SERVER_URL,
                     has_token: accessToken,
-                    auth_id: existingUser.uuid,
+                    auth_id: accessToken,
+                    user_id: existingUser.uuid
                     // superior: existingUser.connectedUsesr
                 })
             }else if(post == "Sub Reseller") {
@@ -232,7 +392,8 @@ module.exports = app => {
                     latest_app_version: "76",
                     server_address: process.env.SERVER_URL,
                     has_token: accessToken,
-                    auth_id: existingUser.uuid
+                    auth_id: accessToken,
+                    user_id: existingUser.uuid
                 })
             }else if(post == "Customer") {
                 let uid = existingUser.id
@@ -378,7 +539,8 @@ module.exports = app => {
                     server_address: process.env.SERVER_URL,
                     countries: countryServices,
                     has_token: accessToken,
-                    auth_id: uuid
+                    auth_id: accessToken,
+                    user_id: uuid
                 }
 
                 res.setHeader(

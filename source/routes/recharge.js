@@ -1,14 +1,15 @@
 module.exports = app => {
     const express = require('express');
     const controller = require('../controllers/recharge.js');
+    const { authMiddleware } = require("../authsrc/auth/auth.services.js");
 
     const rechargeRouter = express.Router();
-    rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
-    rechargeRouter.post('/plans', controller.plans);
-    rechargeRouter.post('/operators', controller.operators);
-    rechargeRouter.post('/operator-check', controller.operatorCheck);
-    rechargeRouter.post('/confirm-recharge', controller.confirmRecharge);
-    rechargeRouter.post('/recharge', controller.recharge);
+    rechargeRouter.post('/user-get-portal-balance',authMiddleware, controller.userGetPortalBalance);
+    rechargeRouter.post('/plans',authMiddleware, controller.plans);
+    rechargeRouter.post('/operators',authMiddleware, controller.operators);
+    rechargeRouter.post('/operator-check',authMiddleware, controller.operatorCheck);
+    rechargeRouter.post('/confirm-recharge', authMiddleware, controller.confirmRecharge);
+    rechargeRouter.post('/recharge', authMiddleware, controller.recharge);
     // rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
     // rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
 

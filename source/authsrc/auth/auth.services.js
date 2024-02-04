@@ -2,8 +2,28 @@
 // import { hashToken } from '../utls/hashToken.js';
 const db = require("../../models");
 const { hashToken } = require("../utls/hashToken.js");
+const jwt = require("jsonwebtoken");
 
 const RefreshToken = db.refreshtoken;
+
+const authMiddleware = async (req, res, next) => {
+  const AuthId = req.get('AuthId')
+  console.log(`AuthId ${AuthId}`)
+
+  if(!AuthId) {
+      return res.status(401).json({success: false, message: "Invalid token"})
+  }
+
+  try {
+      const decoded = jwt.verify(AuthId, "azraaccesstoken");
+      console.log(`decoded ${decoded}`)
+      req.user = decoded;
+      next()
+  } catch (err) {
+      console.log(err);
+      return res.status(401).json({ success: false, message: "Invalid token" });
+  }
+}
 
 // used when we create a refresh token.
 function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
@@ -49,6 +69,7 @@ function revokeTokens(userId) {
 }
 
 module.exports = {
+  authMiddleware,
   addRefreshTokenToWhitelist,
   findRefreshTokenById,
   deleteRefreshToken,

@@ -142,12 +142,6 @@ exports.orderHistory = async(req, res, next) => {
                 }
             })
 
-            const planType = await db.plantypes.findOne({
-                where: {
-                    operator_code: plan.operator_code
-                }
-            })
-
             let earned = 0.00
 
             if(earning != null){
