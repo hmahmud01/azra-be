@@ -281,10 +281,8 @@ module.exports = app => {
 
             if (!username || !password){
                 res.status(200).json({
-                    msg: {
-                        "status": false,
-                        "auth_id": "N/A"
-                    }
+                    "status": false,
+                    "auth_id": "N/A"
                 }) 
                 throw new Error('You must provide an email and a password.');
             }
@@ -324,11 +322,10 @@ module.exports = app => {
 
                 if(device.currentDevice != device_id){
                     res.status(403).json({
-                        msg: {
                             "status": false,
                             "auth_id": "N/A",
                             "desc": "Device Not Matched. Please Use your original Device You logged in with."
-                        }
+                        
                     }) ;
                     throw new Error('Invalid DEVICE.');
                 }
@@ -338,11 +335,10 @@ module.exports = app => {
 
             if(deviceData.currentDevice != device_id){
                 res.status(403).json({
-                    msg: {
                         "status": false,
                         "auth_id": "N/A",
                         "desc": "Device Not Matched. Please Use your original Device You logged in with."
-                    }
+                    
                 }) ;
                 throw new Error('Invalid DEVICE.');
             }
