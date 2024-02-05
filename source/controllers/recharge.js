@@ -6,6 +6,7 @@ const qs = require('qs');
 const axios = require('axios');
 
 const rechargeModule = require('./recharge_module');
+const { logger } = require('../authsrc/middlewares');
 
 exports.plans = async(req, res, next) => {
     let service_code = req.body.service_code
@@ -764,6 +765,7 @@ exports.recharge = async(req, res, next) => {
                         trans_date: now,
                         request_endtime: now
                     }
+                    logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                     res.json(apiResp)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -814,7 +816,7 @@ exports.recharge = async(req, res, next) => {
                     )
                     console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                     console.log("Balance Unavailable");
-    
+                    
                     apiResp = {
                         status: "failed",
                         balance: userbalance,
@@ -828,6 +830,7 @@ exports.recharge = async(req, res, next) => {
                         trans_date: now,
                         request_endtime: now
                     }
+                    logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                     res.json(apiResp)
                 }
             }) 
@@ -1196,6 +1199,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                         res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -1260,6 +1264,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                         res.json(apiResp)
                     }
                 })
@@ -2029,6 +2034,8 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+
+                        logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                         res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -2093,6 +2100,7 @@ exports.recharge = async(req, res, next) => {
                             trans_date: now,
                             request_endtime: now
                         }
+                        logger.info(`${data.username} has attempted an unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                         res.json(apiResp)
                     }
                     

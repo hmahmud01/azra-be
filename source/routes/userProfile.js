@@ -4,7 +4,7 @@ module.exports = app => {
     const { authMiddleware } = require("../authsrc/auth/auth.services.js");
 
     profileRouter = express.Router();
-    profileRouter.post('/user-dashboard', controller.userDashboard);
+    profileRouter.post('/user-dashboard',authMiddleware, controller.userDashboard);
     profileRouter.post('/user-wallet-history', controller.walletHistory);
     profileRouter.post('/order-history', authMiddleware, controller.orderHistory);
     profileRouter.post('/salesman-dashboard', controller.salesDashboard);

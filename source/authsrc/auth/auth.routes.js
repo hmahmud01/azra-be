@@ -15,6 +15,7 @@ module.exports = app => {
     const db = require("../../models");
     const User = db.user
     const recharge = require("../../controllers/recharge.js");
+    const { logger } = require("../middlewares.js");
 
     const authRoute = express.Router();
     // import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
@@ -538,6 +539,8 @@ module.exports = app => {
                     auth_id: accessToken,
                     user_id: uuid
                 }
+
+                logger.info(`${username} has been successfully logged in from device id : ${req.get('device')}`)
 
                 res.setHeader(
                     'service_status', JSON.stringify(headerData)

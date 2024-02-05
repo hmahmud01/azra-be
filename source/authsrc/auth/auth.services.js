@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
   console.log(`AuthId ${AuthId}`)
 
   if(!AuthId) {
-      return res.status(401).json({success: false, message: "Invalid token"})
+      return res.status(401).json({success: false, message: "Session Not Available"})
   }
 
   try {
@@ -21,7 +21,7 @@ const authMiddleware = async (req, res, next) => {
       next()
   } catch (err) {
       console.log(err);
-      return res.status(401).json({ success: false, message: "Invalid token" });
+      return res.status(401).json({ success: false, message: "Session Expired. Please Login again" });
   }
 }
 
