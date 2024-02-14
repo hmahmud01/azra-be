@@ -33,9 +33,50 @@ module.exports = app => {
 
     }
 
+    authRoute.post('/refresh-token', async(req, res, next) => {
+        const AuthId = req.get('AuthId')
+        const refresh_token = req.get('refresh_token')
+        const username = req.body.username
+        const existingUser = await findUserByPhone(username);
+
+        console.log(`existing user ${existingUser.id}`)
+
+        jwt.verify(refresh_token, "refreshtoken", 
+        (err, decoded) => {
+            if (err) {
+                return res.status(406).json({message: 'Unauthorized. Token Expired'})
+            }
+            else {
+                const accessToken = jwt.sign({userId: existingUser.id}, "azraaccesstoken", {
+                    expiresIn: '10m'
+                });
+
+                return res.json({accessToken})
+            }
+        })
+
+    })
+
     authRoute.post('/verifytoken', async (req, res, next) => {
         const AuthId = req.get('AuthId')
+        const refresh_token = req.get('refresh_token')
         console.log(`AuthId ${AuthId}`)
+
+        jwt.verify(refresh_token, "refreshtoken", 
+        (err, decoded) => {
+            if (err) {
+                return res.status(406).json({message: 'Unauthorized'})
+            }
+            else {
+                const accessToken = jwt.sign({ userId: user.id }, "azraaccesstoken", {
+                        expiresIn: '24h',
+                });
+
+                return res.json({accessToken})
+            }
+        })
+
+
 
         if(!AuthId) {
             return res.status(401).json({success: false, message: "Invalid token"})
@@ -367,6 +408,7 @@ module.exports = app => {
                     server_address: process.env.SERVER_URL,
                     has_token: accessToken,
                     auth_id: accessToken,
+                    refresh_token: refreshToken,
                     user_id: existingUser.uuid
                     // superior: existingUser.connectedUsesr
                 })
@@ -390,6 +432,7 @@ module.exports = app => {
                     server_address: process.env.SERVER_URL,
                     has_token: accessToken,
                     auth_id: accessToken,
+                    refresh_token: refreshToken,
                     user_id: existingUser.uuid
                 })
             }else if(post == "Customer") {
@@ -537,6 +580,7 @@ module.exports = app => {
                     countries: countryServices,
                     has_token: accessToken,
                     auth_id: accessToken,
+                    refresh_token: refreshToken,
                     user_id: uuid
                 }
 

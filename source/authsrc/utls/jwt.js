@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 function generateAccessToken(user) {
   console.log(process.env.JWT_ACCESS_SECRET);
   return jwt.sign({ userId: user.id }, "azraaccesstoken", {
-    expiresIn: '24h',
+    expiresIn: '10m',
   });
 }
 
@@ -14,7 +14,7 @@ function generateRefreshToken(user, jti) {
     userId: user.id,
     jti
   }, "refreshtoken", {
-    expiresIn: '8h',
+    expiresIn: '24h',
   });
 }
 
