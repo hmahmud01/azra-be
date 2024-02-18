@@ -35,23 +35,28 @@ module.exports = app => {
 
     authRoute.post('/refresh-token', async(req, res, next) => {
         const AuthId = req.get('AuthId')
-        const refresh_token = req.get('refresh_token')
+        const refreshToken = req.get('refresh_token')
         const username = req.body.username
         const existingUser = await findUserByPhone(username);
 
         console.log(`existing user ${existingUser.id}`)
 
-        jwt.verify(refresh_token, "refreshtoken", 
+        jwt.verify(refreshToken, "refreshtoken", 
         (err, decoded) => {
             if (err) {
-                return res.status(406).json({message: 'Unauthorized. Token Expired'})
+                console.log("NEW REFRESH TOKEN")
+                const jti = uuidv4();
+                const { accessToken, refreshToken } = generateTokens(existingUser, jti);
+
+                return res.json({accessToken, refreshToken})
             }
             else {
+                console.log("ACCESS TOKEN REFRESHED")
                 const accessToken = jwt.sign({userId: existingUser.id}, "azraaccesstoken", {
                     expiresIn: '10m'
                 });
 
-                return res.json({accessToken})
+                return res.json({accessToken, refreshToken})
             }
         })
 
