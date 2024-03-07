@@ -16,3 +16,9 @@ exports.addCreditInfo = async(req, res, next) => {
         status: "Success"
     })
 }
+
+exports.creditList = async(req, res, next) => {
+    const credits = await db.usercredit.findAll()
+
+    res.status(200).json(credits)
+}

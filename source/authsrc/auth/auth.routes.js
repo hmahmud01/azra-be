@@ -59,7 +59,6 @@ module.exports = app => {
                 return res.json({accessToken, refreshToken})
             }
         })
-
     })
 
     authRoute.post('/verifytoken', async (req, res, next) => {
@@ -202,7 +201,7 @@ module.exports = app => {
             const { accessToken, refreshToken } = generateTokens(existingUser, jti);
             await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
 
-            let uid = existingUser.id
+            let uid = existingUser.id   
             let usertype = existingUser.usertype
             let store = existingUser.store
             let uuid = existingUser.uuid

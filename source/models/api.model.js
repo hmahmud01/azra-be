@@ -13,5 +13,5 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: Sequelize.NOW
         },
     })
-    return Api
+    return Api;
 }

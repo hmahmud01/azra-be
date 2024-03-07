@@ -10,6 +10,11 @@ module.exports = app => {
     rechargeRouter.post('/operator-check',authMiddleware, controller.operatorCheck);
     rechargeRouter.post('/confirm-recharge', authMiddleware, controller.confirmRecharge);
     rechargeRouter.post('/recharge', authMiddleware, controller.recharge);
+    rechargeRouter.post('/opptest', controller.opptest);
+    rechargeRouter.post('/opppin', controller.oppPin);
+    rechargeRouter.post('/oppets', controller.oppets);
+    rechargeRouter.post('/oppetsnba', controller.oppetsnba);
+    rechargeRouter.post('/oppdu', controller.oppdu);  
     // rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
     // rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
 

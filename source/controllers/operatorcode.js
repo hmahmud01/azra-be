@@ -16,3 +16,9 @@ exports.setOperatorCode = async(req, res, next) => {
         message: `added data: ${code}`
     })
 }
+
+exports.operatorCodeList = async(req, res, next) => {
+    const operatorcodelist = await db.operatorCode.findAll()
+
+    res.status(200).json(operatorcodelist)
+}

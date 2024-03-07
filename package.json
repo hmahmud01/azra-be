@@ -31,7 +31,8 @@
     "qs": "^6.11.2",
     "sequelize": "^6.32.0",
     "uuid": "^9.0.0",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
     "install": "^0.13.0"

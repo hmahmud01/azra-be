@@ -137,3 +137,9 @@ exports.findMobileSetting = async(req, res, next) => {
         setting: setting
     })
 }
+
+exports.mobileSettingList = async(req, res, next) => {
+    const settinglist = await Setting.findAll()
+
+    res.status(200).json(settinglist)
+}
