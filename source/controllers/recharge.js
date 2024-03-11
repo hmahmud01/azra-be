@@ -895,7 +895,7 @@ exports.recharge = async (req, res, next) => {
     })
 
     if (plan.credit_currency == plan.debit_currency){
-        debit_amount = parseInt(plan_amount)
+        debit_amount = parseInt(data.plan_amount)
     }else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
         const currency = await db.currency.findOne({
             where: {
@@ -904,7 +904,7 @@ exports.recharge = async (req, res, next) => {
             }
         })
 
-        debit_amount = (parseInt(plan_amount) * currency.conversionValue).toFixed(2);
+        debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
 
     } else {
         debit_amount = plan.debit_amount
