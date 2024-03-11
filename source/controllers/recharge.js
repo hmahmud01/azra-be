@@ -698,7 +698,9 @@ exports.confirmRecharge = async (req, res, next) => {
         }
     })
 
-    if (plan.is_range) {
+    if (plan.credit_currency == plan.debit_currency){
+        debit_amount = parseInt(plan_amount)
+    }else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
         const currency = await db.currency.findOne({
             where: {
                 credit_currency: plan.credit_currency,
