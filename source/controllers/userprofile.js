@@ -109,6 +109,12 @@ exports.orderHistory = async(req, res, next) => {
 
             console.log("API TRX")
             console.log(apiTrx)
+
+            const api = await db.api.findOne({
+                where: {
+                    uuid: apiTrx.apiId
+                }
+            })
     
             const country = await db.country.findOne({
                 where: {
@@ -156,6 +162,7 @@ exports.orderHistory = async(req, res, next) => {
             
             let data = {
                 trans_id: trx.uuid,
+                api: api.name,
                 trans_code: trx.uuid,
                 ui_number: trx.phone,
                 service_code: trx.serviceId,
@@ -173,7 +180,7 @@ exports.orderHistory = async(req, res, next) => {
                 commission: earned.toString(),
                 service_type: plan.rechargeType,
                 sub_operator_code: plan.operator_code,
-                sub_operator_name: planType.type,
+                sub_operator_name: plan.operator_code,
                 operator_reference: operatorcode.id.toString(),
                 plan_description: plan.narration
             }
