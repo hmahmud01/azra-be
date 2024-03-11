@@ -1580,9 +1580,9 @@ exports.recharge = async (req, res, next) => {
                                         type: "Recharge",
                                         detail: logmsg
                                     })
-
+                                    console.log("API TRX")
                                     const apitrx = await db.apitransaction.create(trx_data)
-
+                                    console.log("UNLOCKING NUMBER")
                                     const updateNumber = await db.lockednumber.update(
                                         {
                                             status: false,
@@ -1593,7 +1593,7 @@ exports.recharge = async (req, res, next) => {
                                             }
                                         }
                                     )
-
+                                    console.log("UNLOCKING AMOUNT")
                                     const updateBalance = await db.lockedbalance.update(
                                         {
                                             lockedStatus: false,
@@ -1605,7 +1605,7 @@ exports.recharge = async (req, res, next) => {
                                             }
                                         }
                                     )
-
+                                    console.log("TRX API RECORD")
                                     const record = await db.transactionrecordapi.create({
                                         apiTransactionId: apitrx.uuid,
                                         status: true,
