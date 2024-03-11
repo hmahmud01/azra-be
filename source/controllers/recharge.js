@@ -1424,7 +1424,7 @@ exports.recharge = async (req, res, next) => {
             let pass = process.env.PASSWORD
             let lang = "eng"
             let recepiept = '00' + transaction.id
-            let number = data.ui_number
+            let number = "0" + data.ui_number
             let amount = parseInt(data.plan_amount)
             let clerk_id = 1
             let prodcode = "ETSTOP"
@@ -1689,7 +1689,7 @@ exports.recharge = async (req, res, next) => {
             let pass = process.env.PASSWORD
             let lang = "eng"
             let recepiept = '00' + transaction.id
-            let number = data.ui_number
+            let number = "0" + data.ui_number
             let amount = parseInt(data.plan_amount) 
             let clerk_id = 1
             let prodcode = "DUCTOP"
