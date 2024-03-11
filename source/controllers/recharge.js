@@ -1845,14 +1845,16 @@ exports.recharge = async (req, res, next) => {
                                     trx_api_id = api.uuid
                                     trx_status = true
 
+                                    console.log("LOGGIN")
+
                                     const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                                     const syslog = await db.systemlog.create({
                                         type: "Recharge",
                                         detail: logmsg
                                     })
-
+                                    console.log(logmsg)
                                     const apitrx = await db.apitransaction.create(trx_data)
-
+                                    console.log("API TRANSACTION CREATING")
                                     const updateNumber = await db.lockednumber.update(
                                         {
                                             status: false,
@@ -1863,7 +1865,7 @@ exports.recharge = async (req, res, next) => {
                                             }
                                         }
                                     )
-
+                                    console.log("NUMBER UNLOCKED")
                                     const updateBalance = await db.lockedbalance.update(
                                         {
                                             lockedStatus: false,
@@ -1875,12 +1877,14 @@ exports.recharge = async (req, res, next) => {
                                             }
                                         }
                                     )
-
+                                    console.log("BALANCE UNLOCKED")
+                                    console.log("CREATING TRANSACTION RECORD API")
                                     const record = await db.transactionrecordapi.create({
                                         apiTransactionId: apitrx.uuid,
                                         status: true,
                                         statement: "Successfully recharged"
                                     })
+
                                     console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                                     console.log("Add a entry of success recharge balance and adjust the agents real balance");
 
