@@ -62,6 +62,16 @@ exports.userDashboard = async(req, res, next) => {
 exports.orderHistory = async(req, res, next) => {
     let reqdata = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
     let history = []
+    let credit_amount = 0.00
+    let credit_currency = ""
+    let debit_amount = 0.00
+    let debit_currency = ""
+    let service_type = ""
+    let sub_operator_code = ""
+    let sub_operator_name = ""
+    let plan_description = ""
+    let api = ""
+
     const user = await db.user.findOne({
         where: {
             phone: req.body.username
@@ -109,13 +119,16 @@ exports.orderHistory = async(req, res, next) => {
 
             console.log("API TRX")
             console.log(apiTrx)
+            
+            if (apiTrx) {
+                const apiobj = await db.api.findOne({
+                    where: {
+                        uuid: apiTrx.apiId
+                    }
+                })
+                api = apiobj.name
+            }
 
-            const api = await db.api.findOne({
-                where: {
-                    uuid: apiTrx.apiId
-                }
-            })
-    
             const country = await db.country.findOne({
                 where: {
                     uuid: trx.countryId
@@ -148,6 +161,17 @@ exports.orderHistory = async(req, res, next) => {
                 }
             })
 
+            if(plan) {
+                credit_amount = plan.credit_amount
+                credit_currency = plan.credit_currency
+                debit_amount = plan.debit_amount
+                debit_currency = plan.debit_currency
+                service_type = plan.rechargeType
+                sub_operator_code = plan.operator_code
+                sub_operator_name = plan.operator_code
+                plan_description = plan.narration
+            }
+
             let earned = 0.00
 
             if(earning != null){
@@ -162,14 +186,14 @@ exports.orderHistory = async(req, res, next) => {
             
             let data = {
                 trans_id: trx.uuid,
-                api: api.name,
+                api: api,
                 trans_code: trx.uuid,
                 ui_number: trx.phone,
                 service_code: trx.serviceId,
-                credit_amount: plan.credit_amount,
-                credit_currency: plan.credit_currency,
-                debit_amount: plan.debit_amount,
-                debit_currency: plan.debit_currency,
+                credit_amount: credit_amount,
+                credit_currency: credit_currency,
+                debit_amount: debit_amount,
+                debit_currency: debit_currency,
                 operator_name: network.name,
                 operator_code: operatorcode.operatorCode,
                 country_code: country.short,
@@ -178,11 +202,11 @@ exports.orderHistory = async(req, res, next) => {
                 deducted_amount: agnttrx[i].dedcutedAmount.toString(),
                 commission_percent: userPercent.percentage.toString(),
                 commission: earned.toString(),
-                service_type: plan.rechargeType,
-                sub_operator_code: plan.operator_code,
-                sub_operator_name: plan.operator_code,
+                service_type: service_type,
+                sub_operator_code: sub_operator_code,
+                sub_operator_name: sub_operator_name,
                 operator_reference: operatorcode.id.toString(),
-                plan_description: plan.narration
+                plan_description: plan_description
             }
             // console.log("USER TRX HISTORY")
             // console.log(data)
