@@ -894,7 +894,9 @@ exports.recharge = async (req, res, next) => {
         }
     })
 
-    if (plan.is_range) {
+    if (plan.credit_currency == plan.debit_currency){
+        debit_amount = parseInt(plan_amount)
+    }else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
         const currency = await db.currency.findOne({
             where: {
                 credit_currency: plan.credit_currency,
@@ -902,7 +904,7 @@ exports.recharge = async (req, res, next) => {
             }
         })
 
-        debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
+        debit_amount = (parseInt(plan_amount) * currency.conversionValue).toFixed(2);
 
     } else {
         debit_amount = plan.debit_amount
@@ -1420,13 +1422,16 @@ exports.recharge = async (req, res, next) => {
             //     }
             // }
         } else if (api.code == "ETS") {
+            console.log("==================================")
             console.log("inside ETS API FOR ONEPREPAY")
+            console.log("==================================")
             let type = "PinlessRequest"
             let terminal_id = process.env.TERMINALID
             let pass = process.env.PASSWORD
             let lang = "eng"
             let recepiept = '00' + transaction.id
             let number = "0" + data.ui_number
+            console.log(`NUMBER TO TEST ${number}`)
             let amount = parseInt(data.plan_amount)
             let clerk_id = 1
             let prodcode = "ETSTOP"
@@ -1483,6 +1488,7 @@ exports.recharge = async (req, res, next) => {
                                 console.log(`Trx made for ${statusCode} ${statusDesc} ${transNo} ${transDate} ${balance}`)
 
                                 if (parseInt(statusCode) == 1) {
+                                    console.log("RECHARGE FAILED")
                                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                                     const syslog = await db.systemlog.create({
                                         type: "Recharge",
@@ -1560,6 +1566,7 @@ exports.recharge = async (req, res, next) => {
                                     res.json(apiResp)
 
                                 } else if (parseInt(statusCode) == 0) {
+                                    console.log("RECHARGE SUCCESS")
                                     const resp = await saveResponse(data, transaction.id, api.code);
                                     trx_data = {
                                         transactionId: transaction.uuid,
@@ -1685,13 +1692,16 @@ exports.recharge = async (req, res, next) => {
                 });
 
         } else if (api.code == "DU") {
+            console.log("==================================")
             console.log("inside DU TEST FOR ONEPREPAY")
+            console.log("==================================")
             let type = "PinlessRequest"
             let terminal_id = process.env.TERMINALID
             let pass = process.env.PASSWORD
             let lang = "eng"
             let recepiept = '00' + transaction.id
             let number = "0" + data.ui_number
+            console.log(`NUMBER TO TEST ${number}`)
             let amount = parseInt(data.plan_amount) 
             let clerk_id = 1
             let prodcode = "DUCTOP"
@@ -1748,6 +1758,7 @@ exports.recharge = async (req, res, next) => {
                                 console.log(`Trx made for ${statusCode} ${statusDesc} ${transNo} ${transDate} ${balance}`)
 
                                 if (parseInt(statusCode) == 1) {
+                                    console.log("========RECHARGE FAILED =================")
                                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                                     const syslog = await db.systemlog.create({
                                         type: "Recharge",
@@ -1825,6 +1836,7 @@ exports.recharge = async (req, res, next) => {
                                     res.json(apiResp)
 
                                 } else if (parseInt(statusCode) == 0) {
+                                    console.log("========RECHARGE SUCCESS =================")
                                     const resp = await saveResponse(data, transaction.id, api.code);
                                     trx_data = {
                                         transactionId: transaction.uuid,
