@@ -4,7 +4,8 @@ module.exports = app => {
 
     const dingRouter = express.Router();
 
-    dingRouter.post('/adddingplan', controller.createdingplan)
+    dingRouter.post('/adddingplan', controller.createdingplan);
+    dingRouter.get('/listdingplan', controller.listdingplan);
 
     app.use(dingRouter);
 }

@@ -4,6 +4,7 @@ module.exports = app => {
 
     const creditRouter= express.Router();
     creditRouter.post('/add-credit-info', controller.addCreditInfo);
+    creditRouter.get('/credit-list', controller.creditList);
 
     app.use(creditRouter);
 }

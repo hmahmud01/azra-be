@@ -20,5 +20,38 @@ exports.setOperatorCode = async(req, res, next) => {
 exports.operatorCodeList = async(req, res, next) => {
     const operatorcodelist = await db.operatorCode.findAll()
 
-    res.status(200).json(operatorcodelist)
+    let oclist = []
+
+    for (let i=0; i<operatorcodelist.length; i++){
+        const mobile = await db.mobile.findOne({
+            where : {
+                uuid: operatorcodelist[i].mobileId
+            }
+        })
+
+        const api = await db.api.findOne({
+            where: {
+                uuid: operatorcodelist[i].apiProviderId
+            }
+        })
+
+        const country = await db.country.findOne({
+            where: {
+                uuid: operatorcodelist[i].countryId
+            }
+        })
+
+        let data = {
+            operatorShort: operatorcodelist[i].operatorShort,
+            operatorCode: operatorcodelist[i].operatorCode,
+            mobile: mobile.name,
+            api: api.name,
+            country: country.name
+        }
+
+        oclist.push(data)
+    }
+
+    console.log(oclist);
+    res.status(200).json(oclist)
 }

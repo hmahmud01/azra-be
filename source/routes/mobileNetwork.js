@@ -12,8 +12,10 @@ module.exports = app => {
     mnoRoutes.delete('/network/:id', controller.deleteNetwork);
     mnoRoutes.post('/network', controller.addNetwork);
     mnoRoutes.post('/mobilesetting', controller.mobileSetting);
+    mnoRoutes.get('/mobilesettinglist', controller.mobileSettingList);
     mnoRoutes.get('/findmobilesetting/:id', controller.findMobileSetting);
     mnoRoutes.post('/setoperatorcode', operatorCtrl.setOperatorCode);
+    mnoRoutes.get('/operatorcodelist', operatorCtrl.operatorCodeList);
 
     app.use('/', mnoRoutes);
 }

@@ -19,6 +19,27 @@ exports.addCreditInfo = async(req, res, next) => {
 
 exports.creditList = async(req, res, next) => {
     const credits = await db.usercredit.findAll()
+    let list = []
 
-    res.status(200).json(credits)
+    for(let i = 0; i<credits.length; i++){
+        const profile = await db.userprofile.findOne({
+            where : {
+                userId: credits[i].userId
+            }
+        })
+
+        console.log(profile);
+
+        let data = {
+            userId: credits[i].userId,
+            name: `${profile.f_name} ${profile.l_name}`,
+            credit: credits[i].credit,
+            credit_limit: credits[i].credit_limit,
+            max_credit: credits[i].max_credit
+        }
+
+        list.push(data)
+    }
+
+    res.status(200).json(list)
 }

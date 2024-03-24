@@ -894,21 +894,45 @@ exports.recharge = async (req, res, next) => {
         }
     })
 
-    if (plan.credit_currency == plan.debit_currency){
+    if (plan.is_range && plan.credit_currency == plan.debit_currency) {
         debit_amount = parseInt(data.plan_amount)
-    }else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
+    } else if (!plan.is_range && plan.credit_currency == plan.debit_currency) {
+        debit_amount = parseInt(data.plan_amount)
+    } else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
         const currency = await db.currency.findOne({
             where: {
                 credit_currency: plan.credit_currency,
                 debit_currency: plan.debit_currency
             }
         })
-
         debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
-
+    } else if (!plan.is_range && plan.credit_currency != plan.debit_currency) {
+        const currency = await db.currency.findOne({
+            where: {
+                credit_currency: plan.credit_currency,
+                debit_currency: plan.debit_currency
+            }
+        })
+        debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
     } else {
-        debit_amount = plan.debit_amount
+        debit_amount = plan.credit_amount
     }
+
+    // if (plan.credit_currency == plan.debit_currency){
+    //     debit_amount = parseInt(data.plan_amount)
+    // }else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
+    //     const currency = await db.currency.findOne({
+    //         where: {
+    //             credit_currency: plan.credit_currency,
+    //             debit_currency: plan.debit_currency
+    //         }
+    //     })
+
+    //     debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
+
+    // } else {
+    //     debit_amount = plan.debit_amount
+    // }
 
     if (lockedNumber.length > 0) {
         let msg = `This number is already engaged with a pending recharge : ${mobile}`;
@@ -934,7 +958,7 @@ exports.recharge = async (req, res, next) => {
     } else {
         let transaction_data = {
             phone: mobile,
-            amount: parseFloat(plan.credit_amount),
+            amount: parseFloat(debit_amount),
             agent: data.username,
             userId: user.uuid,
             rechargeStatus: true,
@@ -951,9 +975,18 @@ exports.recharge = async (req, res, next) => {
         const failed_bal = 0.000
         const api_profit = 0.000
 
+        const purchase = await db.purchase.findOne({
+            dist: api.name
+        })
+
+        if(purchase) {
+            api_bal = purchase.purchase
+            api_profit = purchase.commission * parseFloat(data.plan_amount)
+        }
+
         const sale = await db.sales.create({
             balance: api_bal,
-            amount: parseFloat(data.plan_amount),
+            amount: parseFloat(debit_amount),
             agent: data.username,
             number: data.ui_number,
             operator: network.name,
@@ -1046,7 +1079,7 @@ exports.recharge = async (req, res, next) => {
                 .then(async data => {
                     console.log("data from live : ", data)
                     // const resp = await saveResponse(data, transaction.id);
-                    console.log(resp);
+                    // console.log(resp);
                     if (data.status == "success") {
                         trx_data = {
                             transactionId: transaction.uuid,
@@ -1062,7 +1095,22 @@ exports.recharge = async (req, res, next) => {
                             type: "Recharge",
                             detail: logmsg
                         })
+                        
+                        if(purchase){
+                            let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
 
+                            const update_purchase = await db.purchase.update(
+                                {
+                                    purchase : upd_bal
+                                },
+                                {
+                                    where: {
+                                        dist: api.name
+                                    }
+                                }
+                            )
+                        }
+                        
                         const apitrx = await db.apitransaction.create(trx_data)
 
                         const updateNumber = await db.lockednumber.update(
@@ -1605,6 +1653,21 @@ exports.recharge = async (req, res, next) => {
                                             }
                                         }
                                     )
+
+                                    if(purchase){
+                                        let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
+            
+                                        const update_purchase = await db.purchase.update(
+                                            {
+                                                purchase : upd_bal
+                                            },
+                                            {
+                                                where: {
+                                                    dist: api.name
+                                                }
+                                            }
+                                        )
+                                    }
                                     console.log("TRX API RECORD")
                                     const record = await db.transactionrecordapi.create({
                                         apiTransactionId: apitrx.uuid,
@@ -1853,6 +1916,21 @@ exports.recharge = async (req, res, next) => {
                                         detail: logmsg
                                     })
                                     console.log(logmsg)
+
+                                    if(purchase){
+                                        let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
+            
+                                        const update_purchase = await db.purchase.update(
+                                            {
+                                                purchase : upd_bal
+                                            },
+                                            {
+                                                where: {
+                                                    dist: api.name
+                                                }
+                                            }
+                                        )
+                                    }
                                     const apitrx = await db.apitransaction.create(trx_data)
                                     console.log("API TRANSACTION CREATING")
                                     const updateNumber = await db.lockednumber.update(
@@ -2051,6 +2129,21 @@ exports.recharge = async (req, res, next) => {
                                     type: "Recharge",
                                     detail: logmsg
                                 })
+
+                                if(purchase){
+                                    let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
+        
+                                    const update_purchase = await db.purchase.update(
+                                        {
+                                            purchase : upd_bal
+                                        },
+                                        {
+                                            where: {
+                                                dist: api.name
+                                            }
+                                        }
+                                    )
+                                }
 
                                 const apitrx = await db.apitransaction.create(trx_data)
 
@@ -2471,6 +2564,21 @@ exports.recharge = async (req, res, next) => {
                                     type: "Recharge",
                                     detail: logmsg
                                 })
+
+                                if(purchase){
+                                    let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
+        
+                                    const update_purchase = await db.purchase.update(
+                                        {
+                                            purchase : upd_bal
+                                        },
+                                        {
+                                            where: {
+                                                dist: api.name
+                                            }
+                                        }
+                                    )
+                                }
 
                                 const apitrx = await db.apitransaction.create(trx_data)
 
@@ -2908,6 +3016,21 @@ exports.recharge = async (req, res, next) => {
                                     type: "Recharge",
                                     detail: logmsg
                                 })
+
+                                if(purchase){
+                                    let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
+        
+                                    const update_purchase = await db.purchase.update(
+                                        {
+                                            purchase : upd_bal
+                                        },
+                                        {
+                                            where: {
+                                                dist: api.name
+                                            }
+                                        }
+                                    )
+                                }
 
                                 const apitrx = await db.apitransaction.create(trx_data)
 

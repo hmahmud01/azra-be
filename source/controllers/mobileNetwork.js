@@ -141,5 +141,28 @@ exports.findMobileSetting = async(req, res, next) => {
 exports.mobileSettingList = async(req, res, next) => {
     const settinglist = await Setting.findAll()
 
-    res.status(200).json(settinglist)
+    let list = []
+
+    for (let i = 0; i<settinglist.length; i++){
+        const mobile = await db.mobile.findOne({
+            where : {
+                uuid: settinglist[i].mobileId
+            }
+        })
+
+        let data = {
+            api_code: settinglist[i].api_code,
+            callingCode: settinglist[i].callingCode,
+            denominationStep: settinglist[i].denominationStep,
+            logo: settinglist[i].logo,
+            mobileId: mobile.name,
+            regex: settinglist[i].regex,
+            serviceCode: settinglist[i].serviceCode,
+            startsWith: settinglist[i].startsWith,
+        }
+
+        list.push(data)
+    }
+
+    res.status(200).json(list)
 }
