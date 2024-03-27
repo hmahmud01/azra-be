@@ -5,6 +5,20 @@ exports.summary = async(req, res, next) => {
     let total_sales = 0.0000
     let total_revenue = 0.0000
 
+    const purchases = await db.purchase.findAll()
+    const sales = await db.sales.findAll()
+
+    for (let i = 0; i<purchases.length; i++) {
+        total_purchase += purchases[i].purchase
+    }
+
+    for (let i = 0; i<sales.length; i++) {
+        total_sales += sales[i].amount
+        total_revenue += sales[i].profit
+    }
+
+    console.log(total_sales, total_purchase, total_revenue)
+
     let data = {
         total_purchase: total_purchase,
         total_sales: total_sales,
@@ -73,8 +87,11 @@ exports.salesReport = async(req, res, next) => {
             time: "10-10-2023"
         }
     ]
+
+    const sales = await db.sales.findAll()
+
     res.json({
-        data: data
+        data: sales
     })
 }
 
@@ -99,8 +116,12 @@ exports.revenueReport = async(req, res, next) => {
             profit: .5
         }
     ]
+
+
+    const sales = await db.sales.findAll()
+
     res.json({
-        data: data
+        data: sales
     })
 }
 
