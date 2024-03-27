@@ -13,9 +13,9 @@ require('dotenv').config();
 
 const app = express();
 
-var corsOptions = {
-    origin: "http://localhost:3001"
-}
+// var corsOptions = {
+//     origin: "http://localhost:3001"
+// }
 
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }))
