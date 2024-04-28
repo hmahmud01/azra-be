@@ -314,7 +314,7 @@ module.exports = app => {
 
     authRoute.post('/applogin', async(req,res,next) => {
         
-        try {
+        // try {
             const device_id = req.get('device')
             console.log(`DEVICE ID : ${device_id}`)
 
@@ -334,6 +334,7 @@ module.exports = app => {
             }
 
             const existingUser = await findUserByPhone(username);
+            console.log(existingUser)
 
             if (!existingUser) {
                 res.status(403);
@@ -358,6 +359,7 @@ module.exports = app => {
                 }
             })
 
+            console.log("checking device")
             if (!deviceData){
                 const device = await db.userdevice.create({
                     currentDevice: device_id,
@@ -600,14 +602,14 @@ module.exports = app => {
 
             
 
-        } catch (error) {
-            res.status(200).json(
-                {
-                    "status": false,
-                    "auth_id": "N/A"
-                }
-            )
-        }
+        // } catch (error) {
+        //     res.status(200).json(
+        //         {
+        //             "status": false,
+        //             "auth_id": "N/A"
+        //         }
+        //     )
+        // }
         
         
 

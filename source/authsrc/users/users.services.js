@@ -92,6 +92,8 @@ async function createUserByEmailAndPassword(user){
 
     const agentTrx = await AgentTransaction.create(trx)
 
+    console.log("AGENT TRX : ", agentTrx);
+
     const openingPercent = {
         userId: dbuser.uuid,
         percentage: 0.10

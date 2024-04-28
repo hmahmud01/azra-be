@@ -602,11 +602,14 @@ exports.BalanceTransfer = async (req, res, next) => {
 
 exports.userPortalBalance = async (username) => {
     let mainBalance = 0.00;
+    console.log(username)
     const user = await db.user.findOne({
         where: {
             phone: username
         }
     })
+
+    console.log(user)
 
     const agentTrx = await db.agenttransaction.findAll({
         where: {
@@ -971,9 +974,9 @@ exports.recharge = async (req, res, next) => {
         const transaction = await db.transaction.create(transaction_data)
 
         // TODO
-        const api_bal = 0.000
-        const failed_bal = 0.000
-        const api_profit = 0.000
+        let api_bal = 0.000
+        let failed_bal = 0.000
+        let api_profit = 0.000
 
         const purchase = await db.purchase.findOne({
             dist: api.name
