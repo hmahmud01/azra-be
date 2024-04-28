@@ -19,9 +19,9 @@ module.exports = app => {
 
     const authRoute = express.Router();
     // import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
-    const { findUserByPhone, createUserByEmailAndPassword, createSuperUser, findUserType  } = require("../users/users.services.js")
+    const { findUserByPhone, createUserByEmailAndPassword, createSuperUser, findUserType } = require("../users/users.services.js")
 
-    const findMobileSetting = async(id) => {
+    const findMobileSetting = async (id) => {
         console.log(id);
         const setting = await db.mobilesetting.findOne({
             where: {
@@ -33,7 +33,7 @@ module.exports = app => {
 
     }
 
-    authRoute.post('/refresh-token', async(req, res, next) => {
+    authRoute.post('/refresh-token', async (req, res, next) => {
         const AuthId = req.get('AuthId')
         const refreshToken = req.get('refresh_token')
         const username = req.body.username
@@ -41,24 +41,24 @@ module.exports = app => {
 
         console.log(`existing user ${existingUser.id}`)
 
-        jwt.verify(refreshToken, "refreshtoken", 
-        (err, decoded) => {
-            if (err) {
-                console.log("NEW REFRESH TOKEN")
-                const jti = uuidv4();
-                const { accessToken, refreshToken } = generateTokens(existingUser, jti);
+        jwt.verify(refreshToken, "refreshtoken",
+            (err, decoded) => {
+                if (err) {
+                    console.log("NEW REFRESH TOKEN")
+                    const jti = uuidv4();
+                    const { accessToken, refreshToken } = generateTokens(existingUser, jti);
 
-                return res.json({accessToken, refreshToken})
-            }
-            else {
-                console.log("ACCESS TOKEN REFRESHED")
-                const accessToken = jwt.sign({userId: existingUser.id}, "azraaccesstoken", {
-                    expiresIn: '10m'
-                });
+                    return res.json({ accessToken, refreshToken })
+                }
+                else {
+                    console.log("ACCESS TOKEN REFRESHED")
+                    const accessToken = jwt.sign({ userId: existingUser.id }, "azraaccesstoken", {
+                        expiresIn: '10m'
+                    });
 
-                return res.json({accessToken, refreshToken})
-            }
-        })
+                    return res.json({ accessToken, refreshToken })
+                }
+            })
     })
 
     authRoute.post('/verifytoken', async (req, res, next) => {
@@ -66,31 +66,31 @@ module.exports = app => {
         const refresh_token = req.get('refresh_token')
         console.log(`AuthId ${AuthId}`)
 
-        jwt.verify(refresh_token, "refreshtoken", 
-        (err, decoded) => {
-            if (err) {
-                return res.status(406).json({message: 'Unauthorized'})
-            }
-            else {
-                const accessToken = jwt.sign({ userId: user.id }, "azraaccesstoken", {
+        jwt.verify(refresh_token, "refreshtoken",
+            (err, decoded) => {
+                if (err) {
+                    return res.status(406).json({ message: 'Unauthorized' })
+                }
+                else {
+                    const accessToken = jwt.sign({ userId: user.id }, "azraaccesstoken", {
                         expiresIn: '24h',
-                });
+                    });
 
-                return res.json({accessToken})
-            }
-        })
+                    return res.json({ accessToken })
+                }
+            })
 
 
 
-        if(!AuthId) {
-            return res.status(401).json({success: false, message: "Invalid token"})
+        if (!AuthId) {
+            return res.status(401).json({ success: false, message: "Invalid token" })
         }
 
         try {
             const decoded = jwt.verify(AuthId, "azraaccesstoken");
             console.log(`decoded ${decoded}`)
             req.user = decoded;
-            return res.status(200).json({success: true})
+            return res.status(200).json({ success: true })
         } catch (err) {
             console.log(err);
             return res.status(401).json({ success: false, message: "Invalid token" });
@@ -201,7 +201,7 @@ module.exports = app => {
             const { accessToken, refreshToken } = generateTokens(existingUser, jti);
             await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
 
-            let uid = existingUser.id   
+            let uid = existingUser.id
             let usertype = existingUser.usertype
             let store = existingUser.store
             let uuid = existingUser.uuid
@@ -218,7 +218,7 @@ module.exports = app => {
         }
     });
 
-    authRoute.post('/devicechangerequest', async(req, res, next) => {
+    authRoute.post('/devicechangerequest', async (req, res, next) => {
         try {
             const update_device = req.body.updateDevice;
             const username = req.body.username;
@@ -253,8 +253,8 @@ module.exports = app => {
                 request: request
             })
 
-            
-        }  catch (error) {
+
+        } catch (error) {
             res.status(200).json(
                 {
                     "status": false,
@@ -264,7 +264,7 @@ module.exports = app => {
         }
     })
 
-    authRoute.post('/updatedevice', async(req, res, next) => {
+    authRoute.post('/updatedevice', async (req, res, next) => {
         try {
             const req_id = req.body.request_id
 
@@ -302,7 +302,7 @@ module.exports = app => {
             })
 
 
-        }  catch (error) {
+        } catch (error) {
             res.status(200).json(
                 {
                     "status": false,
@@ -312,162 +312,162 @@ module.exports = app => {
         }
     })
 
-    authRoute.post('/applogin', async(req,res,next) => {
-        
+    authRoute.post('/applogin', async (req, res, next) => {
+
         // try {
-            const device_id = req.get('device')
-            console.log(`DEVICE ID : ${device_id}`)
+        const device_id = req.get('device')
+        console.log(`DEVICE ID : ${device_id}`)
 
-            const username = req.body.username
-            const password = req.body.password
+        const username = req.body.username
+        const password = req.body.password
 
-            const userbalance = await recharge.userPortalBalance(username)
+        const userbalance = await recharge.userPortalBalance(username)
 
-            console.log("username , password")
+        console.log("username , password")
 
-            if (!username || !password){
-                res.status(200).json({
-                    "status": false,
-                    "auth_id": "N/A"
-                }) 
-                throw new Error('You must provide an email and a password.');
-            }
-
-            const existingUser = await findUserByPhone(username);
-            console.log(existingUser)
-
-            if (!existingUser) {
-                res.status(403);
-                throw new Error('Invalid login credentials.');
-            }
-
-            const validPassword = await bcrypt.compare(password, existingUser.password);
-            if (!validPassword) {
-                res.status(403);
-                throw new Error('Invalid login credentials.');
-            }
-
-            const profileData = await db.userprofile.findOne({
-                where: {
-                    userId: existingUser.uuid
-                }
+        if (!username || !password) {
+            res.status(200).json({
+                "status": false,
+                "auth_id": "N/A"
             })
+            throw new Error('You must provide an email and a password.');
+        }
 
-            const deviceData = await db.userdevice.findOne({
-                where: {
-                    userId: existingUser.uuid
-                }
-            })
+        const existingUser = await findUserByPhone(username);
+        console.log(existingUser)
 
-            console.log("checking device")
-            if (!deviceData){
-                const device = await db.userdevice.create({
-                    currentDevice: device_id,
-                    userId: existingUser.uuid
-                })
+        if (!existingUser) {
+            res.status(403);
+            throw new Error('Invalid login credentials.');
+        }
 
-                console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
+        const validPassword = await bcrypt.compare(password, existingUser.password);
+        if (!validPassword) {
+            res.status(403);
+            throw new Error('Invalid login credentials.');
+        }
 
-                if(device.currentDevice != device_id){
-                    res.status(403).json({
-                            "status": false,
-                            "auth_id": "N/A",
-                            "desc": "Device Not Matched. Please Use your original Device You logged in with."
-                        
-                    }) ;
-                    throw new Error('Invalid DEVICE.');
-                }
+        const profileData = await db.userprofile.findOne({
+            where: {
+                userId: existingUser.uuid
             }
+        })
+
+        const deviceData = await db.userdevice.findOne({
+            where: {
+                userId: existingUser.uuid
+            }
+        })
+
+        console.log("checking device")
+        if (!deviceData) {
+            const device = await db.userdevice.create({
+                currentDevice: device_id,
+                userId: existingUser.uuid
+            })
 
             console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
 
-            if(deviceData.currentDevice != device_id){
+            if (device.currentDevice != device_id) {
                 res.status(403).json({
-                        "status": false,
-                        "auth_id": "N/A",
-                        "desc": "Device Not Matched. Please Use your original Device You logged in with."
-                    
-                }) ;
+                    "status": false,
+                    "auth_id": "N/A",
+                    "desc": "Device Not Matched. Please Use your original Device You logged in with."
+
+                });
                 throw new Error('Invalid DEVICE.');
             }
+        }
 
-            console.log("Device Matched");
+        console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
 
-            const post = findUserType(existingUser.usertype);
+        if (deviceData.currentDevice != device_id) {
+            res.status(403).json({
+                "status": false,
+                "auth_id": "N/A",
+                "desc": "Device Not Matched. Please Use your original Device You logged in with."
 
-            const jti = uuidv4();
-            const { accessToken, refreshToken } = generateTokens(existingUser, jti);
-            await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.uuid });
+            });
+            throw new Error('Invalid DEVICE.');
+        }
 
-            if(post == "Sales") {
-                res.json({
-                    status: true,
-                    name: existingUser.store,
-                    phone: existingUser.phone,
-                    superior: "admin",
-                    post: post,
-                    credit_limit: "0.00000",
-                    balance: userbalance,
-                    can_add_reseller: true,
-                    min_app_version: "68",
-                    latest_app_version: "76",
-                    server_address: process.env.SERVER_URL,
-                    has_token: accessToken,
-                    auth_id: accessToken,
-                    refresh_token: refreshToken,
-                    user_id: existingUser.uuid
-                    // superior: existingUser.connectedUsesr
-                })
-            }else if(post == "Sub Reseller") {
-                const superiorUser = await db.user.findOne({
-                    where: {
-                        uuid: profileData.connectedUser
-                    }
-                })
-                res.json({
-                    status: true,
-                    name: existingUser.store,
-                    phone: existingUser.phone,
-                    superior: superiorUser.store,
-                    post: post,
-                    credit_limit: "0.00000",
-                    balance: userbalance,
-                    can_add_customer: true,
-                    min_app_version: "68",
-                    latest_app_version: "76",
-                    server_address: process.env.SERVER_URL,
-                    has_token: accessToken,
-                    auth_id: accessToken,
-                    refresh_token: refreshToken,
-                    user_id: existingUser.uuid
-                })
-            }else if(post == "Customer") {
-                let uid = existingUser.id
-                let usertype = existingUser.usertype
-                let store = existingUser.store
-                let uuid = existingUser.uuid
-                let email = existingUser.email
-                let phone = existingUser.phone
-                let status = existingUser.status
-                let address = "addr"
-                let name = profileData.f_name + " " + profileData.l_name
-                
-                let setting = {}
+        console.log("Device Matched");
 
-                const superiorUser = await db.user.findOne({
-                    where: {
-                        uuid: profileData.connectedUser
-                    }
-                })
+        const post = findUserType(existingUser.usertype);
 
-                let superior = superiorUser.store
+        const jti = uuidv4();
+        const { accessToken, refreshToken } = generateTokens(existingUser, jti);
+        await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.uuid });
 
-                let countryServices = []
+        if (post == "Sales") {
+            res.json({
+                status: true,
+                name: existingUser.store,
+                phone: existingUser.phone,
+                superior: "admin",
+                post: post,
+                credit_limit: "0.00000",
+                balance: userbalance,
+                can_add_reseller: true,
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                has_token: accessToken,
+                auth_id: accessToken,
+                refresh_token: refreshToken,
+                user_id: existingUser.uuid
+                // superior: existingUser.connectedUsesr
+            })
+        } else if (post == "Sub Reseller") {
+            const superiorUser = await db.user.findOne({
+                where: {
+                    uuid: profileData.connectedUser
+                }
+            })
+            res.json({
+                status: true,
+                name: existingUser.store,
+                phone: existingUser.phone,
+                superior: superiorUser.store,
+                post: post,
+                credit_limit: "0.00000",
+                balance: userbalance,
+                can_add_customer: true,
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                has_token: accessToken,
+                auth_id: accessToken,
+                refresh_token: refreshToken,
+                user_id: existingUser.uuid
+            })
+        } else if (post == "Customer") {
+            let uid = existingUser.id
+            let usertype = existingUser.usertype
+            let store = existingUser.store
+            let uuid = existingUser.uuid
+            let email = existingUser.email
+            let phone = existingUser.phone
+            let status = existingUser.status
+            let address = "addr"
+            let name = profileData.f_name + " " + profileData.l_name
 
-                const countries = await db.country.findAll()
-                
-                for (let i=0; i<countries.length; i++){
-                    
+            let setting = {}
+
+            const superiorUser = await db.user.findOne({
+                where: {
+                    uuid: profileData.connectedUser
+                }
+            })
+
+            let superior = superiorUser.store
+
+            let countryServices = []
+
+            const countries = await db.country.findAll()
+
+            for (let i = 0; i < countries.length; i++) {
+                if (countries[i].short == "AE") {
                     let cid = countries[i].uuid
                     let networkdata = []
                     const network = await db.mobile.findAll({
@@ -478,7 +478,7 @@ module.exports = app => {
 
 
 
-                    for (let j=0; j<network.length; j++){
+                    for (let j = 0; j < network.length; j++) {
 
                         const operatorcode = await db.operatorCode.findOne({
                             where: {
@@ -492,7 +492,7 @@ module.exports = app => {
                                 mobileId: network[j].uuid
                             }
                         }).then(data => {
-                            if (data){
+                            if (data) {
                                 let settingdat = {
                                     name: network[j].name,
                                     group: "recharge",
@@ -515,11 +515,11 @@ module.exports = app => {
                                         denomination_step: data.denominationStep
                                     },
                                     country_code: countries[i].short,
-                                    data : [
+                                    data: [
                                         // countries[i].name,
                                         // countries[i].name,
                                         // countries[i].short,
-                                        
+
                                         network[j].name,
                                         network[j].name,
                                         operatorcode.operatorCode,
@@ -531,9 +531,9 @@ module.exports = app => {
                                 networkdata.push(settingdat);
                                 console.log(networkdata);
                             }
-                            
-                        })  
-                        
+
+                        })
+
                     }
                     let countryData = {
                         name: countries[i].name,
@@ -544,63 +544,66 @@ module.exports = app => {
                     console.log(countryServices);
                 }
 
-                console.log("outside loop country services");
-                console.log(countryServices);
 
-                const headerData = {
-                    name: "android_settings",
-                    chk_status: "chk_running",
+            }
+
+            console.log("outside loop country services");
+            console.log(countryServices);
+
+            const headerData = {
+                name: "android_settings",
+                chk_status: "chk_running",
+                header: "Sorry",
+                content: "Application is under construction",
+                description: "",
+                highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                status: "running",
+                min_app_version: "68",
+                latest_app_version: "76"
+            }
+
+            const responseData = {
+                status: status,
+                balance: userbalance,
+                address: address,
+                currency: "United Arab Emirates Dirham",
+                email: email,
+                name: name,
+                contact_no: phone,
+                post: post,
+                credit_limit: "0.000000",
+                reward_enabled: false,
+                superior: superior,
+                service_status: {
+                    status: "running",
                     header: "Sorry",
                     content: "Application is under construction",
                     description: "",
                     highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
-                    status: "running",
                     min_app_version: "68",
                     latest_app_version: "76"
-                }
+                },
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                countries: countryServices,
+                has_token: accessToken,
+                auth_id: accessToken,
+                refresh_token: refreshToken,
+                user_id: uuid
+            }
 
-                const responseData = {
-                    status: status,
-                    balance: userbalance,
-                    address: address,
-                    currency: "United Arab Emirates Dirham",
-                    email: email,
-                    name: name,
-                    contact_no: phone,
-                    post: post,
-                    credit_limit: "0.000000",
-                    reward_enabled: false,
-                    superior: superior,
-                    service_status: {
-                        status: "running",
-                        header: "Sorry",
-                        content: "Application is under construction",
-                        description: "",
-                        highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
-                        min_app_version: "68",
-                        latest_app_version: "76"
-                    },
-                    min_app_version: "68",
-                    latest_app_version: "76",
-                    server_address: process.env.SERVER_URL,
-                    countries: countryServices,
-                    has_token: accessToken,
-                    auth_id: accessToken,
-                    refresh_token: refreshToken,
-                    user_id: uuid
-                }
+            logger.info(`${username} has been successfully logged in from device id : ${req.get('device')}`)
 
-                logger.info(`${username} has been successfully logged in from device id : ${req.get('device')}`)
+            res.setHeader(
+                'service_status', JSON.stringify(headerData)
+            )
 
-                res.setHeader(
-                    'service_status', JSON.stringify(headerData)
-                )
-    
-                res.json(responseData);
+            res.json(responseData);
 
-            }        
+        }
 
-            
+
 
         // } catch (error) {
         //     res.status(200).json(
@@ -610,8 +613,8 @@ module.exports = app => {
         //         }
         //     )
         // }
-        
-        
+
+
 
 
     })
