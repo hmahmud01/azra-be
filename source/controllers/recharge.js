@@ -1079,11 +1079,11 @@ exports.recharge = async (req, res, next) => {
                 body: JSON.stringify(send_data),
             })
                 .then(response => response.json())
-                .then(async data => {
-                    console.log("data from live : ", data)
+                .then(async livedata => {
+                    console.log("data from live : ", livedata)
                     // const resp = await saveResponse(data, transaction.id);
                     // console.log(resp);
-                    if (data.status == "success") {
+                    if (livedata.status == "success") {
                         trx_data = {
                             transactionId: transaction.uuid,
                             apiId: api.uuid
@@ -2090,9 +2090,9 @@ exports.recharge = async (req, res, next) => {
             };
 
             await axios.request(config)
-                .then(async ({ data }) => {
+                .then(async ({ apidata }) => {
                     console.log("API HIT DONE. CHECKING TRX")
-                    console.log(data);
+                    console.log(apidata);
                     let checkData = qs.stringify({
                         "MobileNo": "9947539329",
                         "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
@@ -2113,12 +2113,12 @@ exports.recharge = async (req, res, next) => {
 
 
                     await axios.request(config2)
-                        .then(async ({ data }) => {
-                            console.log(data);
+                        .then(async ({ rdydata }) => {
+                            console.log(rdydata);
                             // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
-                            const respMsg = `StatusCode: ${data.STATUSCODE}, StatusMSG: ${data.STATUSMSG} , REFNO: ${data.REFNO} , TRNID: ${data.TRNID} , TRNSTATUS : ${data.TRNSTATUS} , OPRID : ${data.OPRID}`
+                            const respMsg = `StatusCode: ${rdydata.STATUSCODE}, StatusMSG: ${rdydata.STATUSMSG} , REFNO: ${rdydata.REFNO} , TRNID: ${rdydata.TRNID} , TRNSTATUS : ${rdydata.TRNSTATUS} , OPRID : ${rdydata.OPRID}`
                             // const resp = await saveResponse(respMsg, data.TRNID)
-                            if (data.STATUSMSG == "Success") {
+                            if (rdydata.STATUSMSG == "Success") {
                                 trx_data = {
                                     transactionId: transaction.uuid,
                                     apiId: api.uuid
@@ -2534,8 +2534,8 @@ exports.recharge = async (req, res, next) => {
                 body: JSON.stringify(send_data)
             })
                 .then(response => response.json())
-                .then(async data => {
-                    let trxId = data.TransactionId
+                .then(async apidata => {
+                    let trxId = apidata.TransactionId
                     let trxcheck = {
                         SessionId: "aaead679d0aa42acbc43a62a154279a2",
                         TransactionId: trxId
@@ -2548,11 +2548,11 @@ exports.recharge = async (req, res, next) => {
                         body: JSON.stringify(trxcheck)
                     })
                         .then(response => response.json())
-                        .then(async data => {
-                            console.log(data)
-                            let trxMsg = `TransactionStatusCode : ${data.TransactionStatusCode} , TransactionStatusName : ${data.TransactionStatusName} , Message: ${data.Message}`
+                        .then(async checkdata => {
+                            console.log(checkdata)
+                            let trxMsg = `TransactionStatusCode : ${checkdata.TransactionStatusCode} , TransactionStatusName : ${checkdata.TransactionStatusName} , Message: ${checkdata.Message}`
                             // const resp = await saveResponse(trxMsg, trxId);
-                            if (data.TransactionStatusName == "Successful") {
+                            if (checkdata.TransactionStatusName == "Successful") {
                                 trx_data = {
                                     transactionId: transaction.uuid,
                                     apiId: api.uuid
@@ -2994,12 +2994,11 @@ exports.recharge = async (req, res, next) => {
                         body: JSON.stringify(send_data)
                     })
                         .then(response => response.json())
-                        .then(async data => {
+                        .then(async resp => {
                             console.log("API HIT SUCCESS")
-                            console.log(data)
+                            console.log(resp)
                             let trxMsg = `Transaction Status`
                             // const resp = saveResponse(trxMsg, transaction.id);
-                            console.log(resp);
                             trx_data = {
                                 transactionId: transaction.uuid,
                                 apiId: api.uuid
@@ -3007,9 +3006,9 @@ exports.recharge = async (req, res, next) => {
                             trx_api_id = api.uuid
                             trx_status = true
 
-                            if (data.TransferRecord.ProcessingState == 'Complete') {
+                            if (resp.TransferRecord.ProcessingState == 'Complete') {
                                 trx_status = true
-                            } else if (data.TransferRecord.ProcessingState == 'Failed') {
+                            } else if (resp.TransferRecord.ProcessingState == 'Failed') {
                                 trx_status = false
                             }
 
