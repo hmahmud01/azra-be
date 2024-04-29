@@ -958,6 +958,8 @@ exports.recharge = async (req, res, next) => {
             request_endtime: null
         }
 
+        res.json(apiResp)
+
     } else {
         let transaction_data = {
             phone: mobile,
