@@ -66,10 +66,5 @@ require("./source/routes/planding")(app);
 
 const httpServer = http.createServer(app);
 
-let port = 3000
-if (process.env.BRANCH == "stage"){
-    port = 3003
-}
-
-const PORT = process.env.PORT ?? port
+const PORT = process.env.APP_PORT ?? 3000
 httpServer.listen(PORT, () => console.log(`The Server is running on port ${PORT}`));
