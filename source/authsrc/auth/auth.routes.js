@@ -535,6 +535,77 @@ module.exports = app => {
                         })  
                         
                     }
+
+                    let grouped_in = {
+                        "name":"India",
+                        "group":"recharge",
+                        "category":"mobile",
+                        "type":"country",
+                        "logo":"IN",
+                        "settings":{
+                           "code":"MR",
+                           "regex":"^[0-9]{10}$",
+                           "max_length":10,
+                           "data":[
+                              
+                           ]
+                        },
+                        "regex":"^[0-9]{10}$",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "91"
+                        ],
+                        "country_code":"IN",
+                        "data":[
+                           "India",
+                           "India",
+                           "IN",
+                           "10"
+                        ]
+                    }
+
+                    let grouped_pk = {
+                        "name":"Pakistan",
+                        "group":"recharge",
+                        "category":"mobile",
+                        "type":"country",
+                        "logo":"PK",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "92"
+                        ],
+                        "country_code":"PK",
+                        "data":[
+                           "Pakistan",
+                           "Pakistan",
+                           "PK",
+                           "10"
+                        ]
+                    }
+
+                    let grouped_int = {
+                        "name":"International",
+                        "group":"recharge",
+                        "category":"international",
+                        "type":"international",
+                        "logo":"INT",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "00"
+                        ],
+                        "country_code":"INT",
+                        "data":[
+                           "International",
+                           "International",
+                           "mobile",
+                           "0"
+                        ]
+                    }
+
+                    networkdata.push(grouped_in)
+                    networkdata.push(grouped_pk)
+                    networkdata.push(grouped_int)
+
                     let countryData = {
                         name: countries[i].name,
                         iso_2: countries[i].short,
