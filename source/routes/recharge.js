@@ -15,6 +15,7 @@ module.exports = app => {
     rechargeRouter.post('/oppets', controller.oppets);
     rechargeRouter.post('/oppetsnba', controller.oppetsnba);
     rechargeRouter.post('/oppdu', controller.oppdu);  
+    rechargeRouter.post('/available-countries', controller.availableCountry);
     // rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
     // rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
 

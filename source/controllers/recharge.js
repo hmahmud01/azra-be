@@ -10,6 +10,69 @@ const rechargeModule = require('./recharge_module');
 const { logger } = require('../authsrc/middlewares');
 const e = require("express");
 
+exports.availableCountry = async (req, res, next) => {
+    let data = {
+        countries:[
+           {
+                name:"Bangladesh",
+                iso2:"1",
+                callingCode:"880",
+                phoneNumberLength:"10",
+                currencyCode:"BD",
+                settings:{
+                    services:[
+                        {
+                        code:"880",
+                        regex:"^[1]{1}[0-9]{10}$",
+                        data:[
+                            {
+                                "code":"MR",
+                                "regex":"^[1]{1}[0-9]{10}$",
+                                "denominationStep":0
+                            }
+                        ],
+                        maxLength:10,
+                        prefix:"+880",
+                        multiRegion:true
+                        }
+                    ]
+                }
+           },
+           {
+                name:"India",
+                iso2:"1",
+                callingCode:"91",
+                phoneNumberLength:"10",
+                currencyCode:"IN",
+                settings:{
+                    services:[
+                        {
+                        code:"91",
+                        regex:"^[0-9]{10}$",
+                        data:[
+                            {
+                                "code":"MR",
+                                "regex":"^[0-9]{10}$",
+                                "denominationStep":0
+                            }
+                        ],
+                        maxLength:10,
+                        prefix:"91",
+                        multiRegion:true
+                        }
+                    ]
+                }
+            }
+        ],
+        status:"success",
+        statusCode:200
+    }
+
+    console.log(data)
+    res.json(data)
+}
+
+
 exports.oppPin = async (req, res, next) => {
     console.log("inside OPP PIN TEST")
     let type = "PinRequest"
