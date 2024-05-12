@@ -583,6 +583,25 @@ module.exports = app => {
                         ]
                     }
 
+                    let grouped_bd = {
+                        "name":"Bangladesh",
+                        "group":"recharge",
+                        "category":"mobile",
+                        "type":"country",
+                        "logo":"BD",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "880"
+                        ],
+                        "country_code":"BD",
+                        "data":[
+                           "Bangladesh",
+                           "Bangladesh",
+                           "BD",
+                           "10"
+                        ]
+                    }
+
                     let grouped_int = {
                         "name":"International",
                         "group":"recharge",
@@ -604,6 +623,7 @@ module.exports = app => {
 
                     networkdata.push(grouped_in)
                     networkdata.push(grouped_pk)
+                    networkdata.push(grouped_bd)
                     networkdata.push(grouped_int)
 
                     let countryData = {

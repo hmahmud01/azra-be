@@ -12,60 +12,60 @@ const e = require("express");
 
 exports.availableCountry = async (req, res, next) => {
     let data = {
-        countries:[
-           {
-                name:"Bangladesh",
-                iso2:"1",
-                callingCode:"880",
-                phoneNumberLength:"10",
-                currencyCode:"BD",
-                settings:{
-                    services:[
+        countries: [
+            {
+                name: "Bangladesh",
+                iso2: "1",
+                callingCode: "880",
+                phoneNumberLength: "10",
+                currencyCode: "BD",
+                settings: {
+                    services: [
                         {
-                        code:"880",
-                        regex:"^[1]{1}[0-9]{10}$",
-                        data:[
-                            {
-                                "code":"MR",
-                                "regex":"^[1]{1}[0-9]{10}$",
-                                "denominationStep":0
-                            }
-                        ],
-                        maxLength:10,
-                        prefix:"+880",
-                        multiRegion:true
+                            code: "880",
+                            regex: "^[1]{1}[0-9]{10}$",
+                            data: [
+                                {
+                                    "code": "MR",
+                                    "regex": "^[1]{1}[0-9]{10}$",
+                                    "denominationStep": 0
+                                }
+                            ],
+                            maxLength: 10,
+                            prefix: "+880",
+                            multiRegion: true
                         }
                     ]
                 }
-           },
-           {
-                name:"India",
-                iso2:"1",
-                callingCode:"91",
-                phoneNumberLength:"10",
-                currencyCode:"IN",
-                settings:{
-                    services:[
+            },
+            {
+                name: "India",
+                iso2: "1",
+                callingCode: "91",
+                phoneNumberLength: "10",
+                currencyCode: "IN",
+                settings: {
+                    services: [
                         {
-                        code:"91",
-                        regex:"^[0-9]{10}$",
-                        data:[
-                            {
-                                "code":"MR",
-                                "regex":"^[0-9]{10}$",
-                                "denominationStep":0
-                            }
-                        ],
-                        maxLength:10,
-                        prefix:"91",
-                        multiRegion:true
+                            code: "91",
+                            regex: "^[0-9]{10}$",
+                            data: [
+                                {
+                                    "code": "MR",
+                                    "regex": "^[0-9]{10}$",
+                                    "denominationStep": 0
+                                }
+                            ],
+                            maxLength: 10,
+                            prefix: "91",
+                            multiRegion: true
                         }
                     ]
                 }
             }
         ],
-        status:"success",
-        statusCode:200
+        status: "success",
+        statusCode: 200
     }
 
     console.log(data)
@@ -584,47 +584,57 @@ exports.operators = async (req, res, next) => {
 
 exports.operatorCheck = async (req, res, next) => {
 
-    let service_code = req.body.service_code
-    let country_code = req.body.country_code
-    let ui_number = req.body.ui_number
-    let prefix = req.body.prefix
+    try {
 
-    let mobId = ""
-    let setting = {}
+        let service_code = req.body.service_code
+        let country_code = req.body.country_code
+        let ui_number = req.body.ui_number
+        let prefix = req.body.prefix
 
-    const operatorsetting = await db.mobilesetting.findAll({
-        where: {
-            serviceCode: service_code,
-            callingCode: prefix,
+        let mobId = ""
+        let setting = {}
+
+        const operatorsetting = await db.mobilesetting.findAll({
+            where: {
+                serviceCode: service_code,
+                callingCode: prefix,
+            }
+        })
+
+        for (let i = 0; i < operatorsetting.length; i++) {
+            if (ui_number.startsWith(operatorsetting[i].startsWith)) {
+                mobId = operatorsetting[i].mobileId
+                setting = operatorsetting[i]
+                break
+            }
         }
-    })
 
-    for (let i = 0; i < operatorsetting.length; i++) {
-        if (ui_number.startsWith(operatorsetting[i].startsWith)) {
-            mobId = operatorsetting[i].mobileId
-            setting = operatorsetting[i]
-            break
+        const operatorCode = await db.operatorCode.findOne({
+            where: {
+                mobileId: mobId
+            }
+        })
+
+        const country = await db.country.findOne({
+            where: {
+                uuid: operatorCode.countryId
+            }
+        })
+
+        var res_data = {
+            operator_code: operatorCode.operatorCode,
+            circle_code: country.short
         }
+
+        res.json(res_data)
+    } catch (error) {
+        console.log(error)
+        res.json({
+            status: "failed",
+            msg: error
+        })
     }
 
-    const operatorCode = await db.operatorCode.findOne({
-        where: {
-            mobileId: mobId
-        }
-    })
-
-    const country = await db.country.findOne({
-        where: {
-            uuid: operatorCode.countryId
-        }
-    })
-
-    var res_data = {
-        operator_code: operatorCode.operatorCode,
-        circle_code: country.short
-    }
-
-    res.json(res_data)
 }
 
 exports.BalanceTransfer = async (req, res, next) => {
@@ -764,9 +774,9 @@ exports.confirmRecharge = async (req, res, next) => {
         }
     })
 
-    if (plan.credit_currency == plan.debit_currency){
+    if (plan.credit_currency == plan.debit_currency) {
         debit_amount = parseInt(plan_amount)
-    }else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
+    } else if (plan.is_range && plan.credit_currency != plan.debit_currency) {
         const currency = await db.currency.findOne({
             where: {
                 credit_currency: plan.credit_currency,
@@ -1028,7 +1038,7 @@ exports.recharge = async (req, res, next) => {
             dist: api.name
         })
 
-        if(purchase) {
+        if (purchase) {
             api_bal = purchase.purchase
             api_profit = purchase.commission * parseFloat(data.plan_amount)
         }
@@ -1144,13 +1154,13 @@ exports.recharge = async (req, res, next) => {
                             type: "Recharge",
                             detail: logmsg
                         })
-                        
-                        if(purchase){
+
+                        if (purchase) {
                             let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
 
                             const update_purchase = await db.purchase.update(
                                 {
-                                    purchase : upd_bal
+                                    purchase: upd_bal
                                 },
                                 {
                                     where: {
@@ -1159,7 +1169,7 @@ exports.recharge = async (req, res, next) => {
                                 }
                             )
                         }
-                        
+
                         const apitrx = await db.apitransaction.create(trx_data)
 
                         const updateNumber = await db.lockednumber.update(
@@ -1529,12 +1539,12 @@ exports.recharge = async (req, res, next) => {
                                         }
                                     )
 
-                                    if(purchase){
+                                    if (purchase) {
                                         let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
-            
+
                                         const update_purchase = await db.purchase.update(
                                             {
-                                                purchase : upd_bal
+                                                purchase: upd_bal
                                             },
                                             {
                                                 where: {
@@ -1640,7 +1650,7 @@ exports.recharge = async (req, res, next) => {
             let recepiept = '00' + transaction.id
             let number = "0" + data.ui_number
             console.log(`NUMBER TO TEST ${number}`)
-            let amount = parseInt(data.plan_amount) 
+            let amount = parseInt(data.plan_amount)
             let clerk_id = 1
             let prodcode = "DUCTOP"
             let url = "https://uae.q3cloud.me:545/Web"
@@ -1792,12 +1802,12 @@ exports.recharge = async (req, res, next) => {
                                     })
                                     console.log(logmsg)
 
-                                    if(purchase){
+                                    if (purchase) {
                                         let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
-            
+
                                         const update_purchase = await db.purchase.update(
                                             {
-                                                purchase : upd_bal
+                                                purchase: upd_bal
                                             },
                                             {
                                                 where: {
@@ -2005,12 +2015,12 @@ exports.recharge = async (req, res, next) => {
                                     detail: logmsg
                                 })
 
-                                if(purchase){
+                                if (purchase) {
                                     let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
-        
+
                                     const update_purchase = await db.purchase.update(
                                         {
-                                            purchase : upd_bal
+                                            purchase: upd_bal
                                         },
                                         {
                                             where: {
@@ -2269,12 +2279,12 @@ exports.recharge = async (req, res, next) => {
                                     detail: logmsg
                                 })
 
-                                if(purchase){
+                                if (purchase) {
                                     let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
-        
+
                                     const update_purchase = await db.purchase.update(
                                         {
-                                            purchase : upd_bal
+                                            purchase: upd_bal
                                         },
                                         {
                                             where: {
@@ -2547,12 +2557,12 @@ exports.recharge = async (req, res, next) => {
                                     detail: logmsg
                                 })
 
-                                if(purchase){
+                                if (purchase) {
                                     let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
-        
+
                                     const update_purchase = await db.purchase.update(
                                         {
-                                            purchase : upd_bal
+                                            purchase: upd_bal
                                         },
                                         {
                                             where: {
