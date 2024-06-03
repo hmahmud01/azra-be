@@ -2047,7 +2047,7 @@ exports.recharge = async (req, res, next) => {
                     };
 
 
-                    const rdyapi2 = axios.request(config2)
+                    const rdyapi2 = await axios.request(config2)
                         if (rdyapi2){
                             console.log("2nd API HIT RDY : ", rdyapi2);
                             // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
