@@ -2027,7 +2027,7 @@ exports.recharge = async (req, res, next) => {
                 // .then(async ({ apidata }) => {
                 if(rdyapi){
                     console.log("API HIT DONE. CHECKING TRX")
-                    console.log(apidata);
+                    // console.log(apidata);
                     let checkData = qs.stringify({
                         "MobileNo": "9947539329",
                         "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
@@ -2051,9 +2051,9 @@ exports.recharge = async (req, res, next) => {
                         if (rdyapi2){
                             console.log("2nd API HIT RDY : ", rdyapi2);
                             // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
-                            const respMsg = `StatusCode: ${rdydata.STATUSCODE}, StatusMSG: ${rdydata.STATUSMSG} , REFNO: ${rdydata.REFNO} , TRNID: ${rdydata.TRNID} , TRNSTATUS : ${rdydata.TRNSTATUS} , OPRID : ${rdydata.OPRID}`
+                            const respMsg = `StatusCode: ${rdyapi2.data.STATUSCODE}, StatusMSG: ${rdyapi2.data.STATUSMSG} , REFNO: ${rdyapi2.data.REFNO} , TRNID: ${rdyapi2.data.TRNID} , TRNSTATUS : ${rdyapi2.data.TRNSTATUS} , OPRID : ${rdyapi2.data.OPRID}`
                             // const resp = await saveResponse(respMsg, data.TRNID)
-                            if (rdydata.STATUSMSG == "Success") {
+                            if (rdyapi2.data.STATUSMSG == "Success") {
                                 trx_data = {
                                     transactionId: transaction.uuid,
                                     apiId: api.uuid
