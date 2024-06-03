@@ -121,6 +121,55 @@ exports.oppPin = async (req, res, next) => {
         });
 }
 
+exports.testrdy = async(req, res, next) => {
+    console.log("=========\nRDY CONNECTE\n===========");
+
+            const apiUrl = "https://www.rechargedaddy.in/RDRechargeAPI/RechargeAPI.aspx"
+            const checkUrl = "https://www.rechargedaddy.in/RDRechargeAPI/RechargeAPI.aspx"
+            let refno = "RDY - 000123" 
+
+            // let sercode = ""
+
+            // if (network.name == "Airtel") {
+            //     sercode = "AR"
+            // } else if (network.name == "BSNL") {
+            //     sercode = "BS"
+            // } else if (network.name == "Vodafone") {
+            //     sercode = "VF"
+            // } else if (network.name == "Idea") {
+            //     sercode = "ID"
+            // }
+
+            let resData = qs.stringify({
+                "MobileNo": "9947539329",
+                "APIKey": "Ye8AfUFGIgicYRTqKHFaHe2f1duYrEz4gHq",
+                "REQTYPE": "RECH",
+                "REFNO": refno,
+                "SERCODE": "VF",
+                "CUSTNO": "9007540682",
+                "AMT": 50,
+                "STV": 0,
+                "RESPTYPE": "JSON"
+            })
+
+
+            let config = {
+                method: 'get',
+                maxBodyLength: Infinity,
+                url: apiUrl,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: resData
+            };
+
+            const reqax =  await axios.request(config)
+            console.log(reqax)
+            return res.json({
+                reqax
+            })
+}
+
 exports.oppdu = async (req, res, next) => {
     console.log("inside OPP Du TEST")
     let type = "PinlessRequest"
@@ -1040,7 +1089,7 @@ exports.recharge = async (req, res, next) => {
 
         if (purchase) {
             api_bal = purchase.purchase
-            api_profit = purchase.commission * parseFloat(data.plan_amount)
+            api_profit = purchase.commission / 100 * parseFloat(data.plan_amount)
         }
 
         const sale = await db.sales.create({
@@ -1960,6 +2009,8 @@ exports.recharge = async (req, res, next) => {
                 "RESPTYPE": "JSON"
             })
 
+            console.log("DATA RESPONSE FOR RDY FIRST API : ", resData)
+
 
             let config = {
                 method: 'get',
@@ -1971,8 +2022,10 @@ exports.recharge = async (req, res, next) => {
                 data: resData
             };
 
-            await axios.request(config)
-                .then(async ({ apidata }) => {
+            const rdyapi = await axios.request(config)
+            console.log("RDY API HIT", rdyapi)
+                // .then(async ({ apidata }) => {
+                if(rdyapi){
                     console.log("API HIT DONE. CHECKING TRX")
                     console.log(apidata);
                     let checkData = qs.stringify({
@@ -1994,9 +2047,9 @@ exports.recharge = async (req, res, next) => {
                     };
 
 
-                    await axios.request(config2)
-                        .then(async ({ rdydata }) => {
-                            console.log(rdydata);
+                    const rdyapi2 = axios.request(config2)
+                        if (rdyapi2){
+                            console.log("2nd API HIT RDY : ", rdyapi2);
                             // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
                             const respMsg = `StatusCode: ${rdydata.STATUSCODE}, StatusMSG: ${rdydata.STATUSMSG} , REFNO: ${rdydata.REFNO} , TRNID: ${rdydata.TRNID} , TRNSTATUS : ${rdydata.TRNSTATUS} , OPRID : ${rdydata.OPRID}`
                             // const resp = await saveResponse(respMsg, data.TRNID)
@@ -2205,12 +2258,16 @@ exports.recharge = async (req, res, next) => {
                                 logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                                 res.json(apiResp)
                             }
-                        })
-                        .catch(e => {
-                            console.log(e)
-                            console.log("RDY didnt work")
-                        })
-                })
+                        }else {
+                            res.json({
+                                msg: "RECHARGE DADDY 2nd API HIT FAILED"
+                            })
+                        }
+                }else {
+                    res.json({
+                        msg: "RECHARGE DADDY API HIT FAILED"
+                    })
+                }
 
             // TRANSACTION RECORDS
             console.log("Transaction Data : ", trx_data);

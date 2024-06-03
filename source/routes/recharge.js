@@ -7,7 +7,7 @@ module.exports = app => {
     rechargeRouter.post('/user-get-portal-balance',authMiddleware, controller.userGetPortalBalance);
     rechargeRouter.post('/plans',authMiddleware, controller.plans);
     rechargeRouter.post('/operators',authMiddleware, controller.operators);
-    rechargeRouter.post('/operator-check',authMiddleware, controller.operatorCheck);
+    rechargeRouter.post('/operator-check', controller.operatorCheck);
     rechargeRouter.post('/confirm-recharge', authMiddleware, controller.confirmRecharge);
     rechargeRouter.post('/recharge', authMiddleware, controller.recharge);
     rechargeRouter.post('/opptest', controller.opptest);
@@ -16,6 +16,7 @@ module.exports = app => {
     rechargeRouter.post('/oppetsnba', controller.oppetsnba);
     rechargeRouter.post('/oppdu', controller.oppdu);  
     rechargeRouter.post('/available-countries', controller.availableCountry);
+    rechargeRouter.get('/test-rdy', controller.testrdy);
     // rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
     // rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
 
