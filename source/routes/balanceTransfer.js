@@ -12,6 +12,7 @@ module.exports = app => {
     balanceTransferRoutes.post('/approve-transfer', controller.approveTransfer);
     balanceTransferRoutes.post('/decline-transfer', controller.declineTransfer);
     balanceTransferRoutes.post('/get-user-outstanding', controller.getUserOutstanding);
+    balanceTransferRoutes.post('/payment-collect-sub-customer', controller.cashWithdrawal);
     balanceTransferRoutes.post('/cash-withdrawal', controller.cashWithdrawal);
     balanceTransferRoutes.post('/gt-cust-receipt-info', controller.getCustReceiptInfo);
     balanceTransferRoutes.post('/reseller-payment-collect', controller.resellerPaymentCollection);

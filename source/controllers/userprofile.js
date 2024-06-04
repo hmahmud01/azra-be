@@ -625,7 +625,8 @@ exports.getAllUsers = async(req, res, next) => {
                 credit_limit: credit_info.credit_limit.toString(),
                 credit_balance: credit_info.credit.toString(),
                 username: connected_users[i].phone,
-                portal_balance: portalBalance.toFixed(2).toString()
+                portal_balance: portalBalance.toFixed(2).toString(),
+                uuid: connected_users[i].userId
             }
 
             data = data_1
@@ -637,7 +638,8 @@ exports.getAllUsers = async(req, res, next) => {
                 credit_limit: "0.0000",
                 credit_balance: "0.0000",
                 username: connected_users[i].phone,
-                portal_balance: portalBalance.toFixed(2).toString()
+                portal_balance: portalBalance.toFixed(2).toString(),
+                uuid: connected_users[i].userId
             }
             data = data_1
         }

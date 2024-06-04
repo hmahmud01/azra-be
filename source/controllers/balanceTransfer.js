@@ -652,29 +652,64 @@ exports.getUserOutstanding = async(req, res, next) => {
     let total_received = 0.00
     let total_outstanding = 0.00
 
-    const requests = await db.agenttransferrequest.findAll({
+    let total = 0.00
+    let debit = 0.00
+    let credit = 0.00
+
+    const dues = await db.useramountsettlement.findAll({
         where: {
-            customer_name: req.body.username_sub_user
+            userId: req.body.uuid
         }
     })
 
-    for (let i = 0; i<requests.length; i++){
-        total_transferred += parseFloat(requests[i].requested_amount)
-        if(requests[i].status == "Approved"){
-            total_received += parseFloat(requests[i].requested_amount)
-        }
+    for(let i=0; i<dues.length; i++){
+        debit += parseFloat(dues[i].debit)
+        credit += parseFloat(dues[i].credit)
     }
 
-    total_outstanding = total_transferred - total_received
+    total = debit - credit
+
+    // const requests = await db.agenttransferrequest.findAll({
+    //     where: {
+    //         customer_name: req.body.username_sub_user
+    //     }
+    // })
+
+    // for (let i = 0; i<requests.length; i++){
+    //     total_transferred += parseFloat(requests[i].requested_amount)
+    //     if(requests[i].status == "Approved"){
+    //         total_received += parseFloat(requests[i].requested_amount)
+    //     }
+    // }
+
+    // total_outstanding = total_transferred - total_received
     // {"total_transferred": "65746.0", "total_received": "64336.0", "total_outstanding": "1410.0"}
     res.json({
-        total_transferred: total_transferred.toFixed(2).toString(),
-        total_received: total_received.toFixed(2).toString(),
-        total_outstanding: total_outstanding.toFixed(2).toString()
+        total_transferred: credit.toFixed(2).toString(),
+        total_received: debit.toFixed(2).toString(),
+        total_outstanding: total.toFixed(2).toString()
     })
 }
 
 exports.cashWithdrawal = async(req, res, next) => {
+    // {"data":"{\"username_reseller\":\"01646442322\",\"voucher_date\":\"2024-6-4\",\"total_received\":\"100\",\"narration\":\"asfasfda\",\"collection_data\":[{\"username_sub_customer\":\"01681430547\",\"received_amount\":\"100\"}]}"}
+    // {"data":{"username_reseller":"01646442322","voucher_date":"2024-6-4","total_received":"111","narration":"123","collection_data":[{"username_sub_customer":"01646442323","received_amount":"111"}]}}
+    let id = req.body.data.uuid
+    let debit = parseFloat(req.body.data.collection_data[0].received_amount)
+    console.log(debit)
+
+    const settlement = await db.useramountsettlement.create({
+        userId: id,
+        debit: debit,
+        credit: 0.00,
+        note: "User Credit withdrawn"
+    })
+    const logmsg = `Withdrawal has been made from the user ${id} for the amount of %${debit}`
+    const syslog = await db.systemlog.create({
+        type: "Withdrawal",
+        detail: logmsg
+    })
+
     res.json({
         status: "success"
     })
