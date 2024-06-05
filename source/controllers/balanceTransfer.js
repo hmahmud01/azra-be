@@ -694,7 +694,7 @@ exports.getUserOutstanding = async(req, res, next) => {
 exports.cashWithdrawal = async(req, res, next) => {
     // {"data":"{\"username_reseller\":\"01646442322\",\"voucher_date\":\"2024-6-4\",\"total_received\":\"100\",\"narration\":\"asfasfda\",\"collection_data\":[{\"username_sub_customer\":\"01681430547\",\"received_amount\":\"100\"}]}"}
     // {"data":{"username_reseller":"01646442322","voucher_date":"2024-6-4","total_received":"111","narration":"123","collection_data":[{"username_sub_customer":"01646442323","received_amount":"111"}]}}
-    console.log("REQ BODY : ", req.body)
+    console.log("REQ BODY : ", req.body, req)
     console.log("REQ BODY DATA : ", req.body.data)
     console.log("REQ DATA : ", req.data)
     let id = req.body.data.uuid
