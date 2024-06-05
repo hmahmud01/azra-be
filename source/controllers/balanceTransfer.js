@@ -696,8 +696,11 @@ exports.cashWithdrawal = async(req, res, next) => {
     // {"data":{"username_reseller":"01646442322","voucher_date":"2024-6-4","total_received":"111","narration":"123","collection_data":[{"username_sub_customer":"01646442323","received_amount":"111"}]}}
     console.log("REQ BODY : ", req.body, req)
     console.log("REQ BODY DATA : ", req.body.data)
-    console.log("REQ DATA : ", req.data)
     let id = req.body.data.uuid
+    console.log("UUID FROM REQUEST : ", id)
+    console.log("COLLECTION DATA : ", req.body.data.collection_data)
+    console.log("COLLECTION DATA RECEIVED AMOUNT VALUE : ", req.body.data.collection_data[0].received_amount)
+    console.log("COLLECTION DATA FLOAT CONVERTED VALUE: ", parseFloat(req.body.data.collection_data[0].received_amount))
     let debit = parseFloat(req.body.data.collection_data[0].received_amount)
     console.log(debit)
 
@@ -707,6 +710,9 @@ exports.cashWithdrawal = async(req, res, next) => {
         credit: 0.00,
         note: "User Credit withdrawn"
     })
+
+    console.log("SEttlEMENT COMPLEteD")
+
     const logmsg = `Withdrawal has been made from the user ${id} for the amount of %${debit}`
     const syslog = await db.systemlog.create({
         type: "Withdrawal",
