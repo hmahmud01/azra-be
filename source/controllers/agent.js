@@ -14,6 +14,8 @@ const Transaction = db.transaction;
 const TransactionAdjustments =db.transactionadjustments;
 const OrganizationEarned = db.organizationearned;
 
+const { transferlogger, withdrawlogger } = require("../authsrc/middlewares")
+
 exports.getAgents = async(req, res, next) => {
     // const agents = await User.findAll({
     //     where: {
@@ -165,7 +167,10 @@ exports.balanceTransfer = async(req, res, next) => {
         transferredToUserType: usertype
     })
 
-    const logmsg = `Amount ${amount} has been transferred to ${id}'s account`
+    
+
+    const logmsg = `${amount} - ${settlement.uuid} - ${user.phone}' - WEB`
+    transferlogger.info(logmsg)
     const syslog = await SystemLog.create({
         type: "Transfer",
         detail: logmsg
@@ -183,6 +188,12 @@ exports.settleDebt = async(req, res, next)=> {
     let uid = 0
     console.log(`Id is :${id}`)
 
+    const user = await db.user.findOne({
+        where: {
+            uuid: id
+        }
+    })
+
     await findId(id).then(res => {uid = res});
 
     const settlement = await UserAmountSettlement.create({
@@ -191,8 +202,10 @@ exports.settleDebt = async(req, res, next)=> {
         credit: 0.00,
         note: "User Credit withdrawn"
     })
-
-    const logmsg = `Withdrawal has been made from the user ${id} for the amount of %${amount}`
+    
+    const logmsg = `Withdrawal has been made from the user ${user.phone} for the amount of ${amount} - WEB`
+    var withdrawsms = `${amount} - ${settlement.uuid} - ${user.phone} - WEB`
+    withdrawlogger.info(withdrawsms)
     const syslog = await SystemLog.create({
         type: "Withdrawal",
         detail: logmsg

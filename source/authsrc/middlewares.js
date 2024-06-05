@@ -1,5 +1,6 @@
 const { combine, timestamp, json, printf } = require("winston");
-const winston = require("winston")
+const winston = require("winston");
+const { approveTransfer } = require("../controllers/balanceTransfer");
 const timestampFormat = 'MMM-DD-YYYY HH:mm:ss';
 
 function isAuthenticated(req, res, next) {
@@ -42,9 +43,162 @@ const logger = winston.createLogger({
     })
   ]
 })
+
+const withdrawlogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/withdraw/${today}-withdraw.log`
+    })
+  ]
+})
+
+const transferlogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/transfer/${today}-transfer.log`
+    })
+  ]
+})
+
+const transferApprovallogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/transfer/${today}-approvetransfer.log`
+    })
+  ]
+})
+
+const transferDeclinelogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/transfer/${today}-deprovetransfer.log`
+    })
+  ]
+})
+
+const rechargeLivelogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/recharge/${today}-ApiLive.log`
+    })
+  ]
+})
+
+const rechargeETSlogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/recharge/${today}-ApiETS.log`
+    })
+  ]
+})
+
+const rechargeDulogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/recharge/${today}-ApiDu.log`
+    })
+  ]
+})
+
+const rechargeRDYlogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/recharge/${today}-ApiRDY.log`
+    })
+  ]
+})
+
+const rechargeEZLlogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/recharge/${today}-ApiEZL.log`
+    })
+  ]
+})
   
   module.exports = {
       isAuthenticated,
-      logger
+      logger,
+      withdrawlogger,
+      transferlogger,
+      transferApprovallogger,
+      transferDeclinelogger,
+      rechargeLivelogger,
+      rechargeETSlogger,
+      rechargeDulogger,
+      rechargeRDYlogger,
+      rechargeEZLlogger
   }
   

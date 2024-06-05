@@ -7,7 +7,7 @@ const axios = require('axios');
 const { DOMParser } = require('xmldom')
 
 const rechargeModule = require('./recharge_module');
-const { logger } = require('../authsrc/middlewares');
+const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger } = require('../authsrc/middlewares');
 const e = require("express");
 
 exports.availableCountry = async (req, res, next) => {
@@ -1363,6 +1363,8 @@ exports.recharge = async (req, res, next) => {
                             request_endtime: now
                         }
                         logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                        let logwr = `REQUEST ----------- \n ${send_data} \n RESPONSE ----------- \n ${livedata} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                        rechargeLivelogger.info(logwr)
                         res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -1423,6 +1425,9 @@ exports.recharge = async (req, res, next) => {
                         )
                         console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                         console.log("Balance Unavailable");
+
+                        let logwr = `REQUEST ----------- \n ${send_data} \n RESPONSE ----------- \n ${livedata} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                        rechargeLivelogger.info(logwr)
 
                         apiResp = {
                             status: "failed",
@@ -1593,6 +1598,8 @@ exports.recharge = async (req, res, next) => {
                                         request_endtime: now
                                     }
                                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                                    let logwr = `REQUEST ----------- \n ${config} \n RESPONSE ----------- \n ${stringXML} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                                    rechargeLivelogger.info(logwr)
                                     res.json(apiResp)
 
                                 } else if (parseInt(statusCode) == 0) {
@@ -1722,6 +1729,8 @@ exports.recharge = async (req, res, next) => {
                                         trans_date: now,
                                         request_endtime: now
                                     }
+                                    let logwr = `REQUEST ----------- \n ${config} \n RESPONSE ----------- \n ${stringXML} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                                    rechargeLivelogger.info(logwr)
                                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                                     res.json(apiResp)
                                 }
@@ -1878,6 +1887,8 @@ exports.recharge = async (req, res, next) => {
                                         request_endtime: now
                                     }
                                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                                    let logwr = `REQUEST ----------- \n ${config} \n RESPONSE ----------- \n ${stringXML} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                                    rechargeLivelogger.info(logwr)
                                     res.json(apiResp)
 
                                 } else if (parseInt(statusCode) == 0) {
@@ -2012,6 +2023,8 @@ exports.recharge = async (req, res, next) => {
                                         request_endtime: now
                                     }
                                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                                    let logwr = `REQUEST ----------- \n ${config} \n RESPONSE ----------- \n ${stringXML} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                                    rechargeLivelogger.info(logwr)
                                     res.json(apiResp)
                                 }
                             })
@@ -2109,6 +2122,8 @@ exports.recharge = async (req, res, next) => {
                         trx_status = true
                     }
                     if (trx_status) {
+                        let logwr = `REQUEST 1 ----------- \n ${resData} \n RESPONSE 1 ----------- \n ${rdyapi.data} \n REQUEST 2 ----------- \n ${checkData} \n RESPONSE 2 ----------- \n ${rdyapi2.data} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                        rechargeLivelogger.info(logwr)
                         const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
                             type: "Recharge",
@@ -2228,6 +2243,8 @@ exports.recharge = async (req, res, next) => {
                         logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
                         res.json(apiResp)
                     } else {
+                        let logwr = `REQUEST 1 ----------- \n ${resData} \n RESPONSE 1 ----------- \n ${rdyapi.data} \n REQUEST 2 ----------- \n ${checkData} \n RESPONSE 2 ----------- \n ${rdyapi2.data} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                        rechargeLivelogger.info(logwr)
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
                             type: "Recharge",
@@ -2391,6 +2408,8 @@ exports.recharge = async (req, res, next) => {
                     }
 
                     if (trx_status) {
+                        let logwr = `REQUEST 1 ----------- \n ${querydata} \n RESPONSE 1 ----------- \n ${apicall} \n REQUEST 2 ----------- \n ${trxcheck} \n RESPONSE 2 ----------- \n ${ezlCheck} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                        rechargeLivelogger.info(logwr)
                         const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
                             type: "Recharge",
@@ -2509,6 +2528,8 @@ exports.recharge = async (req, res, next) => {
                         }
                         res.json(apiResp)
                     } else {
+                        let logwr = `REQUEST 1 ----------- \n ${querydata} \n RESPONSE 1 ----------- \n ${apicall} \n REQUEST 2 ----------- \n ${trxcheck} \n RESPONSE 2 ----------- \n ${ezlCheck} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
+                        rechargeLivelogger.info(logwr)
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
                             type: "Recharge",
