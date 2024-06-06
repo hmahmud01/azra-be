@@ -2504,7 +2504,7 @@ exports.recharge = async (req, res, next) => {
                 rechargeEZLlogger.info(logezlreq2)
 
                 console.log("TRX CHECK REQUEST : ", trxcheck)
-                conosole.log(logezlreq2)
+                console.log(logezlreq2)
 
                 const ezlCheck = await axios(config2)
                 if (ezlCheck) {
