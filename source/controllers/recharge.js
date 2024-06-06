@@ -7,7 +7,7 @@ const axios = require('axios');
 const { DOMParser } = require('xmldom')
 
 const rechargeModule = require('./recharge_module');
-const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger } = require('../authsrc/middlewares');
+const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger } = require('../authsrc/middlewares');
 const e = require("express");
 
 exports.availableCountry = async (req, res, next) => {
@@ -72,6 +72,63 @@ exports.availableCountry = async (req, res, next) => {
     res.json(data)
 }
 
+exports.ezltry = async(req, res, next) => {
+    const apiUrl = "https://payments-central.com/api/User/Transaction"
+    const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
+    var querydata = JSON.stringify({
+        "SessionId": "aaead679d0aa42acbc43a62a154279a2",
+        "ServiceId": 3,
+        "Input": {
+            "Amount": 20,
+            "PhoneNumber": "923184471353"
+        },
+        "Reference": "EZL-2"
+    });
+
+    
+    var config = {
+        method: 'post',
+        url: apiUrl,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: querydata
+    };
+
+    const apicall = await axios(config)
+
+    if(apicall){
+        let trxId = apicall.TransactionId
+        console.log(apicall.data.TransactionId, apicall.TransactionId)
+        console.log(JSON.stringify(apicall.data))
+        let trxcheck = JSON.stringify({
+            SessionId: "aaead679d0aa42acbc43a62a154279a2",
+            TransactionId: trxId
+        })
+
+        var config2 = {
+            method: 'post',
+            url: checkUrl,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: trxcheck
+        };
+
+        const ezlCheck = await axios(config2)
+        console.log(ezlCheck)
+        if(ezlCheck){
+            console.log(JSON.stringify(ezlCheck.data))
+            console.log(ezlCheck.data.TransactionStatusName)
+        }
+    }
+
+    res.json({
+        msg: "CHECKING"
+    })
+
+
+}
 
 exports.oppPin = async (req, res, next) => {
     console.log("inside OPP PIN TEST")
@@ -1108,6 +1165,8 @@ exports.recharge = async (req, res, next) => {
             trans_date: null,
             request_endtime: null
         }
+        let lockinfo = `LOCKEDSTATUS: ${mobile}|LOCKED|${api.code}|RECHARGEFAILED`
+        numberLockLogger.info()
 
         res.json(apiResp)
 
@@ -1175,6 +1234,9 @@ exports.recharge = async (req, res, next) => {
             status: true,
             trx_id: transaction.uuid
         })
+
+        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT LOCKED|${api.code}|RECHARGEINITIATED`
+        numberLockLogger.info()
 
         let balanceData = {
             username: data.username,
@@ -1304,7 +1366,8 @@ exports.recharge = async (req, res, next) => {
                         })
                         console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                         console.log("Add a entry of success recharge balance and adjust the agents real balance");
-
+                        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
+                        numberLockLogger.info()
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                         const percent = await db.agentpercentage.findOne({
@@ -1429,7 +1492,8 @@ exports.recharge = async (req, res, next) => {
                         console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                         console.log("Balance Unavailable");
 
-
+                        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+                        numberLockLogger.info()
                         apiResp = {
                             status: "failed",
                             balance: userbalance,
@@ -1594,7 +1658,8 @@ exports.recharge = async (req, res, next) => {
                                     )
                                     console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                                     console.log("Balance Unavailable");
-
+                                    let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+                                    numberLockLogger.info()
                                     apiResp = {
                                         status: "failed",
                                         balance: userbalance,
@@ -1675,6 +1740,8 @@ exports.recharge = async (req, res, next) => {
                                     console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                                     console.log("Add a entry of success recharge balance and adjust the agents real balance");
 
+                                    let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
+                                    numberLockLogger.info()
                                     // TODO
                                     // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                                     const percent = await db.agentpercentage.findOne({
@@ -1889,7 +1956,8 @@ exports.recharge = async (req, res, next) => {
                                     )
                                     console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                                     console.log("Balance Unavailable");
-
+                                    let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+                                    numberLockLogger.info()
                                     apiResp = {
                                         status: "failed",
                                         balance: userbalance,
@@ -1974,7 +2042,8 @@ exports.recharge = async (req, res, next) => {
 
                                     console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                                     console.log("Add a entry of success recharge balance and adjust the agents real balance");
-
+                                    let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
+                                    numberLockLogger.info()
                                     // TODO
                                     // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                                     const percent = await db.agentpercentage.findOne({
@@ -2201,6 +2270,8 @@ exports.recharge = async (req, res, next) => {
                         console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                         console.log("Add a entry of success recharge balance and adjust the agents real balance");
 
+                        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
+                        numberLockLogger.info()
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                         const percent = await db.agentpercentage.findOne({
@@ -2326,7 +2397,8 @@ exports.recharge = async (req, res, next) => {
                         )
                         console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                         console.log("Balance Unavailable");
-
+                        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+                        numberLockLogger.info()
                         apiResp = {
                             status: "failed",
                             balance: userbalance,
@@ -2405,7 +2477,7 @@ exports.recharge = async (req, res, next) => {
 
             const apicall = await axios(config)
             if (apicall) {
-                let trxId = apicall.TransactionId
+                let trxId = apicall.data.TransactionId
                 let trxcheck = JSON.stringify({
                     SessionId: "aaead679d0aa42acbc43a62a154279a2",
                     TransactionId: trxId
@@ -2420,10 +2492,10 @@ exports.recharge = async (req, res, next) => {
                     data: trxcheck
                 };
 
-                console.log("RESPONSE : ", apicall)
-                console.log("STRINGIFY RESPONSE : ", JSON.stringify(apicall))
+                console.log("RESPONSE : ", apicall.data)
+                console.log("STRINGIFY RESPONSE : ", JSON.stringify(apicall.data))
 
-                let logezlres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(apicall)}`
+                let logezlres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(apicall.data)}`
                 rechargeEZLlogger.info(logezlres)
 
                 console.log(logezlres)
@@ -2436,9 +2508,9 @@ exports.recharge = async (req, res, next) => {
 
                 const ezlCheck = await axios(config2)
                 if (ezlCheck) {
-                    let trxMsg = `TransactionStatusCode : ${ezlCheck.TransactionStatusCode} , TransactionStatusName : ${ezlCheck.TransactionStatusName} , Message: ${ezlCheck.Message}`
+                    let trxMsg = `TransactionStatusCode : ${ezlCheck.data.TransactionStatusCode} , TransactionStatusName : ${ezlCheck.data.TransactionStatusName} , Message: ${ezlCheck.data.Message}`
                     // const resp = await saveResponse(trxMsg, trxId);
-                    if (ezlCheck.TransactionStatusName == "Successful") {
+                    if (ezlCheck.data.TransactionStatusName == "Successful") {
                         trx_data = {
                             transactionId: transaction.uuid,
                             apiId: api.uuid
@@ -2447,9 +2519,9 @@ exports.recharge = async (req, res, next) => {
                         trx_status = true
                     }
 
-                    console.log("TRX CHECK RESPONSE : ", ezlCheck)
-                    console.log("STRINGIFY RESPONSE : ", JSON.stringify(ezlCheck))
-                    let logezlres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(ezlCheck)}`
+                    console.log("TRX CHECK RESPONSE : ", ezlCheck.data)
+                    console.log("STRINGIFY RESPONSE : ", JSON.stringify(ezlCheck.data))
+                    let logezlres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(ezlCheck.data)}`
                     rechargeEZLlogger.info(logezlres2)
 
                     if (trx_status) {
@@ -2506,7 +2578,8 @@ exports.recharge = async (req, res, next) => {
                         })
                         console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                         console.log("Add a entry of success recharge balance and adjust the agents real balance");
-
+                        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
+                        numberLockLogger.info()
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                         const percent = await db.agentpercentage.findOne({
@@ -2630,7 +2703,8 @@ exports.recharge = async (req, res, next) => {
                         )
                         console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                         console.log("Balance Unavailable");
-
+                        let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+                        numberLockLogger.info()
                         apiResp = {
                             status: "failed",
                             balance: userbalance,

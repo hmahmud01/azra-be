@@ -187,6 +187,22 @@ const rechargeEZLlogger = winston.createLogger({
     })
   ]
 })
+
+const numberLockLogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/lockednumbers/${today}-numberlock.log`
+    })
+  ]
+})
   
   module.exports = {
       isAuthenticated,
@@ -199,6 +215,7 @@ const rechargeEZLlogger = winston.createLogger({
       rechargeETSlogger,
       rechargeDulogger,
       rechargeRDYlogger,
-      rechargeEZLlogger
+      rechargeEZLlogger,
+      numberLockLogger
   }
   
