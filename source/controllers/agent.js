@@ -14,7 +14,7 @@ const Transaction = db.transaction;
 const TransactionAdjustments =db.transactionadjustments;
 const OrganizationEarned = db.organizationearned;
 
-const { transferlogger, withdrawlogger } = require("../authsrc/middlewares")
+const { transferlogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
 
 exports.getAgents = async(req, res, next) => {
     // const agents = await User.findAll({
@@ -48,6 +48,8 @@ exports.getAgents = async(req, res, next) => {
 }
 
 exports.getAgent = async(req, res, next) => {
+    
+    accessLog.info(`${req.params.id}|GET AGENT`)
     let result = {id: 2, name: "Mr. Z", manager: "Mr. X", area: "Location"}
     let id = req.params.id
     console.log(`Data for id ${id} is `, result)
@@ -97,6 +99,7 @@ const findId = async(uuid) => {
 
 
 exports.balanceTransfer = async(req, res, next) => {
+    accessLog.info(`${req.params.id}|BALANCE TRANSFER|${req.body.amount}`)
     console.log("inside balacne")
     let uid = 0
     let amount = req.body.amount
@@ -183,6 +186,7 @@ exports.balanceTransfer = async(req, res, next) => {
 }
 
 exports.settleDebt = async(req, res, next)=> {
+    accessLog.info(`${req.params.id}|BALANCE WITHDRAW|${req.body.amount}`)
     const amount = req.body.amount
     let id = req.params.id
     let uid = 0
@@ -217,6 +221,7 @@ exports.settleDebt = async(req, res, next)=> {
 }
 
 exports.assignPercent = async(req, res, next) => {
+    accessLog.info(`${req.params.id}|AGENT PERCENT ASSIGNMENT|${req.body.percent}`)
     let uid = 0;
     const percent = req.body.percent
     let id = req.params.id
@@ -501,6 +506,7 @@ exports.adjustments = async(req, res, next) => {
 
 
 exports.trxRefund = async(req, res, next) => {
+    accessLog.info(`${req.body.tid}|TRANSACTION REFUND API|${req.body.note}`)
     let tid = req.body.tid
     let note = req.body.note
     const transaction = await Transaction.update(

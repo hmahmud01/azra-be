@@ -1,7 +1,10 @@
 const { Sequelize } = require("sequelize")
 const db = require("../models")
 
+const { accessLog } = require("../authsrc/middlewares")
+
 exports.setOperatorCode = async(req, res, next) => {
+    accessLog.info(`SET OPERATORE CODE|${JSON.stringify(req.body)}`)
     let data = {
         apiProviderId : req.body.apiProviderId,
         countryId: req.body.countryId,

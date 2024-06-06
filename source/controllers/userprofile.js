@@ -4,8 +4,11 @@ const db = require("../models");
 const rechargeModule = require("./recharge");
 const calculator = require("./userprofilecalculator");
 
+const { accessLog } = require("../authsrc/middlewares")
+
 // CUSTMER DASHBAORD AREA
 exports.userDashboard = async(req, res, next) => {
+    accessLog.info(`ACCESS USER DASHBOARD_APP|${JSON.stringify(req.body)}`)
     let reqData = {"username":"iftay","from_date":"2023-8-2","to_date":"2023-8-2"}
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     const earn = await calculator.calculateEarning(req.body.username);
@@ -60,6 +63,7 @@ exports.userDashboard = async(req, res, next) => {
 }
 
 exports.orderHistory = async(req, res, next) => {
+    accessLog.info(`ACCESS USER ORDER HISTORY|${JSON.stringify(req.body)}`)
     let reqdata = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
     let history = []
     let credit_amount = 0.00
@@ -273,6 +277,7 @@ exports.orderHistory = async(req, res, next) => {
 }
 
 exports.walletHistory = async(req, res, next) => {
+    accessLog.info(`ACCESS USER WALLET HISTORY|${JSON.stringify(req.body)}`)
     let reqData = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     let balance_info = []
@@ -313,6 +318,7 @@ exports.walletHistory = async(req, res, next) => {
 
 // SALES DASHBAORD AREA
 exports.salesDashboard = async(req, res, next) => {
+    accessLog.info(`ACCESS SALES DASHBOARD_APP|${JSON.stringify(req.body)}`)
     let dt = {"username":"iftaykher","from_date":"N/A","to_date":"N/A"}
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     let credit_limit = "0.0000"
@@ -372,6 +378,7 @@ exports.salesDashboard = async(req, res, next) => {
 }
 
 exports.salesmanTransactionHistory = async(req, res, next) => {
+    accessLog.info(`ACCESS SALES TRANSACTION HISTORY|${JSON.stringify(req.body)}`)
     let dt = {"username":"iftaykher","from_date":"2023-8-20","to_date":"2023-8-20"}
     let transfer_info = []
     const trx = await db.agenttransferrequest.findAll({
@@ -524,6 +531,7 @@ exports.sendBalanceToSales = async(req, res, next) => {
 }
 
 exports.salesmanWalletHistory = async(req,res, next) => {
+    accessLog.info(`ACCESS SALESMAN WALLET HISTORY|${JSON.stringify(req.body)}`)
     let data = {"username":"iftaykher","from_date":"2023-8-24","to_date":"2023-8-24"}
 
     const user = await db.user.findOne({
@@ -591,6 +599,7 @@ exports.salesmanWalletHistory = async(req,res, next) => {
 }
 
 exports.getAllUsers = async(req, res, next) => {
+    accessLog.info(`ACCESS GET ALL USER|${JSON.stringify(req.body)}`)
     let data_user = {"username_reseller":"iftaykher"}
     let sub_reseller_info = []
     let customer_info = []

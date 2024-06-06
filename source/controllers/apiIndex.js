@@ -6,8 +6,11 @@ const ApiPercent = db.apipercent;
 const Country = db.country;
 const Mobile = db.mobile;
 
+const { accessLog } = require("../authsrc/middlewares")
+
 
 exports.getApis = async (req, res, next) => {
+    
     let result = await Api.findAll();
 
     res.status(200).json({
@@ -16,6 +19,7 @@ exports.getApis = async (req, res, next) => {
 }
 
 exports.getApi = async (req, res, next) => {
+    accessLog.info(`${req.params.id}|GET API INFO`)
     let result = { id: 1, api: "ZOLO", code: "ZLO", status: true }
     let id = req.params.id
     console.log(`fetcing data for ${id}`)
@@ -32,6 +36,7 @@ exports.getApi = async (req, res, next) => {
 }
 
 exports.deActivateApi = async (req, res, next) => {
+    accessLog.info(`${req.params.id}|DEACTIVATE API`)
     let id = req.params.id
     console.log(`deactivating the api with id of ${id}`)
 
@@ -54,6 +59,7 @@ exports.deActivateApi = async (req, res, next) => {
 }
 
 exports.activateApi = async (req, res, next) => {
+    accessLog.info(`${req.params.id}|ACTIVATE API`)
     let id = req.params.id
     console.log(`activating the api with id of ${id}`)
     const updateapi = await Api.update(
@@ -75,6 +81,7 @@ exports.activateApi = async (req, res, next) => {
 }
 
 exports.addApi = async (req, res, next) => {
+    accessLog.info(`ADD AN API|${JSON.stringify(req.body)}`)
     console.log(req.body);
 
     let name = req.body.name;
@@ -98,6 +105,7 @@ exports.addApi = async (req, res, next) => {
 }
 
 exports.assignPriority = async (req, res, next) => {
+    accessLog.info(`ASSIGN PRIORITY API|${JSON.stringify(req.body)}`)
     let data = req.body;
     let ctryId = data.ctry;
 
@@ -137,6 +145,7 @@ exports.assignPriority = async (req, res, next) => {
 }
 
 exports.assingPercentage = async (req, res, next) => {
+    accessLog.info(`ASSIGN PERCENTAGE API|${JSON.stringify(req.body)}`)
     let msg = ""
     let status_code = 200
 
@@ -175,7 +184,6 @@ exports.assingPercentage = async (req, res, next) => {
 }
 
 exports.apiPriorityData = async (req, res, next) => {
-
     console.log("inside priority Data");
     let data = []
     let result = await ApiCountryPriority.findAll();

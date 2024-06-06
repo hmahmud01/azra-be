@@ -1,6 +1,8 @@
 const db = require("../models");
+const { accessLog } = require("../authsrc/middlewares")
 
 exports.summary = async(req, res, next) => {
+    accessLog.info(`ACCESS MAIN REPORT SUMMARY`)
     let total_purchase = 0.0000
     let total_sales = 0.0000
     let total_revenue = 0.0000
@@ -31,7 +33,7 @@ exports.summary = async(req, res, next) => {
 }
 
 exports.purchaseReport = async(req, res, next) => {
-
+    accessLog.info(`ACCESS PURCHASE REPORT`)
     let data = [
         {
             date: "23-09-2023",
@@ -67,6 +69,7 @@ exports.purchaseReport = async(req, res, next) => {
 }
 
 exports.salesReport = async(req, res, next) => {
+    accessLog.info(`ACCESS SALES REPORT`)
     let data = [
         {  
             balance: 14900,
@@ -96,6 +99,7 @@ exports.salesReport = async(req, res, next) => {
 }
 
 exports.revenueReport = async(req, res, next) => {
+    accessLog.info(`ACCESS REVENUE REPORT`)
     let data = [
         {
             amount: 100,
@@ -126,6 +130,7 @@ exports.revenueReport = async(req, res, next) => {
 }
 
 exports.addPurchase = async(req, res, next) => {
+    accessLog.info(`ADD PURCHASE ENTRY|${req.body}`)
     let data = req.body
     console.log(data)
     let dist = data.dist
@@ -156,6 +161,7 @@ exports.addPurchase = async(req, res, next) => {
 }
 
 exports.collection = async(req, res, next) => {
+    accessLog.info(`ACCESS COLLECTION REPORT`)
     console.log("COLLECTION CHECK")
     res.json({
         data: []

@@ -2,6 +2,8 @@ const db = require("../models");
 const Country = db.country;
 const Op = db.Sequelize.Op;
 
+const { accessLog } = require("../authsrc/middlewares")
+
 exports.getCountries = async(req, res, next) => {
     let countries = await Country.findAll();
     console.log(countries);
@@ -50,6 +52,7 @@ exports.deleteCountry = async(req, res, next) => {
 }
 
 exports.addCountry = async(req, res, next) => {
+    accessLog.info(`CREATE COUNTRY | ${req.body}`)
     let name = req.body.name
     let short = req.body.short
     let code = req.body.code

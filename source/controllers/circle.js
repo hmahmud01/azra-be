@@ -2,6 +2,8 @@ const db = require('../models')
 const { Op } = require('sequelize')
 const Sequelize = require('sequelize')
 
+const { accessLog } = require("../authsrc/middlewares")
+
 exports.createCircle = async(req, res, next) => {
     let data = {
         name : req.body.name,

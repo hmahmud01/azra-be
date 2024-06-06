@@ -4,7 +4,7 @@ const { stringify, parse } = require("qs");
 
 const rechargeModule = require('./recharge');
 const { prototype } = require("node-rsa");
-const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger } = require("../authsrc/middlewares")
+const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
 
 exports.customerBalanceTransferRequestList = async(req, res, next) => {
     let data = {"voucher_no":"N/A","username_customer":"N/A","username_reseller":"iftaykher","request_status":"All"}
@@ -86,6 +86,7 @@ exports.agentTransferHistory = async(req, res, next) => {
 }
 
 exports.createBalanceTransfer = async(req, res, next) => {
+    accessLog.info(`CREATE BALANCE TRANSFER|${JSON.stringify(req.body)}`)
     let d = {
         "username_customer": "01646442323",
         "voucher_date": "2023-8-22",
@@ -154,7 +155,7 @@ exports.createBalanceTransfer = async(req, res, next) => {
 }
 
 exports.approveTransfer = async(req, res, next) => {
-
+    accessLog.info(`APPROVE TRANSFER|${JSON.stringify(req.body)}`)
     let data = {
         "username_reseller": "iftaykher",
         "username_customer": "fulkoli038",
@@ -229,6 +230,7 @@ exports.approveTransfer = async(req, res, next) => {
 }
 
 exports.declineTransfer = async(req, res, next) => {
+    accessLog.info(`DECLINE TRANSFER|${JSON.stringify(req.body)}`)
     let data = {
         "username_reseller": "iftaykher",
         "username_customer": "fulkoli038",
@@ -253,11 +255,12 @@ exports.declineTransfer = async(req, res, next) => {
     }
 
     let logsms = `${transfer.requested_amount} - ${transfer.uuid} - [agenttransferrequest] - ${transfer.customer_name} - APP`
-
+    transferDeclinelogger.info(logsms)
     res.json(resp_Data)
 }
 
 exports.salesmanBalanceTransfer = async(req, res, next) => {
+    accessLog.info(`SALESMAN BALANCE TRANSFER|${JSON.stringify(req.body)}`)
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username_reseller)
     let resp_Data = {}
     let data = req.body
@@ -487,6 +490,7 @@ exports.salesmanBalanceTransfer = async(req, res, next) => {
 }
 
 exports.resellerBalanceTransfer = async(req, res, next) => {
+    accessLog.info(`RESELLER BALANCE TRANSFER|${JSON.stringify(req.body)}`)
     let body_data = {"username_reseller":"iftaykher","username_sub_reseller":"roy415","voucher_date":"2023-9-12","amount":"5","narration":"#APP #N/A","transfer_type":"credit"}
     let response_data = {"status": "success", "message": "Saved successfully", "prefix": "BTSR", "voucher_no": 12195, "portal_balance": "1557.06000"}
     // TODO
@@ -568,6 +572,7 @@ exports.resellerBalanceTransfer = async(req, res, next) => {
 }
 
 exports.balanceTransferSubReseller = async(req, res, next) =>{
+    accessLog.info(`SUB RESELLER BALANCE TRANSFER|${JSON.stringify(req.body)}`)
     let dt = {"username_reseller":"01646442322","username_sub_customer":"01646442323","voucher_date":"2023-9-14","amount":"100","narration":"","transfer_type":"credit"}
     // TODO
     // DO A PORTAL BALANCE CHECK HERE
@@ -664,6 +669,7 @@ exports.balanceTransferSubReseller = async(req, res, next) =>{
 }
 
 exports.getUserOutstanding = async(req, res, next) => {
+    accessLog.info(`GET OUTSTANDING BALANCE|${JSON.stringify(req.body)}`)
     let req_data = {"username_reseller":"iftaykher","username_sub_user":"roy415","user_type":"SUB_RESELLER"}
 
     let total = 0.00
@@ -691,6 +697,7 @@ exports.getUserOutstanding = async(req, res, next) => {
 }
 
 exports.cashWithdrawal = async(req, res, next) => {
+    accessLog.info(`CASH WITHDRAWAL|${JSON.stringify(req.body)}`)
     console.log("REQ BODY : ", req.body, req)
     console.log("REQ BODY DATA : ", req.body.data)
     let parsed_data = JSON.parse(req.body.data)

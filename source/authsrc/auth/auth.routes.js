@@ -15,7 +15,7 @@ module.exports = app => {
     const db = require("../../models");
     const User = db.user
     const recharge = require("../../controllers/recharge.js");
-    const { logger } = require("../middlewares.js");
+    const { logger, accessLog } = require("../middlewares.js");
 
     const authRoute = express.Router();
     // import { findUserByEmail, createUserByEmailAndPassword, findUserByPhone, createSuperUser } from '../users/users.services.js';
@@ -119,6 +119,8 @@ module.exports = app => {
     })
 
     authRoute.post('/register', async (req, res, next) => {
+        
+        accessLog.info(`USER REGISTRATION -> ${JSON.stringify(req.body)}`)
         console.log("INSIDE AUTH ROUTE");
         console.log(req.body)
 
@@ -176,6 +178,7 @@ module.exports = app => {
     })
 
     authRoute.post('/login', async (req, res, next) => {
+        accessLog.info(`${req.body.phone}|WEB LOGIN API|}`)
         console.log("checking")
         try {
             const { phone, password } = req.body;
@@ -219,6 +222,7 @@ module.exports = app => {
     });
 
     authRoute.post('/devicechangerequest', async(req, res, next) => {
+        accessLog.info(`${req.body.username}|DEVICE CHANGE REQUEST|CHANGED DEVICE: ${req.body.updateDevice}}`)
         try {
             const update_device = req.body.updateDevice;
             const username = req.body.username;
@@ -313,6 +317,7 @@ module.exports = app => {
     })
 
     authRoute.post('/applogin', async(req,res,next) => {
+        accessLog.info(`${username}|LOGIN API FROM APP|DEVICE : ${req.get('device')}`)
         
         // try {
             const device_id = req.get('device')

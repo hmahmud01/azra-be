@@ -8,8 +8,9 @@ const Setting = db.mobilesetting;
 const Country = db.country;
 const Op = db.Sequelize.Op;
 
-exports.getNetworks = async(req, res, next) => {
+const { accessLog } = require("../authsrc/middlewares")
 
+exports.getNetworks = async(req, res, next) => {
     let result = []
 
     const networks = await Mobile.findAll();
@@ -88,6 +89,7 @@ exports.deleteNetwork = async(req, res, next) => {
 }
 
 exports.addNetwork = async(req, res, next) => {
+    accessLog.info(`ADD MOBILE NETWORK|${JSON.stringify(req.body)}`)
     let mno = req.body.mno
     let ctry = req.body.country
 
@@ -104,6 +106,7 @@ exports.addNetwork = async(req, res, next) => {
 }
 
 exports.mobileSetting = async(req, res, next) => {
+    accessLog.info(`ADD MOBILE SETTING DATA|${JSON.stringify(req.body)}`)
     let data = {
         mobileId: req.body.mobileId,
         logo: req.body.logo,

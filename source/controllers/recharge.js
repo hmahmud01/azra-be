@@ -7,10 +7,11 @@ const axios = require('axios');
 const { DOMParser } = require('xmldom')
 
 const rechargeModule = require('./recharge_module');
-const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger } = require('../authsrc/middlewares');
+const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares');
 const e = require("express");
 
 exports.availableCountry = async (req, res, next) => {
+    accessLog.info(`ACCESS AVAILABLE COUNTRY|${JSON.stringify(req.body)}`)
     let data = {
         countries: [
             {
@@ -869,6 +870,7 @@ exports.userPortalBalance = async (username) => {
 }
 
 exports.userGetPortalBalance = async (req, res, next) => {
+    accessLog.info(`GET PORTAL BALANCE|${JSON.stringify(req.body)}`)
     let username = req.body.username
     // let mainBalance = 0.00;
     // const user = await db.user.findOne({
@@ -1044,6 +1046,7 @@ const saleReport = async (data) => {
 
 
 exports.recharge = async (req, res, next) => {
+    accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
     let data = {
         username: req.body.username,
         sub_operator_code: req.body.sub_operator_code,

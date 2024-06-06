@@ -2,7 +2,10 @@ const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 
+const { accessLog } = require("../authsrc/middlewares")
+
 exports.addCurrency = async(req, res, next) => {
+    accessLog.info(`ADD CURRENCY | ${req.body}`)
     let data = {
         title : req.body.title,
         credit_currency: req.body.credit_currency,

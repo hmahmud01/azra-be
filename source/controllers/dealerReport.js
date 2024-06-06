@@ -6,6 +6,8 @@
 const db = require("../models");
 const calculator = require('./agentReportCalculators.js');
 
+const { accessLog } = require("../authsrc/middlewares.js")
+
 exports.dealer = async(req, res, next) => {
     // let result = []
     const dealers = await db.user.findAll({
@@ -20,6 +22,7 @@ exports.dealer = async(req, res, next) => {
 }
 
 exports.dealerSubDealerReport = async(req, res, next) => {
+    accessLog.info(`ACCESS SUB DEALER REPORT | ${req.params.uid}`)
     const uid = req.params.uid
     console.log(uid);
 
@@ -72,6 +75,7 @@ const calculateAgentData = async(uuid) => {
 
 
 exports.dealersubDealerAgentReportPaginated = async(req, res, next) => {
+    accessLog.info(`ACCESS AGENT REPORT | ${req.params.uid}`)
     let result = [];
     const uid = req.params.uid;
     const {page, size, id} = req.query;
@@ -132,6 +136,7 @@ exports.dealersubDealerAgentReportPaginated = async(req, res, next) => {
 
 
 exports.dealersubDealerAgentReport = async(req, res, next) => {
+    accessLog.info(`ACCESS AGENT REPORT | ${req.params.uid}`)
     const uid = req.params.uid
     let dueval = 0
     let saleval = 0

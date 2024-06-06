@@ -1,8 +1,10 @@
 const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
+const { accessLog } = require("../authsrc/middlewares")
 
 exports.createPlan = async(req, res, next) => {
+    accessLog.info(`CREATE A PLAN|${JSON.stringify(req.body)}`)
     let is_range = false
     if(req.body.is_range == "True"){
         is_range = true
@@ -70,6 +72,7 @@ exports.listPlan = async(req, res, next) => {
 }
 
 exports.createPlanType = async(req, res, next) => {
+    accessLog.info(`CREATE A PLAN TYPE|${JSON.stringify(req.body)}`)
     let data = {
         type: req.body.type,
         operator_code: req.body.operator_code,
