@@ -8,6 +8,7 @@ module.exports = app => {
     reportRoutes.get("/salesreport", controller.salesReport)
     reportRoutes.get("/revenuereport", controller.revenueReport)
     reportRoutes.post("/addpurchase", controller.addPurchase)
+    reportRoutes.get("/collection", controller.collection)
 
     app.use(reportRoutes);
 

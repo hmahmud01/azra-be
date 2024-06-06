@@ -154,3 +154,10 @@ exports.addPurchase = async(req, res, next) => {
         data: queryData
     })
 }
+
+exports.collection = async(req, res, next) => {
+    console.log("COLLECTION CHECK")
+    res.json({
+        data: []
+    })
+}

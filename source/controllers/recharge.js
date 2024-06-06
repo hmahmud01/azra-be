@@ -1221,7 +1221,7 @@ exports.recharge = async (req, res, next) => {
                 }
             }
 
-            let loglivereq = `REQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(send_data)}`
+            let loglivereq = `REQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(send_data)}`
             rechargeLivelogger.info(loglivereq)
 
             console.log(`MSISDN : ${msisdn}`)
@@ -1236,7 +1236,7 @@ exports.recharge = async (req, res, next) => {
             })
                 .then(response => response.json())
                 .then(async livedata => {
-                    let logliveres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(livedata)}`
+                    let logliveres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(livedata)}`
                     rechargeLivelogger.info(logliveres)
                     console.log("data from live : ", livedata)
                     // const resp = await saveResponse(data, transaction.id);
@@ -1368,8 +1368,6 @@ exports.recharge = async (req, res, next) => {
                             request_endtime: now
                         }
                         logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                        let logwr = `REQUEST ----------- \n ${send_data} \n RESPONSE ----------- \n ${livedata} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
-                        rechargeLivelogger.info(logwr)
                         res.json(apiResp)
                     } else {
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
@@ -1486,7 +1484,7 @@ exports.recharge = async (req, res, next) => {
                 data: xml_data
             };
 
-            let logetsreq1 = `REQUEST1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${xml_data}`
+            let logetsreq1 = `RECHARGEINITILIZEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${xml_data}`
             rechargeETSlogger.info(logetsreq1)
 
             axios(config)
@@ -1495,7 +1493,7 @@ exports.recharge = async (req, res, next) => {
                     var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                     console.log(stringXML);
                     console.log(response.data);
-                    let logetsres1 = `RESPONSE1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(stringXML)}`
+                    let logetsres1 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(stringXML)}`
                     rechargeETSlogger.info(logetsres1)
                     let parser = new DOMParser();
                     let xmlDoc = parser.parseFromString(stringXML, "text/xml");
@@ -1512,7 +1510,7 @@ exports.recharge = async (req, res, next) => {
                             headers: {}
                         };
 
-                        let logetsreq2 = `REQUEST2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${config.url}}`
+                        let logetsreq2 = `RECHARGECONFIRMREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${config.url}}`
                         rechargeETSlogger.info(logetsreq2)
 
                         await axios(config)
@@ -1522,7 +1520,7 @@ exports.recharge = async (req, res, next) => {
                                 console.log(stringXML);
                                 console.log(response.data);
 
-                                let logetsres2 = `RESPONSE2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${stringXML}}`
+                                let logetsres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}}`
                                 rechargeETSlogger.info(logetsres2)
 
                                 let parser = new DOMParser();
@@ -1781,7 +1779,7 @@ exports.recharge = async (req, res, next) => {
                 data: xml_data
             };
 
-            let logdureq = `REQUEST1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${xml_data}`
+            let logdureq = `RECHARGEINITILIZEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${xml_data}`
             rechargeDulogger.info(logdureq)
 
             axios(config)
@@ -1790,7 +1788,7 @@ exports.recharge = async (req, res, next) => {
                     var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                     console.log(stringXML);
                     console.log(response.data);
-                    let logdures = `RESPONSE1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${stringXML}`
+                    let logdures = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}`
                     rechargeDulogger.info(logdures)
                     let parser = new DOMParser();
                     let xmlDoc = parser.parseFromString(stringXML, "text/xml");
@@ -1807,7 +1805,7 @@ exports.recharge = async (req, res, next) => {
                             headers: {}
                         };
 
-                        let logdureq2 = `REQUEST2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${config.url}}`
+                        let logdureq2 = `RECHARGECONFIRMREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${config.url}}`
                         rechargeDulogger.info(logdureq2)
 
                         await axios(config)
@@ -1817,7 +1815,7 @@ exports.recharge = async (req, res, next) => {
                                 console.log(stringXML);
                                 console.log(response.data);
 
-                                let logdures2 = `RESPONSE2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${stringXML}}`
+                                let logdures2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}}`
                                 rechargeDulogger.info(logdures2)
 
                                 let parser = new DOMParser();
@@ -2100,7 +2098,7 @@ exports.recharge = async (req, res, next) => {
                 data: resData
             };
 
-            let logrdreq = `REQUEST1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(resData)}`
+            let logrdreq = `RECHARGEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(resData)}`
             rechargeRDYlogger.info(logrdreq)
 
             const rdyapi = await axios.request(config)
@@ -2116,7 +2114,7 @@ exports.recharge = async (req, res, next) => {
                     "RESPTYPE": "JSON"
                 })
 
-                let logrdres = `RESPONSE1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(rdyapi.data)}`
+                let logrdres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(rdyapi.data)}`
                 rechargeRDYlogger.info(logrdres)
 
                 let config2 = {
@@ -2129,7 +2127,7 @@ exports.recharge = async (req, res, next) => {
                     data: checkData
                 };
 
-                let logrdreq2 = `REQUEST2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(checkData)}`
+                let logrdreq2 = `TRXCHECKREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(checkData)}`
                 rechargeRDYlogger.info(logrdreq2)
 
                 const rdyapi2 = await axios.request(config2)
@@ -2138,7 +2136,7 @@ exports.recharge = async (req, res, next) => {
                     // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
                     const respMsg = `StatusCode: ${rdyapi2.data.STATUSCODE}, StatusMSG: ${rdyapi2.data.STATUSMSG} , REFNO: ${rdyapi2.data.REFNO} , TRNID: ${rdyapi2.data.TRNID} , TRNSTATUS : ${rdyapi2.data.TRNSTATUS} , OPRID : ${rdyapi2.data.OPRID}`
                     // const resp = await saveResponse(respMsg, data.TRNID)
-                    let logrdres2 = `RESPONSE2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(rdyapi2.data)}`
+                    let logrdres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(rdyapi2.data)}`
                     rechargeRDYlogger.info(logrdres2)
                     if (rdyapi2.data.STATUSMSG == "Success") {
                         trx_data = {
@@ -2401,8 +2399,10 @@ exports.recharge = async (req, res, next) => {
             };
 
 
-            let logezlreq = `REQUEST1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(querydata)}`
+            let logezlreq = `RECHARGEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${querydata}`
             rechargeEZLlogger.info(logezlreq)
+            console.log("BILLING REQUEST : ", logezlreq)
+
             const apicall = await axios(config)
             if (apicall) {
                 let trxId = apicall.TransactionId
@@ -2420,11 +2420,19 @@ exports.recharge = async (req, res, next) => {
                     data: trxcheck
                 };
 
-                let logezlres = `RESPONSE1|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(apicall)}`
+                console.log("RESPONSE : ", apicall)
+                console.log("STRINGIFY RESPONSE : ", JSON.stringify(apicall))
+
+                let logezlres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(apicall)}`
                 rechargeEZLlogger.info(logezlres)
 
-                let logezlreq2 = `REQUEST2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(trxcheck)}`
+                console.log(logezlres)
+
+                let logezlreq2 = `TRXCHECKREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${trxcheck}`
                 rechargeEZLlogger.info(logezlreq2)
+
+                console.log("TRX CHECK REQUEST : ", trxcheck)
+                conosole.log(logezlreq2)
 
                 const ezlCheck = await axios(config2)
                 if (ezlCheck) {
@@ -2439,7 +2447,9 @@ exports.recharge = async (req, res, next) => {
                         trx_status = true
                     }
 
-                    let logezlres2 = `RESPONSE2|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}||${JSON.stringify(ezlCheck)}`
+                    console.log("TRX CHECK RESPONSE : ", ezlCheck)
+                    console.log("STRINGIFY RESPONSE : ", JSON.stringify(ezlCheck))
+                    let logezlres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(ezlCheck)}`
                     rechargeEZLlogger.info(logezlres2)
 
                     if (trx_status) {
@@ -2561,8 +2571,6 @@ exports.recharge = async (req, res, next) => {
                         }
                         res.json(apiResp)
                     } else {
-                        let logwr = `REQUEST 1 ----------- \n ${querydata} \n RESPONSE 1 ----------- \n ${apicall} \n REQUEST 2 ----------- \n ${trxcheck} \n RESPONSE 2 ----------- \n ${ezlCheck} \n ${data.username} - ${data.ui_number} - ${data.plan_amount} -${transaction.uuid} - ${api.code} - ${req.get('device')}`
-                        rechargeLivelogger.info(logwr)
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                         const syslog = await db.systemlog.create({
                             type: "Recharge",
