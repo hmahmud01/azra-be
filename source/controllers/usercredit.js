@@ -21,6 +21,7 @@ exports.addCreditInfo = async(req, res, next) => {
 }
 
 exports.creditList = async(req, res, next) => {
+    accessLog.info(`ACCESS USER CREDIT LIST | WEB ADMIN`)
     const credits = await db.usercredit.findAll()
     let list = []
 

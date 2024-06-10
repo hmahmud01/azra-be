@@ -5,6 +5,8 @@ const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 
+const { accessLog } = require("../authsrc/middlewares")
+
 const getPagination = (page, size) => {
     const limit = size? +size : 3;
     const offset = page ? page * limit : 0;
@@ -20,6 +22,7 @@ const getPagingData = (data, page, limit) => {
 }
 
 exports.orgReportSummary = async(req, res, next) => {
+    accessLog.info(`ACCESS REPORT SUMMARY | WEB ADMIN`)
     let earned = 0;
     let success_recharge_count = 0;
     let failed_recharge_count = 0;
@@ -175,6 +178,7 @@ exports.orgReportPaginated = async(req, res, next) => {
 }
 
 exports.orgReport = async(req, res, next) => {
+    accessLog.info(`ACCESS ORGANISATION REPORT | WEB ADMIN`)
     let earned = 0;
     let success_recharge_count = 0;
     let failed_recharge_count = 0;
@@ -337,6 +341,7 @@ exports.trxPaginated = async(req, res, next) => {
 }
 
 exports.allTransactions = async(req, res, next) => {
+    accessLog.info(`ACCESS TRANSACTION LIST | WEB ADMIN`)
     let result = await db.transaction.findAll();
 
     let trx = []
@@ -374,6 +379,7 @@ exports.allTransactions = async(req, res, next) => {
 }
 
 exports.nonRefundedTrx = async(req, res, next) => {
+    accessLog.info(`ACCESS NON REFUNDED TRANSACTION LIST | WEB ADMIN`)
     let result = await db.transaction.findAll({
         where: {
             rechargeStatus: true,
@@ -410,6 +416,7 @@ exports.nonRefundedTrx = async(req, res, next) => {
 }
 
 exports.trxDetail = async(req, res, next) => {
+    accessLog.info(`ACCESS TRANSACTION DETAIL | ${req.params.id} | WEB ADMIN`)
     const tid = req.params.id
     let result = await db.transaction.findOne({
         where: {
@@ -491,6 +498,7 @@ exports.trxDetail = async(req, res, next) => {
 }
 
 exports.filterTrx = async(req, res, next) => {
+    accessLog.info(`ACCESS TRANSACTION FILTER | ${JSON.stringify(req.body)} | WEB ADMIN`)
     const data = req.body
 
     let earned = 0;
@@ -585,6 +593,7 @@ exports.filterTrx = async(req, res, next) => {
 }
 
 exports.allAdjusmtments = async(req, res, next) => {
+    accessLog.info(`ACCESS ALL ADJUSTMENT | WEB ADMIN`)
     const data = []
     const adjustments = await db.transactionadjustments.findAll();
 

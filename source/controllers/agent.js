@@ -261,6 +261,7 @@ function excludeAmount(balance, keys) {
 }
 
 exports.transferData = async(req, res, next) => {
+    accessLog.info("ACCESS TRANSFER DATA")
     let id = req.params.id
 
     const data = await AgentTransaction.findAll({
@@ -287,6 +288,7 @@ function excludeCredit(withdrawal, keys) {
 }
 
 exports.withdrawData = async(req, res, next) => {
+    accessLog.info("ACCESS WITHDRAW DATA")
     console.log(req.params);
     let id = req.params.id
     console.log(id);
@@ -308,6 +310,7 @@ exports.withdrawData = async(req, res, next) => {
 }
 
 exports.percentData = async(req, res, next) => {
+    accessLog.info("ACCESS USER PERCENTAGE DATA")
     console.log(req.params);
     let id = req.params.id
     console.log(id);
@@ -454,6 +457,7 @@ const calculateBalance = async(id) => {
 }
 
 exports.information = async(req, res, next) => {
+    accessLog.info(`INFORMATION ACCESS|${req.params.uuid}`)
     let id = req.params.uuid
     let total_trx = 0
     let total_recharged = 0
@@ -488,6 +492,7 @@ exports.information = async(req, res, next) => {
 }
 
 exports.adjustments = async(req, res, next) => {
+    accessLog.info("ACCESS ADJUSTMENTS TABLE")
     let id = req.params.id
     const adjustments = await TransactionAdjustments.findAll()
 

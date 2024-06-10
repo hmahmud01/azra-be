@@ -21,6 +21,7 @@ exports.setOperatorCode = async(req, res, next) => {
 }
 
 exports.operatorCodeList = async(req, res, next) => {
+    accessLog.info(`ACCES OPERATOR CODE LIST| WEB ADMIN`)
     const operatorcodelist = await db.operatorCode.findAll()
 
     let oclist = []

@@ -163,7 +163,42 @@ exports.addPurchase = async(req, res, next) => {
 exports.collection = async(req, res, next) => {
     accessLog.info(`ACCESS COLLECTION REPORT`)
     console.log("COLLECTION CHECK")
+    let result = []
+    let total_debit = 0
+    let total_credit = 0
+    const data = await db.useramountsettlement.findAll()
+
+    for (let i = 0; i<data.length; i++){
+        let user = ''
+        const profile = await db.userprofile.findOne({
+            where: {
+                userId: data[i].userId
+            }
+        })
+        if (profile) {
+            user = `${profile.f_name} ${profile.l_name}`
+        }else {
+            user = null
+        }
+        let collection = {
+            uuid: data[i].uuid,
+            user: user,
+            userId: data[i].userId,
+            debit: data[i].debit,
+            credit: data[i].credit,
+            note: data[i].note,
+            createdAt: data[i].createdAt
+        }
+
+        result.push(collection)
+        total_debit += data[i].debit
+        total_credit += data[i].credit
+    }
+
+    console.log("outside block : ", result)
     res.json({
-        data: []
+        data: result,
+        total_debit: total_debit,
+        total_credit: total_credit
     })
 }

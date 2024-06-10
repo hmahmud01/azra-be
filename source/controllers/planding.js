@@ -2,7 +2,10 @@ const db = require("../models");
 const { Op } = require('sequelize');
 const Sequelize = require("sequelize");
 
+const { accessLog } = require("../authsrc/middlewares")
+
 exports.createdingplan = async(req, res, next) => {
+    accessLog.info(`CREATE A DING PLAN | ${JSON.stringify(req.body)} | WEB ADMIN`)
     let data = {
         operator: req.body.operator,
         type: req.body.type,
@@ -25,6 +28,7 @@ exports.createdingplan = async(req, res, next) => {
 }
 
 exports.listdingplan = async(req, res, next) => {
+    accessLog.info(`ACCESS DING PLAN LIST | WEB ADMIN`)
     const dingplans = await db.planding.findAll()
 
     let ding = []

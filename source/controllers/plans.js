@@ -31,6 +31,7 @@ exports.createPlan = async(req, res, next) => {
 }
 
 exports.listPlan = async(req, res, next) => {
+    accessLog.info(`ACCESS PLAN LIST | WEB ADMIN`)
     const list = await db.plans.findAll();
     let plans = []
 
@@ -88,6 +89,7 @@ exports.createPlanType = async(req, res, next) => {
 }
 
 exports.listPlanType = async(req, res, next) => {
+    accessLog.info(`ACCESS PLAN TYPE LIST | WEB ADMIN`)
     const types = await db.plantypes.findAll();
 
     let list = []

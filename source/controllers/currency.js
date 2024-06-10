@@ -21,6 +21,7 @@ exports.addCurrency = async(req, res, next) => {
 }
 
 exports.listCurrency = async(req, res, next) => {
+    accessLog.info(`CURRENCY LIST ACCESS | WEB ADMIN`)
     const currency = await db.currency.findAll();
 
     res.json({
@@ -29,6 +30,7 @@ exports.listCurrency = async(req, res, next) => {
 }
 
 exports.findCurrency = async(req, res, next) => {
+    accessLog.info(`FIND CURRENCY| ${req.body.credit_currency} | WEB ADMIN`)
     const data = req.body.credit_currency
 
     const currency = await db.currency.findOne({

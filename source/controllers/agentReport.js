@@ -2,6 +2,7 @@
 // const prisma = new PrismaClient();
 
 // import calculator from './agentReportCalculators.js';
+const { accessLog } = require("../authsrc/middlewares")
 
 const db = require("../models")
 const User = db.user;
@@ -93,7 +94,7 @@ exports.findAgentReport = async(req, res, next) => {
 
 
 exports.agentReport = async(req, res, next) => {
-
+    accessLog.info("ACCESS AGENT REPORT | WEB ADMIN")
     let dueval = 0
     let saleval = 0
     let earnval = 0
@@ -143,6 +144,7 @@ exports.agentReport = async(req, res, next) => {
 }
 
 exports.agentProfileReport = async(req, res, next) => {
+    accessLog.info("ACCESS AGENT PROFILE | WEB ADMIN")
     let dueval = 0
     let saleval = 0
     let earnval = 0
@@ -205,6 +207,7 @@ exports.agentProfileReport = async(req, res, next) => {
 }
 
 exports.agentRecharge = async(req, res, next) => {
+    accessLog.info("ACCESS AGENT RECHARGE REPORT | WEB ADMIN")
     const uid = req.params.uid
     let result = []
     res.status(200).json({
@@ -213,6 +216,7 @@ exports.agentRecharge = async(req, res, next) => {
 }
 
 exports.agentDues = async(req, res, next) => {
+    accessLog.info("ACCESS AGENT DUES REPORT | WEB ADMIN")
     const uid = req.params.id
     let due = await calculator.calculateDue(uid);
     const dues = await UserAmountSettlement.findAll({
@@ -227,6 +231,7 @@ exports.agentDues = async(req, res, next) => {
 }
 
 exports.agentSale = async(req, res, next) => {
+    accessLog.info("ACCESS AGENT SALES REPORT | WEB ADMIN")
     const uid = req.params.id
     let sale = await calculator.calculateSale(uid)
     const trx = await Transaction.findAll({
@@ -241,6 +246,7 @@ exports.agentSale = async(req, res, next) => {
 }
 
 exports.agentEarning = async(req, res, next) => {
+    accessLog.info("ACCESS AGENT EARNING REPORT | WEB ADMIN")
     const uid = req.params.id
     let earn = await calculator.calculateEarning(uid)
     const earning = await AgentEarning.findAll({
@@ -255,6 +261,7 @@ exports.agentEarning = async(req, res, next) => {
 }
 
 exports.agentBalance = async(req, res, next) => {
+    accessLog.info("ACCESS AGENT BALANCE REPORT | WEB ADMIN")
     const uid = req.params.id
     let balance = await calculator.calculateBalance(uid)
     const atrx = await AgentTransaction.findAll(

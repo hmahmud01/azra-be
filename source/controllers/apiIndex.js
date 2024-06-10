@@ -184,6 +184,7 @@ exports.assingPercentage = async (req, res, next) => {
 }
 
 exports.apiPriorityData = async (req, res, next) => {
+    accessLog.info("ACCESS API PRIORITY REPORT | WEB ADMIN")
     console.log("inside priority Data");
     let data = []
     let result = await ApiCountryPriority.findAll();
@@ -212,6 +213,7 @@ exports.apiPriorityData = async (req, res, next) => {
 }
 
 exports.apiPercentageData = async (req, res, next) => {
+    accessLog.info("ACCESS API PERCENTAGE REPORT | WEB ADMIN")
     console.log("inside Percentage Data");
     let data = []
     let result = await ApiPercent.findAll();
@@ -239,6 +241,7 @@ exports.apiPercentageData = async (req, res, next) => {
 
 
 exports.updatePercentage = async (req, res, next) => {
+    accessLog.info(`ACCESS API PERCENTAGE UPDATE | ${req.body.id} | WEB ADMIN`)
     const percent = await ApiPercent.update(
         {
         percent: req.body.percentage,
@@ -255,6 +258,7 @@ exports.updatePercentage = async (req, res, next) => {
 }
 
 exports.updatePriority = async (req, res, next) => {
+    accessLog.info(`ACCESS API PRIORITY UPDATE | ${req.body.id} | WEB ADMIN`)
     const priority = await ApiCountryPriority.update(
         {
             priority: req.body.priority

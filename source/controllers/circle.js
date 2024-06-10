@@ -5,6 +5,7 @@ const Sequelize = require('sequelize')
 const { accessLog } = require("../authsrc/middlewares")
 
 exports.createCircle = async(req, res, next) => {
+    accessLog.info(`CREATE CIRCLE | ${req.body}`)
     let data = {
         name : req.body.name,
         code: req.body.code

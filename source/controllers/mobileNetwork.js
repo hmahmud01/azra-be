@@ -129,6 +129,7 @@ exports.mobileSetting = async(req, res, next) => {
 
 exports.findMobileSetting = async(req, res, next) => {
     let id = req.params.id;
+    accessLog.info(`FIND A MOBILE SETTING | ${id} | WEB ADMIN`)
 
     const setting = await Setting.findOne({
         where: {
@@ -142,6 +143,7 @@ exports.findMobileSetting = async(req, res, next) => {
 }
 
 exports.mobileSettingList = async(req, res, next) => {
+    accessLog.info(`ACCESS MOBILE SETTING LIST | WEB ADMIN`)
     const settinglist = await Setting.findAll()
 
     let list = []
