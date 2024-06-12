@@ -3,6 +3,9 @@ const winston = require("winston");
 const { approveTransfer } = require("../controllers/balanceTransfer");
 const timestampFormat = 'MMM-DD-YYYY HH:mm:ss';
 
+const fs = require('fs');
+let today = new Date().toISOString().split('T')[0]
+
 function isAuthenticated(req, res, next) {
   const { authorization } = req.headers;
 
@@ -26,8 +29,52 @@ function isAuthenticated(req, res, next) {
   return next();
 }
 
+function LogLater(filename, noduplicates, interval) {
+    this.filename = filename || 'logs/LOG-'+( new Date().toISOString().slice(0,10) )+'.log';
+    this.arr = [];
+    this.timeout = false;
+    this.interval = interval || 1000;
+    this.noduplicates = noduplicates || true;
+    this.onsavetimeout_bind = this.onsavetimeout.bind(this);
+    this.lasttext = "";
+    process.on('exit',()=>{ if(this.timeout)clearTimeout(this.timeout);this.timeout=false; this.save(); })
+}
 
-let today = new Date().toISOString().split('T')[0]
+LogLater.prototype = {
+    log: function log(text) {
+        this.arr.push(text);
+        if (!this.timeout) this.timeout = setTimeout(this.onsavetimeout_bind, this.interval);
+    },
+    text: function log(text, loglastline) {
+        if (this.noduplicates) {
+            if (this.lasttext === text) return;
+            this.lastline = text;
+        }
+        this._log(text);
+    },
+    line: function log(text, loglastline) {
+        if (this.noduplicates) {
+            if (this.lasttext === text) return;
+            this.lastline = text;
+        }
+        this._log(text + '\r\n');
+    },
+    dateline: function dateline(text) {
+        if (this.noduplicates) {
+            if (this.lasttext === text) return;
+            this.lastline = text;
+        }
+        this._log(new Date().toLocaleString('en-BN', { timeZone: 'Asia/Dhaka' }).toString() + ' : ' + text + '\r\n');
+    },
+    onsavetimeout: function onsavetimeout() {
+        this.timeout = false;
+        this.save();
+    },
+    save: function save() { fs.appendFile(this.filename, this.arr.splice(0, this.arr.length).join(''), function(err) { if (err) console.log(err.stack) }); }
+}
+
+// module.exports = ;
+
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
@@ -233,5 +280,6 @@ module.exports = {
   rechargeRDYlogger,
   rechargeEZLlogger,
   numberLockLogger,
-  accessLog
+  accessLog,
+  LogLater
 }

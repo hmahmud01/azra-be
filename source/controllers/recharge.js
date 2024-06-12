@@ -8,7 +8,19 @@ const { DOMParser } = require('xmldom')
 
 const rechargeModule = require('./recharge_module');
 const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares');
+const LogLater = require('../authsrc/logger');
 const e = require("express");
+
+var dateFormat = require('dateformat');
+var asiaTime = new Date().toLocaleString('en-BN', { timeZone: 'Asia/Dhaka' });
+var log_date = dateFormat(asiaTime, "yyyy-mm-dd");
+
+
+var log_dir = `./logs/recharge-logs/`;
+var callback_log = new LogLater(`${log_dir}/-${log_date}.log`);
+
+
+
 
 // PAKISTAN OPERATOR CONSTANTS FOR EZLOAD
 const UFONE = "Ufone"
@@ -82,6 +94,16 @@ exports.availableCountry = async (req, res, next) => {
 }
 
 exports.ezltry = async(req, res, next) => {
+    // logger.info("checking")
+    // rechargeDulogger.info("CHECKING du")
+    // rechargeETSlogger.info("CHECKING ets")
+    // rechargeEZLlogger.info("CHECKING ezl")
+    // rechargeLivelogger.info("CHECKING live")
+    // rechargeRDYlogger.info("CHECKING rdy")
+    // numberLockLogger.info('checking number lock')
+    // accessLog.info("CHECKING access")
+    callback_log.dateline(`TESTING CUSTOM LOG`);
+
     const apiUrl = "https://payments-central.com/api/User/Transaction"
     const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
     var querydata = JSON.stringify({
@@ -1054,7 +1076,7 @@ const saleReport = async (data) => {
 
 
 exports.recharge = async (req, res, next) => {
-    // accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
+    accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
     let data = {
         username: req.body.username,
         sub_operator_code: req.body.sub_operator_code,
@@ -1177,7 +1199,7 @@ exports.recharge = async (req, res, next) => {
             request_endtime: null
         }
         let lockinfo = `LOCKEDSTATUS: ${mobile}|LOCKED|${api.code}|RECHARGEFAILED`
-        numberLockLogger.info()
+        numberLockLogger.info(lockinfo)
 
         res.json(apiResp)
 
@@ -1247,7 +1269,7 @@ exports.recharge = async (req, res, next) => {
         })
 
         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT LOCKED|${api.code}|RECHARGEINITIATED`
-        numberLockLogger.info()
+        numberLockLogger.info(lockinfo)
 
         let balanceData = {
             username: data.username,
@@ -1378,7 +1400,7 @@ exports.recharge = async (req, res, next) => {
                         console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                         console.log("Add a entry of success recharge balance and adjust the agents real balance");
                         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
-                        numberLockLogger.info()
+                        numberLockLogger.info(lockinfo)
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                         const percent = await db.agentpercentage.findOne({
@@ -1504,7 +1526,7 @@ exports.recharge = async (req, res, next) => {
                         console.log("Balance Unavailable");
 
                         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
-                        numberLockLogger.info()
+                        numberLockLogger.info(lockinfo)
                         apiResp = {
                             status: "failed",
                             balance: userbalance,
@@ -1670,7 +1692,7 @@ exports.recharge = async (req, res, next) => {
                                     console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                                     console.log("Balance Unavailable");
                                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
-                                    numberLockLogger.info()
+                                    numberLockLogger.info(lockinfo)
                                     apiResp = {
                                         status: "failed",
                                         balance: userbalance,
@@ -1752,7 +1774,7 @@ exports.recharge = async (req, res, next) => {
                                     console.log("Add a entry of success recharge balance and adjust the agents real balance");
 
                                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
-                                    numberLockLogger.info()
+                                    numberLockLogger.info(lockinfo)
                                     // TODO
                                     // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                                     const percent = await db.agentpercentage.findOne({
@@ -1968,7 +1990,7 @@ exports.recharge = async (req, res, next) => {
                                     console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                                     console.log("Balance Unavailable");
                                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
-                                    numberLockLogger.info()
+                                    numberLockLogger.info(lockinfo)
                                     apiResp = {
                                         status: "failed",
                                         balance: userbalance,
@@ -2054,7 +2076,7 @@ exports.recharge = async (req, res, next) => {
                                     console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                                     console.log("Add a entry of success recharge balance and adjust the agents real balance");
                                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
-                                    numberLockLogger.info()
+                                    numberLockLogger.info(lockinfo)
                                     // TODO
                                     // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                                     const percent = await db.agentpercentage.findOne({
@@ -2282,7 +2304,7 @@ exports.recharge = async (req, res, next) => {
                         console.log("Add a entry of success recharge balance and adjust the agents real balance");
 
                         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
-                        numberLockLogger.info()
+                        numberLockLogger.info(lockinfo)
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                         const percent = await db.agentpercentage.findOne({
@@ -2409,7 +2431,7 @@ exports.recharge = async (req, res, next) => {
                         console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                         console.log("Balance Unavailable");
                         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
-                        numberLockLogger.info()
+                        numberLockLogger.info(lockinfo)
                         apiResp = {
                             status: "failed",
                             balance: userbalance,
@@ -2606,7 +2628,7 @@ exports.recharge = async (req, res, next) => {
                         console.log("API TRX CREATED > NUMBER UNLOCKED > BALANCE UNLOCKED > RECORD CREATED");
                         console.log("Add a entry of success recharge balance and adjust the agents real balance");
                         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
-                        numberLockLogger.info()
+                        numberLockLogger.info(lockinfo)
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                         const percent = await db.agentpercentage.findOne({
@@ -2731,7 +2753,7 @@ exports.recharge = async (req, res, next) => {
                         console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
                         console.log("Balance Unavailable");
                         let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
-                        numberLockLogger.info()
+                        numberLockLogger.info(lockinfo)
                         apiResp = {
                             status: "failed",
                             balance: userbalance,
