@@ -209,7 +209,7 @@ exports.orderHistory = async(req, res, next) => {
                 service_type: service_type,
                 sub_operator_code: sub_operator_code,
                 sub_operator_name: sub_operator_name,
-                operator_reference: operatorcode.id.toString(),
+                operator_reference: operatorcode.uuid,
                 plan_description: plan_description
             }
             // console.log("USER TRX HISTORY")
@@ -272,7 +272,7 @@ exports.orderHistory = async(req, res, next) => {
     // console.log(history)
 
     res.json({
-        order_history: history
+        order_history: history.reverse()
     })
 }
 
@@ -465,6 +465,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
 }
 
 exports.sendBalanceToSales = async(req, res, next) => {
+    accessLog.info(`${req.body.provider_name}|BALANCETRANSFER|${req.body.customer_name}|${req.body.requested_amount}`)
     const transfer = await db.agenttransferrequest.create({
         customer_name: req.body.customer_name,
         provider_name: req.body.provider_name,

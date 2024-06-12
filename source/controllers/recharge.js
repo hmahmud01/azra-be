@@ -10,6 +10,13 @@ const rechargeModule = require('./recharge_module');
 const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares');
 const e = require("express");
 
+const UFONE = "Ufone"
+const WARID = "Warid"
+const ZONG = "Zong"
+const TELENOR = "Telenor"
+const JAZZ = "Jazz"
+const MOBILINK = "Mobilink"
+
 exports.availableCountry = async (req, res, next) => {
     accessLog.info(`ACCESS AVAILABLE COUNTRY|${JSON.stringify(req.body)}`)
     let data = {
@@ -2437,11 +2444,27 @@ exports.recharge = async (req, res, next) => {
 
         } else if (api.code == "EZL") {
             console.log("=========\nEZL CONNECTE\n===========");
+            let serviceId = 0
 
             const apiUrl = "https://payments-central.com/api/User/Transaction"
             const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
 
-            const phonenumber = data.prefix + data.ui_number
+            // const phonenumber = data.prefix + data.ui_number
+            const phonenumber = data.ui_number
+
+            if (network.name == WARID){
+                serviceId = 19
+            }else if (network.name == MOBILINK){
+                serviceId = 17
+            }else if (network.name == JAZZ){
+                serviceId = 17
+            }else if (network.name == TELENOR){
+                serviceId = 18
+            }else if (network.name == ZONG){
+                serviceId = 20
+            }else if (network.name == UFONE){
+                serviceId = 16
+            }
 
             // phonenumber can be with prefix or not
             const send_data = {
@@ -2456,7 +2479,7 @@ exports.recharge = async (req, res, next) => {
 
             var querydata = JSON.stringify({
                 "SessionId": "aaead679d0aa42acbc43a62a154279a2",
-                "ServiceId": 3,
+                "ServiceId": serviceId,
                 "Input": {
                     "Amount": parseInt(req.body.plan_amount),
                     "PhoneNumber": phonenumber
@@ -2474,7 +2497,7 @@ exports.recharge = async (req, res, next) => {
             };
 
 
-            let logezlreq = `RECHARGEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${querydata}`
+            let logezlreq = `RECHARGEREQUEST|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${querydata}`
             rechargeEZLlogger.info(logezlreq)
             console.log("BILLING REQUEST : ", logezlreq)
 
@@ -2498,12 +2521,12 @@ exports.recharge = async (req, res, next) => {
                 console.log("RESPONSE : ", apicall.data)
                 console.log("STRINGIFY RESPONSE : ", JSON.stringify(apicall.data))
 
-                let logezlres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(apicall.data)}`
+                let logezlres = `RESPONSE|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${JSON.stringify(apicall.data)}`
                 rechargeEZLlogger.info(logezlres)
 
                 console.log(logezlres)
 
-                let logezlreq2 = `TRXCHECKREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${trxcheck}`
+                let logezlreq2 = `TRXCHECKREQUEST|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${trxcheck}`
                 rechargeEZLlogger.info(logezlreq2)
 
                 console.log("TRX CHECK REQUEST : ", trxcheck)
@@ -2524,7 +2547,7 @@ exports.recharge = async (req, res, next) => {
 
                     console.log("TRX CHECK RESPONSE : ", ezlCheck.data)
                     console.log("STRINGIFY RESPONSE : ", JSON.stringify(ezlCheck.data))
-                    let logezlres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(ezlCheck.data)}`
+                    let logezlres2 = `RESPONSE|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${JSON.stringify(ezlCheck.data)}`
                     rechargeEZLlogger.info(logezlres2)
 
                     if (trx_status) {
