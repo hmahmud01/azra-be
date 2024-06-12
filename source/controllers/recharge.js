@@ -10,6 +10,7 @@ const rechargeModule = require('./recharge_module');
 const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares');
 const e = require("express");
 
+// PAKISTAN OPERATOR CONSTANTS FOR EZLOAD
 const UFONE = "Ufone"
 const WARID = "Warid"
 const ZONG = "Zong"

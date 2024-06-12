@@ -317,7 +317,7 @@ module.exports = app => {
     })
 
     authRoute.post('/applogin', async(req,res,next) => {
-        accessLog.info(`${username}|LOGIN API FROM APP|DEVICE : ${req.get('device')}`)
+        accessLog.info(`${req.body.username}|LOGIN API FROM APP|DEVICE : ${req.get('device')}`)
         
         // try {
             const device_id = req.get('device')
