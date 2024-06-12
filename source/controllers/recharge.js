@@ -7,7 +7,7 @@ const axios = require('axios');
 const { DOMParser } = require('xmldom')
 
 const rechargeModule = require('./recharge_module');
-const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares');
+
 const LogLater = require('../authsrc/logger');
 const e = require("express");
 
@@ -94,6 +94,7 @@ exports.availableCountry = async (req, res, next) => {
 }
 
 exports.ezltry = async(req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     // logger.info("checking")
     // rechargeDulogger.info("CHECKING du")
     // rechargeETSlogger.info("CHECKING ets")
@@ -101,8 +102,8 @@ exports.ezltry = async(req, res, next) => {
     // rechargeLivelogger.info("CHECKING live")
     // rechargeRDYlogger.info("CHECKING rdy")
     // numberLockLogger.info('checking number lock')
-    // accessLog.info("CHECKING access")
-    callback_log.dateline(`TESTING CUSTOM LOG`);
+    accessLog.info("CHECKING access NOTHING")
+    // callback_log.dateline(`TESTING CUSTOM LOG`);
 
     const apiUrl = "https://payments-central.com/api/User/Transaction"
     const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
@@ -632,6 +633,7 @@ exports.opptest = async (req, res, next) => {
 }
 
 exports.plans = async (req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     let service_code = req.body.service_code
     let country_code = req.body.country_code
     let circle_code = req.body.circle_code
@@ -702,6 +704,7 @@ exports.plans = async (req, res, next) => {
 }
 
 exports.operators = async (req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     let data = { "country_code": "BD", "service_code": "MR" }
 
     let country_code = req.body.country_code
@@ -768,7 +771,7 @@ exports.operators = async (req, res, next) => {
 }
 
 exports.operatorCheck = async (req, res, next) => {
-
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     try {
 
         let service_code = req.body.service_code
@@ -823,6 +826,7 @@ exports.operatorCheck = async (req, res, next) => {
 }
 
 exports.BalanceTransfer = async (req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     let customer = req.body.username_customer
     let amount = req.body.amount
     let narration = req.body.narration
@@ -859,6 +863,7 @@ exports.BalanceTransfer = async (req, res, next) => {
 }
 
 exports.userPortalBalance = async (username) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     let mainBalance = 0.00;
     console.log(username)
     const user = await db.user.findOne({
@@ -900,6 +905,7 @@ exports.userPortalBalance = async (username) => {
 }
 
 exports.userGetPortalBalance = async (req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     accessLog.info(`GET PORTAL BALANCE|${JSON.stringify(req.body)}`)
     let username = req.body.username
     // let mainBalance = 0.00;
@@ -947,6 +953,7 @@ exports.userGetPortalBalance = async (req, res, next) => {
 }
 
 exports.confirmRecharge = async (req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     let username = req.body.username
     let plan_amount = req.body.plan_amount
     let plan_id = req.body.plan_id
@@ -1076,6 +1083,7 @@ const saleReport = async (data) => {
 
 
 exports.recharge = async (req, res, next) => {
+    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
     let data = {
         username: req.body.username,
