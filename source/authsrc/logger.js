@@ -35,7 +35,7 @@ LogLater.prototype = {
             if (this.lasttext === text) return;
             this.lastline = text;
         }
-        this._log(text);
+        this._log(new Date().toLocaleString('en-BN', { timeZone: 'Asia/Dhaka' }).toString() + ' : ' + text + '\r\n');
     },
     onsavetimeout: function onsavetimeout() {
         this.timeout = false;
