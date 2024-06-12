@@ -1054,7 +1054,7 @@ const saleReport = async (data) => {
 
 
 exports.recharge = async (req, res, next) => {
-    accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
+    // accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
     let data = {
         username: req.body.username,
         sub_operator_code: req.body.sub_operator_code,
