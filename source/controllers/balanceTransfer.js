@@ -707,11 +707,11 @@ exports.getUserOutstanding = async(req, res, next) => {
 
 exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
-    accessLog.info(`CASH WITHDRAWAL|${JSON.stringify(req.body)}`)
+    accessLog.info(`CASH WITHDRAWAL|${req.body}`)
     console.log("REQ BODY : ", req.body, req)
-    console.log("REQ BODY DATA : ", req.body.data)
+    console.log("REQ BODY DATA : ", req.body)
     // let parsed_data = JSON.parse(req.body.data)
-    let parsed_data = req.body.data
+    let parsed_data = req.body
     console.log("PARSED JSON : ", parsed_data)
     let id = parsed_data.uuid
 
