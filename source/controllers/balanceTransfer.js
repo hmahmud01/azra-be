@@ -709,20 +709,20 @@ exports.getUserOutstanding = async(req, res, next) => {
 exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
     console.log(req.body)
-    accessLog.info(`CASH WITHDRAWAL|${JSON.parse(req.body)}`)
-    console.log("PARSED DATA : ", JSON.parse(req.body.data))
-    console.log("REQ BODY : ", req.body, req)
-    console.log("REQ BODY DATA : ", req.body.data)
+    accessLog.info(`CASH WITHDRAWAL|${req.body}`)
+    // console.log("PARSED DATA : ", req.body.data)
+    console.log("REQ BODY : ", req.body)
+    // console.log("REQ BODY DATA : ", req.body.data)
     // let parsed_data = JSON.parse(req.body.data)
-    let parsed_data = req.body.data
+    let parsed_data = req.body
     console.log("PARSED JSON : ", parsed_data)
     let id = parsed_data.uuid
 
     console.log("UUID FROM REQUEST : ", id)
-    console.log("COLLECTION DATA : ", parsed_data.collection_data)
-    console.log("COLLECTION DATA RECEIVED AMOUNT VALUE : ", parsed_data.collection_data[0].received_amount)
-    console.log("COLLECTION DATA FLOAT CONVERTED VALUE: ", parseFloat(parsed_data.collection_data[0].received_amount))
-    let debit = parseFloat(parsed_data.collection_data[0].received_amount)
+    console.log("COLLECTION DATA : ", parsed_data.total_received)
+    // console.log("COLLECTION DATA RECEIVED AMOUNT VALUE : ", parsed_data.collection_data[0].received_amount)
+    // console.log("COLLECTION DATA FLOAT CONVERTED VALUE: ", parseFloat(parsed_data.collection_data[0].received_amount))
+    let debit = parseFloat(parsed_data.total_received)
     console.log(debit)
 
     const settlement = await db.useramountsettlement.create({
@@ -739,7 +739,7 @@ exports.cashWithdrawal = async(req, res, next) => {
         type: "Withdrawal",
         detail: logmsg
     })
-    var msg = `${parsed_data.username_reseller} - ${parsed_data.collection_data[0].received_amount} - ${parsed_data.collection_data[0].username_sub_customer} - ${settlement.uuid} [useramountsettlement] - APP`
+    var msg = `${parsed_data.username_reseller} - ${parsed_data.total_received} - ${parsed_data.username_sub_customer} - ${settlement.uuid} [useramountsettlement] - APP`
     withdrawlogger.info(msg)
 
     res.json({
