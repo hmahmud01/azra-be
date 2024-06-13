@@ -709,9 +709,9 @@ exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
     accessLog.info(`CASH WITHDRAWAL|${req.body}`)
     console.log("REQ BODY : ", req.body, req)
-    console.log("REQ BODY DATA : ", req.body)
+    console.log("REQ BODY DATA : ", req.body.data)
     // let parsed_data = JSON.parse(req.body.data)
-    let parsed_data = req.body
+    let parsed_data = req.body.data
     console.log("PARSED JSON : ", parsed_data)
     let id = parsed_data.uuid
 
