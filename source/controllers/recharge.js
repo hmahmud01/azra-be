@@ -905,7 +905,7 @@ exports.userPortalBalance = async (username) => {
 }
 
 exports.userGetPortalBalance = async (req, res, next) => {
-    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
+    const { accessLog } = require('../authsrc/middlewares.js');
     accessLog.info(`GET PORTAL BALANCE|${JSON.stringify(req.body)}`)
     let username = req.body.username
     // let mainBalance = 0.00;

@@ -130,7 +130,7 @@ exports.revenueReport = async(req, res, next) => {
 }
 
 exports.addPurchase = async(req, res, next) => {
-    accessLog.info(`ADD PURCHASE ENTRY|${req.body}`)
+    accessLog.info(`ADD PURCHASE ENTRY|${JSON.stringify(req.body)}`)
     let data = req.body
     console.log(data)
     let dist = data.dist
