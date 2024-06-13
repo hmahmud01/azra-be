@@ -581,6 +581,7 @@ exports.resellerBalanceTransfer = async(req, res, next) => {
 exports.balanceTransferSubReseller = async(req, res, next) =>{
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
     accessLog.info(`SUB RESELLER BALANCE TRANSFER|${JSON.stringify(req.body)}`)
+    const portalBalance = await rechargeModule.userPortalBalance(req.body.username_reseller)
     let dt = {"username_reseller":"01646442322","username_sub_customer":"01646442323","voucher_date":"2023-9-14","amount":"100","narration":"","transfer_type":"credit"}
     // TODO
     // DO A PORTAL BALANCE CHECK HERE
@@ -708,7 +709,8 @@ exports.getUserOutstanding = async(req, res, next) => {
 exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
     console.log(req.body)
-    accessLog.info(`CASH WITHDRAWAL|${req.body}`)
+    accessLog.info(`CASH WITHDRAWAL|${JSON.parse(req.body)}`)
+    console.log("PARSED DATA : ", JSON.parse(req.body.data))
     console.log("REQ BODY : ", req.body, req)
     console.log("REQ BODY DATA : ", req.body.data)
     // let parsed_data = JSON.parse(req.body.data)
