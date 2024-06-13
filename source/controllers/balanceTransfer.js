@@ -710,6 +710,18 @@ exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
     console.log(req.body)
     accessLog.info(`CASH WITHDRAWAL|${req.body}`)
+    try{
+        console.log("PARSED ", JSON.parse(req.body))
+        let data = JSON.parse(req.body)
+        console.log("PARSED UUID : ", data.uuid)
+    }catch{
+        console.log("STRINGIFY ", JSON.stringify(req.body))
+        let data = JSON.stringify(req.body)
+        console.log("STRINGIFY UUID : ", data.uuid)
+    }
+    console.log("PARSED ", JSON.parse(req.body))
+    
+    console.log(JSON.parse(req.body))
     // console.log("PARSED DATA : ", req.body.data)
     console.log("REQ BODY : ", req.body)
     // console.log("REQ BODY DATA : ", req.body.data)
