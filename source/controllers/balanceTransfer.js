@@ -707,6 +707,7 @@ exports.getUserOutstanding = async(req, res, next) => {
 
 exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
+    console.log(req.body)
     accessLog.info(`CASH WITHDRAWAL|${req.body}`)
     console.log("REQ BODY : ", req.body, req)
     console.log("REQ BODY DATA : ", req.body.data)
