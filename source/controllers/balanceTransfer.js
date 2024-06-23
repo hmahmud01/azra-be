@@ -709,7 +709,7 @@ exports.getUserOutstanding = async(req, res, next) => {
 exports.cashWithdrawal = async(req, res, next) => {
     const { transferlogger, transferApprovallogger, transferDeclinelogger, withdrawlogger, accessLog } = require("../authsrc/middlewares")
     console.log(req.body)
-    accessLog.info(`CASH WITHDRAWAL|${req.body}`)
+    accessLog.info(`CASH WITHDRAWAL|${JSON.stringify(req.body)}`)
     try{
         console.log("PARSED ", JSON.parse(req.body))
         let data = JSON.parse(req.body)
@@ -719,16 +719,14 @@ exports.cashWithdrawal = async(req, res, next) => {
         let data = JSON.stringify(req.body)
         console.log("STRINGIFY UUID : ", data.uuid)
     }
-    console.log("PARSED ", JSON.parse(req.body))
     
-    console.log(JSON.parse(req.body))
-    // console.log("PARSED DATA : ", req.body.data)
-    console.log("REQ BODY : ", req.body)
-    // console.log("REQ BODY DATA : ", req.body.data)
-    // let parsed_data = JSON.parse(req.body.data)
+    // console.log(JSON.parse(req.body))
+    // console.log("REQ BODY : ", req.body)
     let parsed_data = req.body
     console.log("PARSED JSON : ", parsed_data)
     let id = parsed_data.uuid
+
+    // {"uuid":"78a9f314-5346-4a3f-b58b-8df03ede6616","username_reseller":"01646442322","voucher_date":"2024-6-23","total_received":"40","narration":"adads","collection_data":{"username_sub_customer":"mazhar","username_sub_reseller":"","received_amount":"40"}}
 
     console.log("UUID FROM REQUEST : ", id)
     console.log("COLLECTION DATA : ", parsed_data.total_received)
@@ -751,7 +749,7 @@ exports.cashWithdrawal = async(req, res, next) => {
         type: "Withdrawal",
         detail: logmsg
     })
-    var msg = `${parsed_data.username_reseller} - ${parsed_data.total_received} - ${parsed_data.username_sub_customer} - ${settlement.uuid} [useramountsettlement] - APP`
+    var msg = `${parsed_data.username_reseller} - ${parsed_data.total_received} - ${parsed_data.collection_data.username_sub_customer} - ${settlement.uuid} [useramountsettlement] - APP`
     withdrawlogger.info(msg)
 
     res.json({

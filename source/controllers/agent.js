@@ -303,6 +303,8 @@ exports.withdrawData = async(req, res, next) => {
     console.log(`inside data withdraw for ${id}`)
     console.log(dataRe)
 
+    console.log("DATA WITHDRAW :", dataRe )
+
     res.status(200).json({
         message: dataRe
     })
