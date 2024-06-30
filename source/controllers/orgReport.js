@@ -498,6 +498,7 @@ exports.trxDetail = async(req, res, next) => {
 }
 
 exports.filterTrx = async(req, res, next) => {
+    console.log("FILTER TRX ACCESED")
     accessLog.info(`ACCESS TRANSACTION FILTER | ${JSON.stringify(req.body)} | WEB ADMIN`)
     const data = req.body
 
@@ -505,6 +506,8 @@ exports.filterTrx = async(req, res, next) => {
     let success_recharge_count = 0;
     let failed_recharge_count = 0;
     let total_sales = 0;
+    let refunded_profit = 0;
+    let refund_sales = 0;
     let earned_record = []
 
     console.log("time data : ", data)
@@ -518,7 +521,7 @@ exports.filterTrx = async(req, res, next) => {
         }
     });
 
-    const refunds = await db.transactionadjusments.findAll({
+    const refunds = await db.transactionadjustments.findAll({
         where: {
             createdAt: {
                 [Op.lte]: new Date(data.end_date),

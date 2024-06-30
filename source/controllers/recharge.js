@@ -93,31 +93,24 @@ exports.availableCountry = async (req, res, next) => {
     res.json(data)
 }
 
-exports.ezltry = async(req, res, next) => {
+exports.ezltry = async (req, res, next) => {
     const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
-    // logger.info("checking")
-    // rechargeDulogger.info("CHECKING du")
-    // rechargeETSlogger.info("CHECKING ets")
-    // rechargeEZLlogger.info("CHECKING ezl")
-    // rechargeLivelogger.info("CHECKING live")
-    // rechargeRDYlogger.info("CHECKING rdy")
-    // numberLockLogger.info('checking number lock')
     accessLog.info("CHECKING access NOTHING")
-    // callback_log.dateline(`TESTING CUSTOM LOG`);
 
     const apiUrl = "https://payments-central.com/api/User/Transaction"
     const checkUrl = "https://payments-central.com/api/User/TransactionCheck"
+
     var querydata = JSON.stringify({
         "SessionId": "aaead679d0aa42acbc43a62a154279a2",
-        "ServiceId": 3,
+        "ServiceId": 17,
         "Input": {
-            "Amount": 20,
-            "PhoneNumber": "923184471353"
+            "Amount": 100,
+            "PhoneNumber": "3089304456"
         },
-        "Reference": "EZL-2"
+        "Reference": "EZL-6272024-001"
     });
 
-    
+
     var config = {
         method: 'post',
         url: apiUrl,
@@ -129,7 +122,7 @@ exports.ezltry = async(req, res, next) => {
 
     const apicall = await axios(config)
 
-    if(apicall){
+    if (apicall) {
         let trxId = apicall.TransactionId
         console.log(apicall.data.TransactionId, apicall.TransactionId)
         console.log(JSON.stringify(apicall.data))
@@ -148,18 +141,82 @@ exports.ezltry = async(req, res, next) => {
         };
 
         const ezlCheck = await axios(config2)
-        console.log(ezlCheck)
-        if(ezlCheck){
+
+        if (ezlCheck) {
             console.log(JSON.stringify(ezlCheck.data))
+            console.log("EZL CHECK 1st call")
             console.log(ezlCheck.data.TransactionStatusName)
+
+            if (ezlCheck.data.TransactionStatusName == "Initial") {
+                console.log("INITIAL CHECK FIRST IF LOOP")
+                const initialCheck = await axios(config2)
+                if (initialCheck) {
+                    if (initialCheck.data.TransactionStatusName == "Processing") {
+                        console.log("PROCESSING CHECK INSIDE INITIAL LOOP")
+                        const processingCheck1 = await axios(config2)
+                        if (processingCheck1) {
+                            console.log("SUCCESS CHECK CHECKIN > PROCESSING > INITIAL")
+                            if (processingCheck1.data.TransactionStatusName == "Successful") {
+                                // trx_data = {
+                                //     transactionId: transaction.uuid,
+                                //     apiId: api.uuid
+                                // }
+                                // trx_api_id = api.uuid
+                                // trx_status = true
+                            }
+                        }
+                    } else if (initialCheck.data.TransactionStatusName == "Successful") {
+                        console.log("SUCCESS > INITIAL")
+                        // trx_data = {
+                        //     transactionId: transaction.uuid,
+                        //     apiId: api.uuid
+                        // }
+                        // trx_api_id = api.uuid
+                        // trx_status = true
+                    }
+                }
+
+            } else if (ezlCheck.data.TransactionStatusName == "Processing") {
+                console.log("PROCESSING CHECK 2ND IF")
+                const processingCheck = await axios(config2)
+                if (processingCheck) {
+                    console.log("SUCCESS CHECKIN > PROCESSING")
+                    if (processingCheck.data.TransactionStatusName == "Successful") {
+                        //     trx_data = {
+                        //         transactionId: transaction.uuid,
+                        //         apiId: api.uuid
+                        //     }
+                        //     trx_api_id = api.uuid
+                        //     trx_status = true
+                        // }
+                    }
+                } else if (ezlCheck.data.TransactionStatusName == "Successful") {
+                    console.log("SUCCESS CHECK IF INITAL FAILS")
+                    // trx_data = {
+                    //     transactionId: transaction.uuid,
+                    //     apiId: api.uuid
+                    // }
+                    // trx_api_id = api.uuid
+                    // trx_status = true
+                }
+
+                // const ezlchek2 = await axios(config2)
+
+                // if(ezlchek2){
+                //     console.log("EZL CHECK 2nd call")
+                //     console.log(JSON.stringify(ezlchek2.data))
+                //     console.log(ezlchek2.data.TransactionStatusName)
+                // }
+
+            }
         }
+
+        res.json({
+            msg: "CHECKING"
+        })
+
+
     }
-
-    res.json({
-        msg: "CHECKING"
-    })
-
-
 }
 
 exports.oppPin = async (req, res, next) => {
@@ -210,7 +267,7 @@ exports.oppPin = async (req, res, next) => {
         });
 }
 
-exports.testezl = async(req, res, next) => {
+exports.testezl = async (req, res, next) => {
     var data = JSON.stringify({
         "SessionId": "aaead679d0aa42acbc43a62a154279a2",
         "ServiceId": 3,
@@ -238,16 +295,16 @@ exports.testezl = async(req, res, next) => {
             "SessionId": "aaead679d0aa42acbc43a62a154279a2",
             "TransactionId": trx_data
         });
-          
+
         var config = {
             method: 'post',
             url: 'https://payments-central.com/api/User/TransactionCheck',
-            headers: { 
-              'Content-Type': 'application/json'
+            headers: {
+                'Content-Type': 'application/json'
             },
-            data : check_data
+            data: check_data
         };
-          
+
         const returnapi = await axios(config)
         console.log("RETURN API : ", returnapi)
     }
@@ -255,7 +312,7 @@ exports.testezl = async(req, res, next) => {
     res.json({
         msg: "CHECKING"
     })
-    
+
 
 }
 exports.testrdy = async (req, res, next) => {
@@ -2013,7 +2070,7 @@ exports.recharge = async (req, res, next) => {
                                         request_endtime: now
                                     }
                                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                                    
+
                                     res.json(apiResp)
 
                                 } else if (parseInt(statusCode) == 0) {
@@ -2149,7 +2206,7 @@ exports.recharge = async (req, res, next) => {
                                         request_endtime: now
                                     }
                                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                            
+
                                     res.json(apiResp)
                                 }
                             })
@@ -2483,17 +2540,17 @@ exports.recharge = async (req, res, next) => {
             // const phonenumber = data.prefix + data.ui_number
             const phonenumber = data.ui_number
 
-            if (network.name == WARID){
+            if (network.name == WARID) {
                 serviceId = 19
-            }else if (network.name == MOBILINK){
+            } else if (network.name == MOBILINK) {
                 serviceId = 17
-            }else if (network.name == JAZZ){
+            } else if (network.name == JAZZ) {
                 serviceId = 17
-            }else if (network.name == TELENOR){
+            } else if (network.name == TELENOR) {
                 serviceId = 18
-            }else if (network.name == ZONG){
+            } else if (network.name == ZONG) {
                 serviceId = 20
-            }else if (network.name == UFONE){
+            } else if (network.name == UFONE) {
                 serviceId = 16
             }
 
@@ -2564,6 +2621,8 @@ exports.recharge = async (req, res, next) => {
                 console.log(logezlreq2)
 
                 const ezlCheck = await axios(config2)
+
+
                 if (ezlCheck) {
                     let trxMsg = `TransactionStatusCode : ${ezlCheck.data.TransactionStatusCode} , TransactionStatusName : ${ezlCheck.data.TransactionStatusName} , Message: ${ezlCheck.data.Message}`
                     // const resp = await saveResponse(trxMsg, trxId);
@@ -2574,6 +2633,16 @@ exports.recharge = async (req, res, next) => {
                         }
                         trx_api_id = api.uuid
                         trx_status = true
+                    } else if (ezlCheck.data.TransactionStatusName == "Unsuccessful") {
+                        trx_data = {
+                            transactionId: transaction.uuid,
+                            apiId: api.uuid
+                        }
+                        trx_api_id = api.uuid
+                        trx_status = false
+                    } else {
+                        // check for 2nd api call with a timeout
+                        console.log("DONE")
                     }
 
                     console.log("TRX CHECK RESPONSE : ", ezlCheck.data)

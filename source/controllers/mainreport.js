@@ -1,5 +1,6 @@
 const db = require("../models");
 const { accessLog } = require("../authsrc/middlewares")
+const { Op } = require('sequelize');
 
 exports.summary = async(req, res, next) => {
     accessLog.info(`ACCESS MAIN REPORT SUMMARY`)
@@ -29,6 +30,161 @@ exports.summary = async(req, res, next) => {
 
     res.json({
         data: data
+    })
+}
+
+exports.filterSummaryReport = async(req, res, next) => {
+    accessLog.info(`ACCESS MAIN REPORT SUMMARY FILTER | ${JSON.stringify(req.body)}`)
+    const datedata = req.body
+    let total_purchase = 0.0000
+    let total_sales = 0.0000
+    let total_revenue = 0.0000
+
+    const purchases = await db.purchase.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: new Date(datedata.end_date),
+                [Op.gte]: new Date(datedata.start_date)
+            }
+        }
+    })  
+    const sales = await db.sales.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: new Date(datedata.end_date),
+                [Op.gte]: new Date(datedata.start_date)
+            }
+        }
+    })  
+
+    for (let i = 0; i<purchases.length; i++) {
+        total_purchase += purchases[i].purchase
+    }
+
+    for (let i = 0; i<sales.length; i++) {
+        total_sales += sales[i].amount
+        total_revenue += sales[i].profit
+    }
+
+    console.log(total_sales, total_purchase, total_revenue)
+
+    let data = {
+        total_purchase: total_purchase,
+        total_sales: total_sales,
+        total_revenue: total_revenue
+    }
+    console.log(`FILTERED SUMMARY , ${data}`)
+    res.json({
+        data: data
+    })
+}
+
+exports.filterPurchaseReport = async(req, res, next) => {
+    accessLog.info(`ACCESS PURCHASE REPORT WITH FILTER | ${JSON.stringify(req.body)}`)
+    const data = req.body
+
+    const purchaseList = await db.purchase.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: new Date(data.end_date),
+                [Op.gte]: new Date(data.start_date)
+            }
+        }
+    })  
+
+    console.log("PURCHASE FILTER")
+
+    res.json({
+        data: purchaseList
+    })
+}
+
+exports.filterSalesReport = async(req, res, next) => {
+    accessLog.info(`ACCESS SALES REPORT WITH FILTER | ${JSON.stringify(req.body)}`)
+    const data = req.body
+
+    const saleList = await db.sales.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: new Date(data.end_date),
+                [Op.gte]: new Date(data.start_date)
+            }
+        }
+    })
+
+    console.log("PURCHASE SALES")
+    res.json({
+        data: saleList
+    })
+}
+
+exports.filterRevenueReport = async(req, res, next) => {
+    accessLog.info(`ACCESS REVENUE REPORT WITH FILTER | ${JSON.stringify(req.body)}`)
+    const data = req.body
+
+    const revenueList = await db.sales.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: new Date(data.end_date),
+                [Op.gte]: new Date(data.start_date)
+            }
+        }
+    })
+
+    console.log("FILTER REVENUE")
+    res.json({
+        data: revenueList
+    })
+}
+
+exports.filterCollection = async(req, res, next) => {
+    accessLog.info(`ACCESS COLLECTION REPORT WITH FILTER | ${JSON.stringify(req.body)}`)
+    console.log("COLLECTION CHECK")
+    const datedata = req.body
+    let result = []
+    let total_debit = 0
+    let total_credit = 0
+    const data = await db.useramountsettlement.findAll({
+        where: {
+            createdAt: {
+                [Op.lte]: new Date(datedata.end_date),
+                [Op.gte]: new Date(datedata.start_date)
+            }
+        }
+    })
+
+    for (let i = 0; i<data.length; i++){
+        let user = ''
+        const profile = await db.userprofile.findOne({
+            where: {
+                userId: data[i].userId
+            }
+        })
+        if (profile) {
+            user = `${profile.f_name} ${profile.l_name}`
+        }else {
+            user = null
+        }
+        let collection = {
+            uuid: data[i].uuid,
+            user: user,
+            userId: data[i].userId,
+            debit: data[i].debit,
+            credit: data[i].credit,
+            note: data[i].note,
+            createdAt: data[i].createdAt
+        }
+
+        result.push(collection)
+        total_debit += data[i].debit
+        total_credit += data[i].credit
+    }
+
+    console.log("outside block : ", result)
+    res.json({
+        data: result,
+        total_debit: total_debit,
+        total_credit: total_credit
     })
 }
 
@@ -97,6 +253,8 @@ exports.salesReport = async(req, res, next) => {
         data: sales
     })
 }
+
+
 
 exports.revenueReport = async(req, res, next) => {
     accessLog.info(`ACCESS REVENUE REPORT`)

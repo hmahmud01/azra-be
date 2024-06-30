@@ -320,6 +320,7 @@ module.exports = app => {
         accessLog.info(`${req.body.username}|LOGIN API FROM APP|DEVICE : ${req.get('device')}`)
         
         // try {
+            let device_db = ""
             const device_id = req.get('device')
             console.log(`DEVICE ID : ${device_id}`)
 
@@ -364,14 +365,16 @@ module.exports = app => {
                 }
             })
 
-            console.log("checking device")
+            console.log("checking device", deviceData);
             if (!deviceData){
                 const device = await db.userdevice.create({
                     currentDevice: device_id,
                     userId: existingUser.uuid
                 })
 
-                console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
+                // console.log(`CURRENT DEVICE : ${device.currentDevice}`)
+
+                console.log("DEVICE OBJECT : ", device)
 
                 if(device.currentDevice != device_id){
                     res.status(403).json({
@@ -382,11 +385,14 @@ module.exports = app => {
                     }) ;
                     throw new Error('Invalid DEVICE.');
                 }
+                device_db = device.currentDevice
+            }else{
+                device_db = deviceData.currentDevice
             }
 
-            console.log(`CURRENT DEVICE : ${deviceData.currentDevice}`)
+            console.log(`CURRENT DEVICE : ${device_db}`)
 
-            if(deviceData.currentDevice != device_id){
+            if(device_db != device_id){
                 res.status(403).json({
                         "status": false,
                         "auth_id": "N/A",
