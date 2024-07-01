@@ -366,28 +366,54 @@ module.exports = app => {
             })
 
             console.log("checking device", deviceData);
+
             if (!deviceData){
+                console.log("CREATING NEW DEVICE")
                 const device = await db.userdevice.create({
                     currentDevice: device_id,
                     userId: existingUser.uuid
                 })
 
-                // console.log(`CURRENT DEVICE : ${device.currentDevice}`)
+                // console.log("DEVICE OBJECT : ", device)
 
-                console.log("DEVICE OBJECT : ", device)
-
-                if(device.currentDevice != device_id){
-                    res.status(403).json({
-                            "status": false,
-                            "auth_id": "N/A",
-                            "desc": "Device Not Matched. Please Use your original Device You logged in with."
+                // if(device.currentDevice != device_id){
+                //     res.status(403).json({
+                //             "status": false,
+                //             "auth_id": "N/A",
+                //             "desc": "Device Not Matched. Please Use your original Device You logged in with."
                         
-                    }) ;
-                    throw new Error('Invalid DEVICE.');
-                }
+                //     }) ;
+                //     throw new Error('Invalid DEVICE.');
+                // }
                 device_db = device.currentDevice
             }else{
-                device_db = deviceData.currentDevice
+                if(deviceData.currentDevice){
+                    console.log("CURRENT DEVICE FOUND")
+                    device_db = deviceData.currentDevice
+                }else{
+                    console.log("DEVICE NEEDS TO BE UPDATED")
+                    const updateDevice = await db.userdevice.update(
+                        {
+                            prevDevice: deviceData.prevDevice,
+                            currentDevice: device_id
+                        },
+                        {
+                            where: {
+                                userId: existingUser.uuid
+                            }
+                        }
+                    )
+    
+                    // console.log("UPDATE DEVICE OBJECT : ", updateDevice)
+                    const upddevice = await db.userdevice.findOne({
+                        where: {
+                            userId: existingUser.uuid
+                        }
+                    })
+
+                    device_db = upddevice.currentDevice
+                }
+                
             }
 
             console.log(`CURRENT DEVICE : ${device_db}`)
