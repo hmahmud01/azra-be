@@ -13,8 +13,12 @@ module.exports = (sequelize, Sequelize) => {
         debit_currency: Sequelize.STRING,
         validity: Sequelize.INTEGER,
         narration: Sequelize.STRING,
-        is_range: Sequelize.BOOLEAN, 
+        is_range: Sequelize.BOOLEAN,
         api_plan_id: Sequelize.STRING,
+        productcode: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,

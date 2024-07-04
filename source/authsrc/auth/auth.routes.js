@@ -222,9 +222,9 @@ module.exports = app => {
     });
 
     authRoute.post('/devicechangerequest', async(req, res, next) => {
-        accessLog.info(`${req.body.username}|DEVICE CHANGE REQUEST|CHANGED DEVICE: ${req.body.updateDevice}}`)
+        accessLog.info(`DEVICE CHANGE REQUEST|CHANGED DEVICE: ${req.body.username}}`)
         try {
-            const update_device = req.body.updateDevice;
+            // const update_device = req.body.updateDevice;
             const username = req.body.username;
 
             console.log(`TO UPDATE DEVICE : ${update_device}`);
@@ -247,7 +247,7 @@ module.exports = app => {
 
             const request = await db.userdevicerequest.create({
                 deviceId: deviceData.uuid,
-                updateDevice: update_device
+                updateDevice: null
             })
 
             console.log(`REQUETS CREATED, ${request}`)
@@ -266,6 +266,64 @@ module.exports = app => {
                 }
             )
         }
+    })
+
+    authRoute.get('/devicelist', async(req, res, next) => {
+        accessLog.info(`ACCESS DEVICE LIST | WEB ADMIN`)
+        const devicelist = await db.userdevice.findAll()
+        let list = []
+        for (let i of devicelist){
+            const user = await db.user.findOne({
+                where: {
+                    uuid: i.userId
+                }
+            })
+            let obj = {
+                uuid: i.uuid,
+                currentDevice: i.currentDevice,
+                prevDevice: i.prevDevice,
+                userId: user.phone,
+                createdAt: i.createdAt
+            }
+
+            list.push(obj)
+        }
+
+        console.log(list)
+
+        res.status(200).json({
+            "status": true,
+            "devicelist": list
+        })
+    })
+
+    authRoute.post('/nullifycurrentdevice', async(req, res, next) => {
+        accessLog.info(`NULIFY DEVICE REQUEST: ${req.body.device_uuid}}`)
+        console.log("UUID ACCESSED : ", req.body.device_uuid)
+        const device_uuid = req.body.device_uuid
+        const device = await db.userdevice.findOne({
+            where: {
+                uuid: device_uuid
+            }
+        })
+
+
+        const device_update = await db.userdevice.update(
+            {
+                prevDevice: device.currentDevice,
+                currentDevice: null
+            },
+            {
+                where:{
+                    uuid: device_uuid
+                }
+            }
+        )
+
+        console.log("DEVICE INFO UPDATED WITH NULL VALUE FOR CURRENT DEVICE : ", device_update)
+        res.status(200).json({
+            message: "DEVICE INFO UPDATED WITH NULL VALUE FOR CURRENT DEVICE"
+        })
     })
 
     authRoute.post('/updatedevice', async(req, res, next) => {

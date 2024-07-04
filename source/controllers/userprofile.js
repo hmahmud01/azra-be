@@ -455,7 +455,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     }
 
     res.json({
-        transfer_info: transfer_info,
+        transfer_info: transfer_info.reverse(),
         receipt_info: [],
         sub_reseller_transfer_info: [],
         sub_reseller_receipt_info: [],
@@ -581,8 +581,8 @@ exports.salesmanWalletHistory = async(req,res, next) => {
     }
 
     let response_data = {
-        balance_info: balance_info,
-        payment_info: payment_info
+        balance_info: balance_info.reverse(),
+        payment_info: payment_info.reverse()
     }
 
     let resp_data = {
