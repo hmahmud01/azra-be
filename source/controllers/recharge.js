@@ -3456,7 +3456,7 @@ exports.recharge = async (req, res, next) => {
                    // const apiResp = await rechargeModule.rechargeLive({plan, data, plan_type, network, api, transaction});
             console.log("inside DTS API")
             const apiurl = "https://preprod-dvs-api.dtone.com";
-            const apikey = "ZjdiMmIyMzItYTk4ZC00NzU0LWFhOGEtODY5NGQ1ZmQyZDc0OjFjNDRiNWE5LWQ5YTctNDU1MC05YmQzLTAzNDVkMDQ1MzJkNA==";
+            const apikey = "Basic ZjdiMmIyMzItYTk4ZC00NzU0LWFhOGEtODY5NGQ1ZmQyZDc0OjFjNDRiNWE5LWQ5YTctNDU1MC05YmQzLTAzNDVkMDQ1MzJkNA==";
             
             const client_id = process.env.LIV_CLIENT_ID
             const transaction_id = '00' + transaction.id
@@ -3488,10 +3488,10 @@ exports.recharge = async (req, res, next) => {
             let config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: `${apiurl}/v1/async/transactions'`,
+                url: `${apiurl}/v1/async/transactions`,
                 headers: { 
                   'Content-Type': 'application/json', 
-                  'Authorization': `apikey ${apikey}`
+                  'Authorization': `${apikey}`
                 },
                 data : data
               };
@@ -3505,7 +3505,7 @@ exports.recharge = async (req, res, next) => {
                         url: `${apiurl}/v1/async/transactions/${response.data.id}/confirm`,
                         headers: { 
                             'Content-Type': 'application/json', 
-                            'Authorization': `apikey ${apikey}`
+                            'Authorization': `${apikey}`
                           }
                       };
                       
