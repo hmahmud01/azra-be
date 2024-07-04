@@ -49,7 +49,7 @@ exports.dtone = async (req, res, next) => {
         url: 'https://preprod-dvs-api.dtone.com/v1/async/transactions',
         headers: { 
           'Content-Type': 'application/json', 
-          'Authorization': 'Basic ZjdiMmIyMzItYTk4ZC00NzU0LWFhOGEtODY5NGQ1ZmQyZDc0OjFjNDRiNWE5LWQ5YTctNDU1MC05YmQzLTAzNDVkMDQ1MzJkNA=='
+          'Authorization': 'Basic YmZmM2ZkMmItZmRiNS00MmUyLTk0NDUtY2FjNDJiNzYyOWNjOjAwOTMxZTBmLThjOWItNGE0Mi1hMTE2LTUwOTAyNmRiOGU5OQ=='
         },
         data : data
       };
@@ -65,7 +65,7 @@ exports.dtone = async (req, res, next) => {
                                     url: `https://preprod-dvs-api.dtone.com/v1/async/transactions/${response.data.id}/confirm`,
                                     headers: { 
                                         'Content-Type': 'application/json', 
-                                        'Authorization': 'Basic ZjdiMmIyMzItYTk4ZC00NzU0LWFhOGEtODY5NGQ1ZmQyZDc0OjFjNDRiNWE5LWQ5YTctNDU1MC05YmQzLTAzNDVkMDQ1MzJkNA=='
+                                        'Authorization': 'Basic YmZmM2ZkMmItZmRiNS00MmUyLTk0NDUtY2FjNDJiNzYyOWNjOjAwOTMxZTBmLThjOWItNGE0Mi1hMTE2LTUwOTAyNmRiOGU5OQ=='
                                       }
                                   };
 
@@ -3741,8 +3741,91 @@ exports.recharge = async (req, res, next) => {
                       .catch((error) => {
                         console.log(error);
                       });
+
+
+                      
                 }else{
-                    res.json({message : response.data.status.class.message})
+
+                    const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
+                              
+                    db.systemlog.create({
+                        type: "Recharge",
+                        detail: logmsg
+                    })
+
+                db.sales.create({
+                        balance: failed_bal,
+                        amount: parseFloat(data.plan_amount),
+                        agent: data.username,
+                        number: data.ui_number,
+                        operator: network.name,
+                        api: api.name,
+                        profit: -(api_profit)
+                    })
+                   
+                    db.transaction.update(
+                        {
+                            rechargeStatus: false
+                        },
+                        {
+                            where: {
+                                id: transaction.id,
+                            }
+                        })
+
+                   db.agenttransaction.create({
+                        userId: user.uuid,
+                        transferedAmount: debit_amount,
+                        dedcutedAmount: 0.00,
+                        transactionId: transaction.uuid
+                    })
+
+                    console.log("transaction returned");
+
+                   db.lockednumber.update(
+                        {
+                            status: false,
+                            trx_id: transaction.uuid
+                        },
+                        {
+                            where: {
+                                id: lockedNumber.id
+                            }
+                        }
+                    )
+
+                   db.lockedbalance.update(
+                        {
+                            lockedStatus: false,
+                        },
+                        {
+                            where: {
+                                id: lockedBalance.id
+                            }
+                        }
+                    )
+                    console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
+                    console.log("Balance Unavailable");
+
+                    let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+                    numberLockLogger.info(lockinfo)
+                    apiResp = {
+                        status: "failed",
+                        balance: userbalance,
+                        api_trans_code: api.id,
+                        message: [{
+                            "description": "Transaction was unsuccessfull",
+                            "code": "200",
+                        }],
+                        trans_id: data.sub_operator_code + transaction.id,
+                        trans_code: `${api.code}-${transaction.uuid}`,
+                        trans_date: now,
+                        request_endtime: now
+                    }
+                    logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                    res.json(apiResp)
+
+                    //res.json({message : response.data.status.class.message})
                 }
               })
               .catch((error) => {
