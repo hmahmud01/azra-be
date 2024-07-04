@@ -6,6 +6,7 @@ module.exports = (sequelize, Sequelize) => {
         },
         plan_id: Sequelize.STRING,
         api: Sequelize.STRING,
+        value: Sequelize.INTEGER,
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,

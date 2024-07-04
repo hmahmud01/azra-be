@@ -20,9 +20,6 @@ var log_date = dateFormat(asiaTime, "yyyy-mm-dd");
 var log_dir = `./logs/recharge-logs/`;
 var callback_log = new LogLater(`${log_dir}/-${log_date}.log`);
 
-
-
-
 // PAKISTAN OPERATOR CONSTANTS FOR EZLOAD
 const UFONE = "Ufone"
 const WARID = "Warid"
@@ -1205,6 +1202,10 @@ const saleReport = async (data) => {
     return sale.uuid;
 }
 
+const apiPriority = (req, res, next) => {
+    let plan_id = req.body.plan_id
+    
+}
 
 exports.recharge = async (req, res, next) => {
     const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');

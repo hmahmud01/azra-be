@@ -20,6 +20,7 @@ exports.createPlan = async(req, res, next) => {
         validity: req.body.validity,
         narration: req.body.narration,
         is_range: is_range,
+        productcode: req.body.productcode,
         api_plan_id: req.body.api_plan_id
     }
 
@@ -27,6 +28,47 @@ exports.createPlan = async(req, res, next) => {
 
     res.status(200).json({
         message: `added data: ${plan}`
+    })
+}
+
+exports.dummyPlan = async(req, res, next) => {
+    console.log("LOGGIN DUMMY BODY")
+    console.log(req.body)
+
+    accessLog.info(`CREATE A PLAN|${JSON.stringify(req.body)}`)
+    let is_range = false
+    if(req.body.is_range == "True"){
+        is_range = true
+    }
+    let data = {
+        operator_code: req.body.operator_code,
+        circle_code: req.body.circle_code,
+        rechargeType: req.body.rechargeType,
+        credit_amount: req.body.credit_amount,
+        credit_currency: req.body.credit_currency,
+        debit_amount: req.body.debit_amount,
+        debit_currency: req.body.debit_currency,
+        validity: req.body.validity,
+        narration: req.body.narration,
+        is_range: is_range,
+        api_plan_id: req.body.api_plan_id
+    }
+
+    const plan = await db.plans.create(data);
+
+    for(let value of req.body.values){
+        console.log(value)
+        console.log(value.priority)
+        let priority_data = {
+            plan_id: plan.uuid,
+            api: value.apiId,
+            value: value.priority
+        }
+        const planapi = await db.planapi.create(priority_data)
+    }
+
+    res.status(200).json({
+        message: `DATA ADDING`
     })
 }
 
@@ -49,6 +91,24 @@ exports.listPlan = async(req, res, next) => {
             is_range = "True"
         }
 
+        let res = []
+        const values = await db.planapi.findAll({
+            where: {
+                plan_id: list[i].uuid
+            }
+        })
+
+        if(values){
+            for (let value of values){
+                let obj = {
+                    api: value.api,
+                    value: value.value
+                }
+    
+                res.push(obj)
+            }
+        }        
+
         let data = {
             api_plan : api.name,
             operator_code: list[i].operator_code,
@@ -60,6 +120,8 @@ exports.listPlan = async(req, res, next) => {
             is_range: is_range,
             narration: list[i].narration,
             rechargeType: list[i].rechargeType,
+            productcode: list[i].productcode,
+            values: JSON.stringify(res)
         }
 
         plans.push(data);
