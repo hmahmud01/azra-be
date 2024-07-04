@@ -3489,7 +3489,7 @@ exports.recharge = async (req, res, next) => {
             let config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: `${apiurl}/v1/async/transactions'`,
+                url: `${apiurl}/v1/async/transactions`,
                 headers: { 
                   'Content-Type': 'application/json', 
                   'Authorization': `apikey ${apikey}`
