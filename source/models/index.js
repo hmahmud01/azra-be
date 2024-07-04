@@ -23,6 +23,7 @@ db.user = require("./user.model.js")(sequelize, Sequelize);
 db.userdevice = require("./userdevice.model.js")(sequelize, Sequelize);
 db.userdevicerequest = require("./userdevicerequest.model.js")(sequelize, Sequelize);
 db.agentearning = require("./agentearning.model.js")(sequelize, Sequelize);
+db.agentredeem =require("./agentredeem.model.js")(sequelize, Sequelize);
 db.agentpercentage = require("./agentpercentage.model.js")(sequelize, Sequelize);
 db.agenttransaction = require("./agenttransaction.model.js")(sequelize, Sequelize);
 db.agenttransferhistory = require("./agenttransferhistory.js")(sequelize, Sequelize);

@@ -6,6 +6,63 @@ const calculator = require("./userprofilecalculator");
 
 const { accessLog } = require("../authsrc/middlewares")
 
+exports.userRedeemEarning = async(req, res, next) => {
+    console.log("INITIALIZING USER REDEEM")
+    let username = req.body.username
+
+    console.log(username)
+
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+    console.log(user.uuid)
+
+    let total_earned = 0
+
+    const earning = await db.agentearning.findAll({
+        where: {
+            userId: user.uuid,
+            redeemstatus: false
+        }
+    })
+
+    console.log("EARINGS< ", earning)
+
+    for (let i=0; i<earning.length; i++){
+        total_earned += earning[i].amount
+    }
+
+    console.log("TOTAL EARNED ", total_earned)
+
+
+    const redeem = await db.agentredeem.create({
+        userId: user.uuid,
+        redeemamount: total_earned
+    })
+
+    console.log("REDEEM", redeem)
+
+    await db.agentearning.update(
+        {
+            redeemstatus: true
+        },
+        {
+            where: {
+                userId: user.uuid,
+                redeemstatus: false
+            }
+        }
+    )
+
+    res.status(200).json({
+        status: "success",
+        description: `${total_earned} successfully redeemed`
+    })
+    
+}
+
 // CUSTMER DASHBAORD AREA
 exports.userDashboard = async(req, res, next) => {
     accessLog.info(`ACCESS USER DASHBOARD_APP|${JSON.stringify(req.body)}`)

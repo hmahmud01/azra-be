@@ -7,6 +7,7 @@ const UserAmountSettlement = db.useramountsettlement;
 const AgentEarning = db.agentearning;
 const Transaction = db.transaction;
 
+
 exports.calculateDue = async(username) => {
     const user = await db.user.findOne({
         where:{
@@ -43,7 +44,8 @@ exports.calculateEarning = async(username) => {
     let result = []
     const earning = await AgentEarning.findAll({
         where: {
-            userId: user.uuid
+            userId: user.uuid,
+            redeemstatus: false,
         }
     })
 
