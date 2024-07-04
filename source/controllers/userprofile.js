@@ -36,6 +36,15 @@ exports.userRedeemEarning = async(req, res, next) => {
 
     console.log("TOTAL EARNED ", total_earned)
 
+    const agenttrx = await db.agenttransaction.create({
+        userId: user.uuid,
+        transferedAmount: total_earned,
+        dedcutedAmount: 0.000,
+        note: "Successfully Redeemed",
+    })
+
+    console.log(agenttrx)
+
 
     const redeem = await db.agentredeem.create({
         userId: user.uuid,
@@ -55,6 +64,8 @@ exports.userRedeemEarning = async(req, res, next) => {
             }
         }
     )
+
+
 
     res.status(200).json({
         status: "success",
