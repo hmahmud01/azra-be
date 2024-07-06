@@ -475,11 +475,24 @@ exports.salesDashboard = async(req, res, next) => {
             credit_total += trf_history[i].amount
         }
     }
+
+    let total_transferred = 0.00
+
+    const trf_reqs = db.agenttransferrequest.findAll({
+        where: {
+            provider_name: req.body.username,
+            status: "Approved"
+        }
+    })
+
+    for (let item of trf_reqs){
+        total_transferred += item.requested_amount
+    }
     
     let data = {
         "credit_balance": portalBalance.toString(),
         "total_credited": "10000.00000",
-        "total_transferred": "1350.00000",
+        "total_transferred": total_transferred,
         "no_of_sales": 100,
         "total_sales": "1097.55833",
         "total_commission": "10.17551",
