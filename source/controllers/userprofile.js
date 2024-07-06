@@ -485,9 +485,17 @@ exports.salesDashboard = async(req, res, next) => {
         }
     })
 
-    for (let item of trf_reqs){
-        total_transferred += item.requested_amount
+    console.log("TRF REQS : ", trf_reqs)
+
+    if (trf_reqs){
+        for (let item of trf_reqs){
+            total_transferred += item.requested_amount
+        }
+    }else{
+        total_transferred = 0
     }
+
+    
     
     let data = {
         "credit_balance": portalBalance.toString(),
@@ -981,8 +989,12 @@ exports.resellerDashboard = async(req, res, next) => {
         }
     })
 
-    for (let item of trf_reqs){
-        total_transferred += item.requested_amount
+    if (trf_reqs){
+        for (let item of trf_reqs){
+            total_transferred += item.requested_amount
+        }
+    }else{
+        total_transferred = 0
     }
 
     let data = {
