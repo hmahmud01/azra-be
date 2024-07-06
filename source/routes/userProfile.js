@@ -16,6 +16,7 @@ module.exports = app => {
     profileRouter.post('/salesman-wallet-history', controller.salesmanWalletHistory);
     profileRouter.post('/send-balance-to-sales', controller.sendBalanceToSales);
     profileRouter.post('/subreseller-dashboard', controller.resellerDashboard);
+    profileRouter.post('/transfer-list', controller.transferList);
 
     app.use(profileRouter);
 }
