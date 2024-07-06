@@ -500,7 +500,7 @@ exports.salesDashboard = async(req, res, next) => {
     let data = {
         "credit_balance": portalBalance.toString(),
         "total_credited": "10000.00000",
-        "total_transferred": total_transferred.toFixed(4),
+        "total_transferred": total_transferred,
         "no_of_sales": 100,
         "total_sales": "1097.55833",
         "total_commission": "10.17551",
