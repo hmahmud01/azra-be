@@ -174,6 +174,7 @@ exports.userDashboard = async(req, res, next) => {
 exports.orderHistory = async(req, res, next) => {
     accessLog.info(`ACCESS USER ORDER HISTORY|${JSON.stringify(req.body)}`)
     let reqdata = {"username":"iftay","from_date":"N/A","to_date":"N/A"}
+    let send_data = []
     let history = []
     let credit_amount = 0.00
     let credit_currency = ""
@@ -328,6 +329,22 @@ exports.orderHistory = async(req, res, next) => {
         }
     }
 
+    // "status":"all"
+    // "status":"success"
+    // "status":"failed"
+
+    let req_status = req.body.status
+
+    if (req_status == "all"){
+        send_data = history
+    }else {
+        for (let item of history){
+            if (item.status == req_status){
+                send_data.push(item)
+            }
+        }
+    }
+
     let order_history = [
         {
             "trans_id":"TRMRGNP_TOP04082023121916139984",
@@ -381,7 +398,7 @@ exports.orderHistory = async(req, res, next) => {
     // console.log(history)
 
     res.json({
-        order_history: history.reverse()
+        order_history: send_data.reverse()
     })
 }
 
