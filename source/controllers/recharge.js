@@ -1302,6 +1302,8 @@ exports.recharge = async (req, res, next) => {
             }
         })
         debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
+
+        console.log("CONVERTED AMOUNT - ", debit_amount)
     } else if (!plan.is_range && plan.credit_currency != plan.debit_currency) {
         const currency = await db.currency.findOne({
             where: {
@@ -1310,8 +1312,10 @@ exports.recharge = async (req, res, next) => {
             }
         })
         debit_amount = (parseInt(data.plan_amount) * currency.conversionValue).toFixed(2);
+        console.log("CONVERTED AMOUNT - ", debit_amount)
     } else {
         debit_amount = plan.credit_amount
+        console.log("CONVERTED AMOUNT - ", debit_amount)
     }
 
     if (lockedNumber.length > 0) {
@@ -3469,7 +3473,7 @@ exports.recharge = async (req, res, next) => {
             const client_id = process.env.LIV_CLIENT_ID
             const transaction_id = '00' + transaction.id
             const msisdn = mobile
-            const sendAmount = plan.credit_amount;
+            const sendAmount = debit_amount;
             const product_id = plan.productcode;
             let operator = "";
 
