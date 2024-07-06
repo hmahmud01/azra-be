@@ -104,8 +104,7 @@ exports.redeemAmounts = async(req, res, next) => {
 
     const redeems = await db.agentearning.findAll({
         where: {
-            userId: user.uuid,
-            redeemstatus: true
+            userId: user.uuid
         }
     })
 
