@@ -90,7 +90,7 @@ exports.redeemHistory = async(req, res, next) => {
 
     res.json({
         status: "success",
-        history: redeemlist
+        amounts: redeemlist
     })
 }
 
