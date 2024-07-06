@@ -476,7 +476,7 @@ exports.salesDashboard = async(req, res, next) => {
         }
     }
 
-    let total_transferred = 0.00
+    let total_transferred = 0
 
     const trf_reqs = await db.agenttransferrequest.findAll({
         where: {
