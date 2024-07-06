@@ -478,7 +478,7 @@ exports.salesDashboard = async(req, res, next) => {
 
     let total_transferred = 0.00
 
-    const trf_reqs = db.agenttransferrequest.findAll({
+    const trf_reqs = await db.agenttransferrequest.findAll({
         where: {
             provider_name: req.body.username,
             status: "Approved"
