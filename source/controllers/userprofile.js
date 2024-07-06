@@ -74,6 +74,47 @@ exports.userRedeemEarning = async(req, res, next) => {
     
 }
 
+exports.redeemHistory = async(req, res, next) => {
+    let username = req.body.username
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    const redeemlist = await db.agentredeem.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    res.json({
+        status: "success",
+        history: redeemlist
+    })
+}
+
+exports.redeemAmounts = async(req, res, next) => {
+    let username = req.body.username
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    const redeems = await db.agentearning.findAll({
+        where: {
+            userId: user.uuid,
+            redeemstatus: true
+        }
+    })
+
+    res.json({
+        status: "success",
+        amounts: redeems
+    })
+}
+
 // CUSTMER DASHBAORD AREA
 exports.userDashboard = async(req, res, next) => {
     accessLog.info(`ACCESS USER DASHBOARD_APP|${JSON.stringify(req.body)}`)
