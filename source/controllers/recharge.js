@@ -1366,7 +1366,7 @@ exports.recharge = async (req, res, next) => {
 
         if (purchase) {
             api_bal = purchase.purchase
-            api_profit = purchase.commission / 100 * parseFloat(data.plan_amount)
+            api_profit = purchase.commission / 100 * parseFloat(debit_amount)
         }
 
         const sale = await db.sales.create({

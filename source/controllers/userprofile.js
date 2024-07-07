@@ -495,13 +495,13 @@ exports.salesDashboard = async(req, res, next) => {
         total_transferred = 0
     }
 
-    
+    let no_requests = trf_reqs.length
     
     let data = {
         "credit_balance": portalBalance.toString(),
         "total_credited": "10000.00000",
         "total_transferred": total_transferred,
-        "no_of_sales": 100,
+        "no_of_sales": no_requests,
         "total_sales": "1097.55833",
         "total_commission": "10.17551",
         "total_paid": "0",
@@ -510,7 +510,7 @@ exports.salesDashboard = async(req, res, next) => {
         "transfer_credit": 10000.0,
         "sub_reseller": {
             "total_transferred": "0",
-            "no_of_sales": 32,
+            "no_of_sales": no_requests,
             "total_sales": "448.68750",
             "total_paid": "0",
             "total_commission": "2.41250",
@@ -997,11 +997,13 @@ exports.resellerDashboard = async(req, res, next) => {
         total_transferred = 0
     }
 
+    let no_requests = trf_reqs.length
+
     let data = {
         "credit_balance": portalBalance.toString(),
         "total_credited": "10000.00000",
         "total_transferred": total_transferred,
-        "no_of_sales": 100,
+        "no_of_sales": no_requests,
         "total_sales": "1097.55833",
         "total_commission": "10.17551",
         "total_paid": "0",
@@ -1010,7 +1012,7 @@ exports.resellerDashboard = async(req, res, next) => {
         "transfer_credit": 10000.0,
         "sub_reseller": {
             "total_transferred": "0",
-            "no_of_sales": 32,
+            "no_of_sales": no_requests,
             "total_sales": "448.68750",
             "total_paid": "0",
             "total_commission": "2.41250",
