@@ -28,6 +28,10 @@ const TELENOR = "Telenor"
 const JAZZ = "Jazz"
 const MOBILINK = "Mobilink"
 
+exports.entries = async(data) => {
+    console.log("ENTRIES")
+}
+
 exports.dtone = async (req, res, next) => {
     const external_id = uuid.v4()
 
