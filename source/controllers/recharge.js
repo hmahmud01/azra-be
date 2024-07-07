@@ -1369,6 +1369,8 @@ exports.recharge = async (req, res, next) => {
             api_profit = purchase.commission / 100 * parseFloat(debit_amount)
         }
 
+        console.log("api balance : ", api_bal)
+
         const sale = await db.sales.create({
             balance: api_bal,
             amount: parseFloat(debit_amount),
@@ -1490,7 +1492,7 @@ exports.recharge = async (req, res, next) => {
                         })
 
                         if (purchase) {
-                            let upd_bal = purchase.purchase - parseFloat(req.body.plan_amount)
+                            let upd_bal = purchase.purchase - parseFloat(debit_amount)
 
                             const update_purchase = await db.purchase.update(
                                 {
@@ -1611,7 +1613,7 @@ exports.recharge = async (req, res, next) => {
 
                         const sale_upd = await db.sales.create({
                             balance: failed_bal,
-                            amount: parseFloat(data.plan_amount),
+                            amount: -(parseFloat(debit_amount)),
                             agent: data.username,
                             number: data.ui_number,
                             operator: network.name,
