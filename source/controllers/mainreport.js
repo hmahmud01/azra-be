@@ -306,6 +306,7 @@ exports.addPurchase = async(req, res, next) => {
         telco: telco,
         dist: dist,
         purchase: purchase,
+        amountpurchased: purchase,
         payable: payable,
         commission: commission,
         entrydate: entrydate,

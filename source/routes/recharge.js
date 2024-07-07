@@ -18,7 +18,6 @@ module.exports = app => {
     rechargeRouter.post('/available-countries', controller.availableCountry);
     rechargeRouter.get('/test-rdy', controller.testrdy);
     rechargeRouter.get('/dtone', controller.dtone);
-    // rechargeRouter.get('/dtone', authMiddleware, controller.dtone);
     // rechargeRouter.post('/customer-balance-transfer-request', controller.customerBalanceTransferRequest);
     // rechargeRouter.post('/user-get-portal-balance', controller.userGetPortalBalance);
 

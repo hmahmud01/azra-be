@@ -7,6 +7,10 @@ module.exports = (sequelize, Sequelize) => {
         telco: Sequelize.STRING,
         dist: Sequelize.STRING,
         purchase: Sequelize.FLOAT,
+        amountpurchased: {
+            type: Sequelize.FLOAT,
+            allowNull: true
+        },
         payable: Sequelize.FLOAT,
         commission: Sequelize.FLOAT,
         entrydate: Sequelize.STRING,
