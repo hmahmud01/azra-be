@@ -4,17 +4,17 @@ module.exports = app => {
     const { authMiddleWare } = require("../authsrc/auth/auth.services.js")
 
     masterAdminRouter = express.Router();
-    masterAdminRouter.get('/sales-admin', controller.sales)
-    masterAdminRouter.get('/collection-admin', controller.collection)
-    masterAdminRouter.get('/earning-admin', controller.earning)
-    masterAdminRouter.get('/apibalance-admin', controller.apiBalance)
-    masterAdminRouter.get('/marketdue-admin', controller.marketDue)
-    masterAdminRouter.get('/remainingcredit-admin', controller.remainingCredit)
-    masterAdminRouter.get('/saleslist-admin', controller.salesList)
-    masterAdminRouter.get('/collectionlist-admin', controller.collectionList)
-    masterAdminRouter.get('/earninglist-admin', controller.earningList)
-    masterAdminRouter.get('/apilist-admin', controller.apiList)
-    masterAdminRouter.get('/resellerbalancetransferhistory-admin', controller.resellerBalanceTransferHistory)
+    masterAdminRouter.post('/sales-admin', controller.sales)
+    masterAdminRouter.post('/collection-admin', controller.collection)
+    masterAdminRouter.post('/earning-admin', controller.earning)
+    masterAdminRouter.post('/apibalance-admin', controller.apiBalance)
+    masterAdminRouter.post('/marketdue-admin', controller.marketDue)
+    masterAdminRouter.post('/remainingcredit-admin', controller.remainingCredit)
+    masterAdminRouter.post('/saleslist-admin', controller.salesList)
+    masterAdminRouter.post('/collectionlist-admin', controller.collectionList)
+    masterAdminRouter.post('/earninglist-admin', controller.earningList)
+    masterAdminRouter.post('/apilist-admin', controller.apiList)
+    masterAdminRouter.post('/resellerbalancetransferhistory-admin', controller.resellerBalanceTransferHistory)
 
     app.use(masterAdminRouter)
 }
