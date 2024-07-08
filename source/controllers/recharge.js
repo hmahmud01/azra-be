@@ -1370,7 +1370,8 @@ exports.recharge = async (req, res, next) => {
 
         if (purchase) {
             api_bal = purchase.purchase
-            api_profit = purchase.commission / 100 * parseFloat(debit_amount)
+            // api_profit = purchase.commission / 100 * parseFloat(debit_amount)
+            api_profit = parseFloat(debit_amount) / 100 * purchase.commission
         }
 
         console.log("api balance : ", api_bal)
@@ -1783,7 +1784,7 @@ exports.recharge = async (req, res, next) => {
 
                                     const sale_upd = await db.sales.create({
                                         balance: failed_bal,
-                                        amount: parseFloat(data.plan_amount),
+                                        amount: -(parseFloat(debit_amount)),
                                         agent: data.username,
                                         number: data.ui_number,
                                         operator: network.name,
@@ -2081,7 +2082,7 @@ exports.recharge = async (req, res, next) => {
 
                                     const sale_upd = await db.sales.create({
                                         balance: failed_bal,
-                                        amount: parseFloat(data.plan_amount),
+                                        amount: -(parseFloat(debit_amount)),
                                         agent: data.username,
                                         number: data.ui_number,
                                         operator: network.name,
@@ -2521,7 +2522,7 @@ exports.recharge = async (req, res, next) => {
 
                         const sale_upd = await db.sales.create({
                             balance: failed_bal,
-                            amount: parseFloat(data.plan_amount),
+                            amount: -(parseFloat(debit_amount)),
                             agent: data.username,
                             number: data.ui_number,
                             operator: network.name,
@@ -2856,7 +2857,7 @@ exports.recharge = async (req, res, next) => {
 
                         const sale_upd = await db.sales.create({
                             balance: failed_bal,
-                            amount: parseFloat(data.plan_amount),
+                            amount: -(parseFloat(debit_amount)),
                             agent: data.username,
                             number: data.ui_number,
                             operator: network.name,
@@ -3378,7 +3379,7 @@ exports.recharge = async (req, res, next) => {
 
                                 const sale_upd = await db.sales.create({
                                     balance: failed_bal,
-                                    amount: parseFloat(data.plan_amount),
+                                    amount: -(parseFloat(debit_amount)),
                                     agent: data.username,
                                     number: data.ui_number,
                                     operator: network.name,
@@ -3693,7 +3694,7 @@ exports.recharge = async (req, res, next) => {
 
                                     db.sales.create({
                                         balance: failed_bal,
-                                        amount: parseFloat(data.plan_amount),
+                                        amount: -(parseFloat(debit_amount)),
                                         agent: data.username,
                                         number: data.ui_number,
                                         operator: network.name,
@@ -3782,7 +3783,7 @@ exports.recharge = async (req, res, next) => {
 
                         db.sales.create({
                             balance: failed_bal,
-                            amount: parseFloat(data.plan_amount),
+                            amount: -(parseFloat(debit_amount)),
                             agent: data.username,
                             number: data.ui_number,
                             operator: network.name,
