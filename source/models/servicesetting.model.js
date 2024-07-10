@@ -1,19 +1,12 @@
 module.exports = (sequelize, Sequelize) => {
     const ServiceSetting = sequelize.define("servicesetting", {
-        uuid: {
+        serviceId: {
             type: Sequelize.UUID,
             defaultValue: Sequelize.UUIDV4
         },
-        serviceId: Sequelize.STRING,
+        serviceTitle: Sequelize.STRING,
         serviceCode: Sequelize.STRING,
-        callingCode: Sequelize.STRING,
-        max_length: Sequelize.INTEGER,
-        api_code: {
-            type: Sequelize.STRING,
-            allowNull: true,
-        },
-        regex: Sequelize.STRING,
-        denominationStep: Sequelize.INTEGER,
+        status: Sequelize.BOOLEAN,
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,

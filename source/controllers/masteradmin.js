@@ -32,13 +32,13 @@ exports.collection = async(req, res, next) => {
     let total_collection = 0.00
     const data = await db.useramountsettlement.findAll()
     let total_debit = 0
-    let total_credit = 0
     for (let i=0; i<data.length; i++){
-        total_debit += data[i].debit
-        total_credit += data[i].credit
+        if(data[i].note == "User Credit withdrawn"){
+            total_debit += data[i].debit
+        }
     }
     res.json({
-        total_collection: total_credit
+        total_collection: total_debit
     })
 }
 
