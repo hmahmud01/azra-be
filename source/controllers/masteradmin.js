@@ -5,6 +5,7 @@ const rechargeModule = require("./recharge");
 const calculator = require("./userprofilecalculator");
 
 const { accessLog } = require("../authsrc/middlewares");
+const { Op } = require('sequelize');
 
 // SUMMARIZED TILE DATA CALCULATED FUNCTIONS
 exports.sales = async(req, res, next) => {
@@ -73,13 +74,47 @@ exports.apiBalance = async(req, res, next) => {
 
 exports.marketDue = async(req, res, next) => {
     let total_market_due = 0.00
+    const data = await db.useramountsettlement.findAll()
+    let total_debit = 0
+    let total_credit = 0
+    for (let i=0; i<data.length; i++){
+        total_credit += data[i].credit
+        if(data[i].note == "User Credit withdrawn"){
+            total_debit += data[i].debit
+        }
+    }
+
+    let due = total_credit - total_debit
     res.json({
-        total_market_due: total_market_due
+        total_market_due: due
     })
 }
 
 exports.remainingCredit = async(req, res, next) => {
     let remaining_credit_limit = 0.00
+    // GET TOTAL API BALANCE THEN GET TOTAL MARKET 
+    // REMANING CREDIT = API BALANCE - TOTAL MARKET DUE
+
+    let total_api_balance = 0.00
+    const purchases = await db.purchase.findAll()
+    for (let i = 0; i<purchases.length; i++) {
+        total_api_balance += purchases[i].purchase
+    }
+
+    const data = await db.useramountsettlement.findAll()
+    let total_debit = 0
+    let total_credit = 0
+    for (let i=0; i<data.length; i++){
+        total_credit += data[i].credit
+        if(data[i].note == "User Credit withdrawn"){
+            total_debit += data[i].debit
+        }
+    }
+
+    let total_market_due = total_credit - total_debit
+
+    remaining_credit_limit = total_api_balance - total_market_due
+
     res.json({
         remaining_credit_limit: remaining_credit_limit
     })

@@ -390,10 +390,12 @@ module.exports = app => {
             console.log("username , password")
 
             if (!username || !password){
-                res.status(200).json({
+                res.status(403).json({
                     "status": false,
-                    "auth_id": "N/A"
-                }) 
+                    "auth_id": "N/A",
+                    "desc": "Username or Password is not given"
+                    
+                }) ;
                 throw new Error('You must provide an email and a password.');
             }
 
@@ -401,13 +403,24 @@ module.exports = app => {
             console.log(existingUser)
 
             if (!existingUser) {
-                res.status(403);
+                res.status(403).json({
+                    "status": false,
+                    "auth_id": "N/A",
+                    "desc": "Invalid Login Credentials"
+                    
+                }) ;
                 throw new Error('Invalid login credentials.');
             }
 
             const validPassword = await bcrypt.compare(password, existingUser.password);
+            // console.log(v)
             if (!validPassword) {
-                res.status(403);
+                res.status(403).json({
+                    "status": false,
+                    "auth_id": "N/A",
+                    "desc": "Invalid Login Credentials"
+                    
+                }) ;
                 throw new Error('Invalid login credentials.');
             }
 
@@ -478,9 +491,9 @@ module.exports = app => {
 
             if(device_db != device_id){
                 res.status(403).json({
-                        "status": false,
-                        "auth_id": "N/A",
-                        "desc": "Device Not Matched. Please Use your original Device You logged in with."
+                    "status": false,
+                    "auth_id": "N/A",
+                    "desc": "Device Not Matched. Please Use your original Device You logged in with."
                     
                 }) ;
                 throw new Error('Invalid DEVICE.');
@@ -493,6 +506,7 @@ module.exports = app => {
             const jti = uuidv4();
             const { accessToken, refreshToken } = generateTokens(existingUser, jti);
             await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.uuid });
+            console.log(existingUser.phone)
 
             if(post == "Sales") {
                 res.json({
@@ -784,7 +798,26 @@ module.exports = app => {
     
                 res.json(responseData);
 
-            }        
+            }else if(post == "admin") {
+                console.log("ADMIN LOGIN AREA")
+                res.json({
+                    status: true,
+                    name: existingUser.store,
+                    phone: existingUser.phone,
+                    superior: "self",
+                    post: post,
+                    credit_limit: "",
+                    balance: "",
+                    can_add_reseller: true,
+                    min_app_version: "68",
+                    latest_app_version: "76",
+                    server_address: process.env.SERVER_URL,
+                    has_token: accessToken,
+                    auth_id: accessToken,
+                    refresh_token: refreshToken,
+                    user_id: existingUser.uuid
+                })
+            }  
 
             
 
