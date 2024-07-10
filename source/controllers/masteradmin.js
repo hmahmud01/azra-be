@@ -6,6 +6,10 @@ const calculator = require("./userprofilecalculator");
 
 const { accessLog } = require("../authsrc/middlewares");
 const { Op } = require('sequelize');
+const moment = require("moment");
+
+const TODAY_START = moment().format('YYYY-MM-DD 00:00');
+const NOW = moment().format('YYYY-MM-DD 23:59');
 
 // SUMMARIZED TILE DATA CALCULATED FUNCTIONS
 exports.sales = async(req, res, next) => {
@@ -15,7 +19,14 @@ exports.sales = async(req, res, next) => {
     console.log("LOGGIN SALES")
     let total_sales = 0.000
 
-    const sales = await db.sales.findAll()
+    const sales = await db.sales.findAll({
+        where: {
+            createdAt: { 
+              [Op.gte]: TODAY_START,
+              [Op.lte]: NOW
+           }   
+        }
+    })
     for (let i = 0; i<sales.length; i++) {
         total_sales += sales[i].amount
         console.log(sales[i].amount)
@@ -30,7 +41,14 @@ exports.collection = async(req, res, next) => {
     // SEE TABLES BELOW
     // db.collection
     let total_collection = 0.00
-    const data = await db.useramountsettlement.findAll()
+    const data = await db.useramountsettlement.findAll({
+        where: {
+            createdAt: { 
+              [Op.gte]: TODAY_START,
+              [Op.lte]: NOW
+           }   
+        }
+    })
     let total_debit = 0
     for (let i=0; i<data.length; i++){
         if(data[i].note == "User Credit withdrawn"){
@@ -48,7 +66,14 @@ exports.earning = async(req, res, next) => {
     // db.sales
     let earning_summary = 0.00
 
-    const sales = await db.sales.findAll()
+    const sales = await db.sales.findAll({
+        where: {
+            createdAt: { 
+              [Op.gte]: TODAY_START,
+              [Op.lte]: NOW
+           }   
+        }
+    })
     for (let i = 0; i<sales.length; i++) {
         earning_summary += sales[i].profit
     }
@@ -74,7 +99,14 @@ exports.apiBalance = async(req, res, next) => {
 
 exports.marketDue = async(req, res, next) => {
     let total_market_due = 0.00
-    const data = await db.useramountsettlement.findAll()
+    const data = await db.useramountsettlement.findAll({
+        where: {
+            createdAt: { 
+              [Op.gte]: TODAY_START,
+              [Op.lte]: NOW
+           }   
+        }
+    })
     let total_debit = 0
     let total_credit = 0
     for (let i=0; i<data.length; i++){
@@ -133,9 +165,34 @@ exports.salesList = async(req, res, next) => {
 
 exports.collectionList = async(req, res, next) => {
     let collection_list = []
-    const data = await db.useramountsettlement.findAll()
+    const stl = await db.useramountsettlement.findAll()
+    const users = await db.user.findAll()
+    for (let user of users){
+        let total = 0.00
+
+        const data = await db.useramountsettlement.findAll({
+            where: {
+                userId: user.uuid,
+                note: "User Credit withdrawn"
+            }
+        })
+
+        if(data.length > 0) {
+            for (let settle of data){
+                total += settle.debit
+            }
+            let object = {
+                store: user.store,
+                username: user.phone,
+                total: total,
+                data: data
+            }
+
+            collection_list.push(object)
+        }        
+    }
     res.json({
-        collection_list: data
+        collection_list: collection_list
     })
 }
 
@@ -150,6 +207,9 @@ exports.earningList = async(req, res, next) => {
 exports.apiList = async(req, res, next) => {
     let api_list = []
     const apis = await db.api.findAll()
+
+    
+
     const apipurchase = await db.purchase.findAll()
     res.json({
         api_list: apipurchase
@@ -158,9 +218,39 @@ exports.apiList = async(req, res, next) => {
 
 exports.resellerBalanceTransferHistory = async(req, res, next) => {
     let balance_transfer_history = []
-    const data = await db.useramountsettlement.findAll()
+    const trf_data = await db.useramountsettlement.findAll({
+        where: {
+            note: "User Credit Data"
+        }
+    })
+
+    const users = await db.user.findAll()
+    for (let user of users){
+        let total = 0.00
+
+        const data = await db.useramountsettlement.findAll({
+            where: {
+                userId: user.uuid,
+                note: "User Credit Data"
+            }
+        })
+
+        if(data.length > 0) {
+            for (let settle of data){
+                total += settle.credit
+            }
+            let object = {
+                store: user.store,
+                username: user.phone,
+                total: total,
+                data: data
+            }
+
+            balance_transfer_history.push(object)
+        }        
+    }
     res.json({
-        balance_transfer_history: data
+        balance_transfer_history: balance_transfer_history
     })
 }
 
