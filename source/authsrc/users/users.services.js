@@ -32,6 +32,8 @@ function findUserType(usertype) {
         type = "Sales"
     }else if (usertype == "subdealer"){
         type = "Sub Reseller"
+    }else if (usertype == "admin"){
+        type = "Admin"
     }
 
     return type
@@ -39,16 +41,20 @@ function findUserType(usertype) {
 
 async function createSuperUser(user){
 
+    console.log("user : ", user)
+
     const data = {
         email: user.email,
         phone: user.phone,
         password: hashSync(user.password, 12),
-        userType: user.type,
+        usertype: user.type,
         status: true
     }
 
     console.log(data)
     const dbuser = await User.create(data)
+
+    console.log("dbuser: ", dbuser)
 
     return dbuser;
 }

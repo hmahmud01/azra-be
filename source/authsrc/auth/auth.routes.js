@@ -506,7 +506,8 @@ module.exports = app => {
             const jti = uuidv4();
             const { accessToken, refreshToken } = generateTokens(existingUser, jti);
             await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.uuid });
-            console.log(existingUser.phone)
+            console.log( "user : ", existingUser.phone)
+            console.log("post : ", post)
 
             if(post == "Sales") {
                 res.json({
@@ -798,7 +799,7 @@ module.exports = app => {
     
                 res.json(responseData);
 
-            }else if(post == "admin") {
+            }else if(post == "Admin") {
                 console.log("ADMIN LOGIN AREA")
                 res.json({
                     status: true,
@@ -818,6 +819,8 @@ module.exports = app => {
                     user_id: existingUser.uuid
                 })
             }  
+
+            console.log("BLOCK EXCEEDED")
 
             
 
