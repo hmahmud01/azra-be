@@ -159,7 +159,7 @@ exports.salesList = async(req, res, next) => {
     let sales_list = []
     const sales = await db.sales.findAll()
     res.json({
-        sales_list : sales_list
+        sales_list : sales
     })
 }
 
@@ -208,8 +208,6 @@ exports.apiList = async(req, res, next) => {
     let api_list = []
     const apis = await db.api.findAll()
 
-    
-
     const apipurchase = await db.purchase.findAll()
     res.json({
         api_list: apipurchase
@@ -255,3 +253,14 @@ exports.resellerBalanceTransferHistory = async(req, res, next) => {
 }
 
 // LISTING FUNCTION ENDS
+
+// RESELLER LIST
+exports.resellerList = async(req, res ,next) => {
+    const resellers = await db.user.findAll({
+        where: {
+            usertype: "subdealer"
+        }
+    })
+
+    res.json(resellers)
+}

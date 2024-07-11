@@ -15,6 +15,7 @@ module.exports = app => {
     masterAdminRouter.post('/earninglist-admin', controller.earningList)
     masterAdminRouter.post('/apilist-admin', controller.apiList)
     masterAdminRouter.post('/resellerbalancetransferhistory-admin', controller.resellerBalanceTransferHistory)
+    masterAdminRouter.post('/resellerlist', controller.resellerList)
 
     app.use(masterAdminRouter)
 }

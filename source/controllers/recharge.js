@@ -3769,11 +3769,7 @@ exports.recharge = async (req, res, next) => {
                             .catch((error) => {
                                 console.log(error);
                             });
-
-
-
                     } else {
-
                         const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
 
                         db.systemlog.create({
