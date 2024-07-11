@@ -262,5 +262,7 @@ exports.resellerList = async(req, res ,next) => {
         }
     })
 
-    res.json(resellers)
+    res.json({
+        reseller_list: resellers
+    })
 }

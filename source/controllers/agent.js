@@ -48,7 +48,6 @@ exports.getAgents = async(req, res, next) => {
 }
 
 exports.getAgent = async(req, res, next) => {
-    
     accessLog.info(`${req.params.id}|GET AGENT`)
     let result = {id: 2, name: "Mr. Z", manager: "Mr. X", area: "Location"}
     let id = req.params.id
