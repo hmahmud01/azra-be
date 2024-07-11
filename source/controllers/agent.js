@@ -178,10 +178,21 @@ exports.balanceTransfer = async(req, res, next) => {
         detail: logmsg
     })
 
-    res.status(200).json({
-        message: "transfer done",
-        data: transfer
-    })
+    if (transfer) {
+        res.status(200).json({
+            status: "success",
+            message: "Transfer Completed",
+            data: transfer
+        })
+    }else{
+        res.status(200).json({
+            status: "failed",
+            message: "Transfer Unsuccessful",
+            data: transfer
+        })
+    }
+
+    
 }
 
 exports.settleDebt = async(req, res, next)=> {

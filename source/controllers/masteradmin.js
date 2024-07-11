@@ -159,7 +159,7 @@ exports.salesList = async(req, res, next) => {
     let sales_list = []
     const sales = await db.sales.findAll()
     res.json({
-        sales_list : sales
+        sales_list : sales.reverse()
     })
 }
 
@@ -185,14 +185,14 @@ exports.collectionList = async(req, res, next) => {
                 store: user.store,
                 username: user.phone,
                 total: total,
-                data: data
+                data: data.reverse()
             }
 
             collection_list.push(object)
         }        
     }
     res.json({
-        collection_list: collection_list
+        collection_list: collection_list.reverse()
     })
 }
 
@@ -200,7 +200,7 @@ exports.earningList = async(req, res, next) => {
     let earning_list = []
     const sales = await db.sales.findAll()
     res.json({
-        earning_list: sales
+        earning_list: sales.reverse()
     })
 }
 
@@ -241,14 +241,14 @@ exports.resellerBalanceTransferHistory = async(req, res, next) => {
                 store: user.store,
                 username: user.phone,
                 total: total,
-                data: data
+                data: data.reverse()
             }
 
             balance_transfer_history.push(object)
         }        
     }
     res.json({
-        balance_transfer_history: balance_transfer_history
+        balance_transfer_history: balance_transfer_history.reverse()
     })
 }
 
