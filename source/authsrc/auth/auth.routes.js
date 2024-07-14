@@ -646,6 +646,38 @@ module.exports = app => {
                         
                     }
 
+                    let grouped_hello_card = {
+                        "name":"Hello Card",
+                        "group":"cards",
+                        "category":"card",
+                        "type":"operator",
+                        "logo":"HELLO",
+                        "service_code":"HELLO",
+                        "calling_code":[
+                           "971"
+                        ],
+                        "country_code":"AE",
+                        "data":[
+                           "9"
+                        ]
+                    }
+
+                    let grouped_five_card = {
+                       "name":"Five Card",
+                       "group":"cards",
+                       "category":"card",
+                       "type":"operator",
+                       "logo":"FIVE",
+                       "service_code":"FIVE",
+                       "calling_code":[
+                          "971"
+                       ],
+                       "country_code":"AE",
+                       "data":[
+                          "9"
+                       ]
+                    }
+
                     let grouped_in = {
                         "name":"India",
                         "group":"recharge",
@@ -734,6 +766,8 @@ module.exports = app => {
                     networkdata.push(grouped_in)
                     networkdata.push(grouped_pk)
                     networkdata.push(grouped_bd)
+                    // networkdata.push(grouped_five_card)
+                    // networkdata.push(grouped_hello_card)
                     // networkdata.push(grouped_int)
 
                     let countryData = {
