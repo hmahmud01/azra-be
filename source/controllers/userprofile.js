@@ -583,8 +583,8 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
             voucher_no: collections[i].id,
             customer_name: collections[i].userId,
             voucher_date: collections[i].voucher_date,
-            paid_amount: collections[i].debit,
-            balance_amount: collections[i].debit,
+            paid_amount: collections[i].debit.toString(),
+            balance_amount: collections[i].debit.toString(),
             narration: collections[i].note,
             status: "COLLECTED"
         }
