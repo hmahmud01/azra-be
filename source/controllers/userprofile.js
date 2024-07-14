@@ -573,7 +573,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
 
     const collections = await db.useramountsettlement.findAll({
         where : {
-            collectorId: request.body.username
+            collectorId: req.body.username
         }
     })
 
