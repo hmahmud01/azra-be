@@ -578,10 +578,24 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     })
 
     for (let i=0; i<collections.length; i++){
+        const user = await db.user.findOne({
+            where: {
+                uuid: collections[i].userId,
+            }
+        })
+
+        const userprofile = await db.userprofile.findOne({
+            where: {
+                phone: user.phone,
+            }
+        })
+
+        let name = `${userprofile.f_name} ${userprofile.l_name}`
+
         let data = {
             code: collections[i].id,
             voucher_no: collections[i].id,
-            customer_name: collections[i].userId,
+            customer_name: name,
             voucher_date: collections[i].createdAt,
             paid_amount: collections[i].debit.toString(),
             balance_amount: collections[i].debit.toString(),
