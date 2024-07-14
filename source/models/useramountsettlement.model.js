@@ -5,6 +5,10 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: Sequelize.UUIDV4
         },
         userId: Sequelize.STRING, // Agent User
+        collectorId: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
         debit: Sequelize.FLOAT,
         credit: Sequelize.FLOAT,
         note: Sequelize.STRING,

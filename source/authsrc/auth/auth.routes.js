@@ -589,7 +589,6 @@ module.exports = app => {
 
 
                     for (let j=0; j<network.length; j++){
-
                         const operatorcode = await db.operatorCode.findOne({
                             where: {
                                 countryId: cid,
@@ -677,6 +676,22 @@ module.exports = app => {
                           "9"
                        ]
                     }
+
+                    let grouped_salik_card = {
+                        "name":"Salik Card",
+                        "group":"cards",
+                        "category":"card",
+                        "type":"operator",
+                        "logo":"SALIK",
+                        "service_code":"SALIK",
+                        "calling_code":[
+                           "971"
+                        ],
+                        "country_code":"AE",
+                        "data":[
+                           "9"
+                        ]
+                     }
 
                     let grouped_in = {
                         "name":"India",
@@ -766,8 +781,8 @@ module.exports = app => {
                     networkdata.push(grouped_in)
                     networkdata.push(grouped_pk)
                     networkdata.push(grouped_bd)
-                    networkdata.push(grouped_five_card)
-                    networkdata.push(grouped_hello_card)
+                    // networkdata.push(grouped_five_card)
+                    // networkdata.push(grouped_hello_card)
                     // networkdata.push(grouped_int)
 
                     let countryData = {

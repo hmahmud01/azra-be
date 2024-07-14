@@ -527,6 +527,13 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
     accessLog.info(`ACCESS SALES TRANSACTION HISTORY|${JSON.stringify(req.body)}`)
     let dt = {"username":"iftaykher","from_date":"2023-8-20","to_date":"2023-8-20"}
     let transfer_info = []
+
+    const collectorUser = await db.user.findOne({
+        where: {
+            phone: req.body.username
+        }
+    })   
+
     const trx = await db.agenttransferrequest.findAll({
         where: {
             provider_name: req.body.username
@@ -560,6 +567,29 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
         }
 
         transfer_info.push(data)
+    }
+
+    let receipt_info = []
+
+    const collections = await db.useramountsettlement.findAll({
+        where : {
+            collectorId: re.body.username
+        }
+    })
+
+    for (let i=0; i<collections.length; i++){
+        let data = {
+            code: collections[i].id,
+            voucher_no: collections[i].id,
+            customer_name: collections[i].userId,
+            voucher_date: collections[i].voucher_date,
+            paid_amount: collections[i].debit,
+            balance_amount: collections[i].debit,
+            narration: collections[i].note,
+            status: "COLLECTED"
+        }
+
+        receipt_info.push(data)
     }
 
 
@@ -602,7 +632,7 @@ exports.salesmanTransactionHistory = async(req, res, next) => {
 
     res.json({
         transfer_info: transfer_info.reverse(),
-        receipt_info: [],
+        receipt_info: receipt_info.reverse(),
         sub_reseller_transfer_info: [],
         sub_reseller_receipt_info: [],
         sub_customer_transfer_info: [],

@@ -726,6 +726,9 @@ exports.cashWithdrawal = async(req, res, next) => {
     console.log("PARSED JSON : ", parsed_data)
     let id = parsed_data.uuid
 
+    let reseller = parsed_data.username_reseller
+    
+
     // {"uuid":"78a9f314-5346-4a3f-b58b-8df03ede6616","username_reseller":"01646442322","voucher_date":"2024-6-23","total_received":"40","narration":"adads","collection_data":{"username_sub_customer":"mazhar","username_sub_reseller":"","received_amount":"40"}}
 
     console.log("UUID FROM REQUEST : ", id)
@@ -737,6 +740,7 @@ exports.cashWithdrawal = async(req, res, next) => {
 
     const settlement = await db.useramountsettlement.create({
         userId: id,
+        collectorId: reseller,
         debit: debit,
         credit: 0.00,
         note: "User Credit withdrawn"
