@@ -766,8 +766,8 @@ module.exports = app => {
                     networkdata.push(grouped_in)
                     networkdata.push(grouped_pk)
                     networkdata.push(grouped_bd)
-                    // networkdata.push(grouped_five_card)
-                    // networkdata.push(grouped_hello_card)
+                    networkdata.push(grouped_five_card)
+                    networkdata.push(grouped_hello_card)
                     // networkdata.push(grouped_int)
 
                     let countryData = {
