@@ -3497,7 +3497,7 @@ exports.recharge = async (req, res, next) => {
                 }
             });
 
-            if (plan.is_range) {
+            if (plan.is_range && rechargeType == "cards") {
                 data = JSON.stringify({
                     "external_id": transaction_id,
                     "product_id": product_id,
@@ -3509,6 +3509,26 @@ exports.recharge = async (req, res, next) => {
                         "amount": sendAmount
                     },
                     "credit_party_identifier": {
+                        "mobile_number": `+${msisdn}`
+                    }
+                });
+            }
+
+
+            if (plan.is_range && rechargeType == "UTILITY") {
+                let account_number = plan.account_number;
+                data = JSON.stringify({
+                    "external_id": transaction_id,
+                    "product_id": product_id,
+                    "calculation_mode": "SOURCE_AMOUNT",
+                    "source":
+                    {
+                        "unit_type": "CURRENCY",
+                        "unit": "AED",
+                        "amount": sendAmount
+                    },
+                    "credit_party_identifier": {
+                        "account_number": account_number,
                         "mobile_number": `+${msisdn}`
                     }
                 });

@@ -33,7 +33,7 @@ exports.creditList = async(req, res, next) => {
         })
 
         console.log(profile);
-
+        
         let data = {
             userId: credits[i].userId,
             name: `${profile.f_name} ${profile.l_name}`,
@@ -41,7 +41,7 @@ exports.creditList = async(req, res, next) => {
             credit_limit: credits[i].credit_limit,
             max_credit: credits[i].max_credit
         }
-
+        
         list.push(data)
     }
 
