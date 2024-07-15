@@ -697,7 +697,7 @@ exports.getUserOutstanding = async(req, res, next) => {
         credit += parseFloat(dues[i].credit)
     }
 
-    total = debit - credit
+    total = credit - debit
 
     res.json({
         total_transferred: credit.toFixed(2).toString(),
