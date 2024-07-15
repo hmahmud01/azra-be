@@ -3490,7 +3490,7 @@ exports.recharge = async (req, res, next) => {
                 operator = "Jazz Pakistan"
             }
 
-            let data = JSON.stringify({
+            let dtsdata = JSON.stringify({
                 "external_id": transaction_id,
                 "product_id": product_id,
                 "credit_party_identifier": {
@@ -3499,7 +3499,7 @@ exports.recharge = async (req, res, next) => {
             });
             console.log("PLAN DETAIL : ", plan)
             if (plan.is_range && plan.rechargeType == "cards") {
-                data = JSON.stringify({
+                dtsdata = JSON.stringify({
                     "external_id": transaction_id,
                     "product_id": product_id,
                     "calculation_mode": "SOURCE_AMOUNT",
@@ -3517,8 +3517,7 @@ exports.recharge = async (req, res, next) => {
 
 
             if (plan.is_range && plan.rechargeType == "UTILITY") {
-                let account_number = plan.account_number;
-                data = JSON.stringify({
+                dtsdata = JSON.stringify({
                     "external_id": transaction_id,
                     "product_id": product_id,
                     "calculation_mode": "SOURCE_AMOUNT",
@@ -3536,7 +3535,7 @@ exports.recharge = async (req, res, next) => {
             }
 
 
-            let loglivereq = `REQUEST|${product_id}|${msisdn}|${transaction.uuid}|${api.code}|${JSON.stringify(data)}`
+            let loglivereq = `REQUEST|${product_id}|${msisdn}|${transaction.uuid}|${api.code}|${JSON.stringify(dtsdata)}`
             rechargeLivelogger.info(loglivereq)
 
             console.log(`MSISDN : ${msisdn}`)
@@ -3550,7 +3549,7 @@ exports.recharge = async (req, res, next) => {
                     'Content-Type': 'application/json',
                     'Authorization': `${apikey}`
                 },
-                data: data
+                data: dtsdata
             };
 
             axios.request(config)
