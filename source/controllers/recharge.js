@@ -3554,6 +3554,7 @@ exports.recharge = async (req, res, next) => {
 
             axios.request(config)
                 .then(async (response) => {
+                    console.log("TRANSACTION CREATED RESPONSE : ", response.data)
                     if (response.data.status.class.message == "CREATED") {
                         let config_confirm = {
                             method: 'post',
@@ -3567,7 +3568,8 @@ exports.recharge = async (req, res, next) => {
 
                         await axios.request(config_confirm)
                             .then(async (response) => {
-                                //console.log(JSON.stringify(response.data));
+
+                                console.log(JSON.stringify("TRANSACTION CONFIRM RESPONSE: ", response.data));
                                 //res.json({message : response.data.status.class.message})
 
 
