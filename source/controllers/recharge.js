@@ -1223,7 +1223,8 @@ exports.recharge = async (req, res, next) => {
         plan_amount: req.body.plan_amount,
         plan_id: req.body.plan_id,
         circle_code: req.body.circle_code,
-        prefix: req.body.prefix
+        prefix: req.body.prefix,
+        account_number: req.body.account_number
     }
 
     console.log("DATA")
@@ -3528,7 +3529,7 @@ exports.recharge = async (req, res, next) => {
                         "amount": sendAmount
                     },
                     "credit_party_identifier": {
-                        "account_number": account_number,
+                        "account_number": data.account_number,
                         "mobile_number": `+${msisdn}`
                     }
                 });
