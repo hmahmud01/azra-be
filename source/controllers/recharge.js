@@ -3515,7 +3515,7 @@ exports.recharge = async (req, res, next) => {
             }
 
 
-            if (plan.is_range && rechargeType == "UTILITY") {
+            if (plan.is_range && plan.rechargeType == "UTILITY") {
                 let account_number = plan.account_number;
                 data = JSON.stringify({
                     "external_id": transaction_id,
