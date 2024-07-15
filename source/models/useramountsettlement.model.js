@@ -7,7 +7,7 @@ module.exports = (sequelize, Sequelize) => {
         userId: Sequelize.STRING, // Agent User
         collectorId: {
             type: Sequelize.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         debit: Sequelize.FLOAT,
         credit: Sequelize.FLOAT,
