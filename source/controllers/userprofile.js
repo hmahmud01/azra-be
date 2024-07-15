@@ -152,6 +152,23 @@ exports.userDashboard = async(req, res, next) => {
             credit_total += trf_history[i].amount
         }
     }
+
+    let total = 0.00
+    let debit_amount = 0.00
+    let credit_amount = 0.00
+
+    const dues = await db.useramountsettlement.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    for(let i=0; i<dues.length; i++){
+        debit_amount += parseFloat(dues[i].debit)
+        credit_amount += parseFloat(dues[i].credit)
+    }
+
+    total = credit_amount - debit_amount
     
     let data = {
         portal_balance: portalBalance.toString(),
@@ -164,7 +181,8 @@ exports.userDashboard = async(req, res, next) => {
         total_transferred: transfer.received.toString(),
         total_received: transfer.transfer.toString(),
         credit_recharge_total: transfer.balance.toString(),
-        credit_limit: credit_limit.toString()
+        credit_limit: credit_limit.toString(),
+        total_outstanding: total.toFixed(2).toString()
     }
 
     res.json(data)
