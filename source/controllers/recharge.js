@@ -3496,8 +3496,8 @@ exports.recharge = async (req, res, next) => {
                     "mobile_number": `+${msisdn}`
                 }
             });
-
-            if (plan.is_range && rechargeType == "cards") {
+            console.log("PLAN DETAIL : ", plan)
+            if (plan.is_range && plan.rechargeType == "cards") {
                 data = JSON.stringify({
                     "external_id": transaction_id,
                     "product_id": product_id,
