@@ -580,6 +580,9 @@ module.exports = app => {
                     
                     let cid = countries[i].uuid
                     let networkdata = []
+                    let mobile_recharge = []
+                    let voucher = []
+                    let utility = []
                     const network = await db.mobile.findAll({
                         where: {
                             countryId: cid
@@ -602,42 +605,151 @@ module.exports = app => {
                             }
                         }).then(data => {
                             if (data){
-                                let settingdat = {
-                                    name: network[j].name,
-                                    group: "recharge",
-                                    category: "mobile",
-                                    type: "operator",
-                                    logo: data.logo,
-                                    service_code: data.serviceCode,
-                                    calling_code: [
-                                        data.callingCode,
-                                    ],
-                                    settings: {
-                                        code: data.serviceCode,
-                                        regex: data.regex,
-                                        max_length: data.max_length,
-                                        data: []
-                                    },
-                                    config: {
-                                        code: data.api_code,
-                                        regex: data.regex,
-                                        denomination_step: data.denominationStep
-                                    },
-                                    country_code: countries[i].short,
-                                    data : [
-                                        // countries[i].name,
-                                        // countries[i].name,
-                                        // countries[i].short,
-                                        
-                                        network[j].name,
-                                        network[j].name,
-                                        operatorcode.operatorCode,
-                                        // settingdata.max_length
-                                        (data.max_length).toString(),
-                                    ]
+                                if(data.serviceCode == "MR"){
+                                    let settingdat = {
+                                        name: network[j].name,
+                                        group: "recharge",
+                                        category: "mobile",
+                                        type: "operator",
+                                        logo: data.logo,
+                                        service_code: data.serviceCode,
+                                        calling_code: [
+                                            data.callingCode,
+                                        ],
+                                        settings: {
+                                            code: data.serviceCode,
+                                            regex: data.regex,
+                                            max_length: data.max_length,
+                                            data: []
+                                        },
+                                        config: {
+                                            code: data.api_code,
+                                            regex: data.regex,
+                                            denomination_step: data.denominationStep
+                                        },
+                                        country_code: countries[i].short,
+                                        data : [
+                                            // countries[i].name,
+                                            // countries[i].name,
+                                            // countries[i].short,
+                                            
+                                            network[j].name,
+                                            network[j].name,
+                                            operatorcode.operatorCode,
+                                            // settingdata.max_length
+                                            (data.max_length).toString(),
+                                        ]
+                                    }
+                                    mobile_recharge.push(settingdat)
+                                }else if (data.serviceCode == "UTILITY"){
+                                    let settingdat = {
+                                        name: network[j].name,
+                                        group: "recharge",
+                                        category: "mobile",
+                                        type: "operator",
+                                        logo: data.logo,
+                                        service_code: data.serviceCode,
+                                        calling_code: [
+                                            data.callingCode,
+                                        ],
+                                        settings: {
+                                            code: data.serviceCode,
+                                            regex: data.regex,
+                                            max_length: data.max_length,
+                                            data: []
+                                        },
+                                        config: {
+                                            code: data.api_code,
+                                            regex: data.regex,
+                                            denomination_step: data.denominationStep
+                                        },
+                                        country_code: countries[i].short,
+                                        data : [
+                                            // countries[i].name,
+                                            // countries[i].name,
+                                            // countries[i].short,
+                                            
+                                            network[j].name,
+                                            network[j].name,
+                                            operatorcode.operatorCode,
+                                            // settingdata.max_length
+                                            (data.max_length).toString(),
+                                        ]
+                                    }
+                                    utility.push(settingdat)
+                                }else{
+                                    let settingdat = {
+                                        name: network[j].name,
+                                        group: "recharge",
+                                        category: "mobile",
+                                        type: "operator",
+                                        logo: data.logo,
+                                        service_code: data.serviceCode,
+                                        calling_code: [
+                                            data.callingCode,
+                                        ],
+                                        settings: {
+                                            code: data.serviceCode,
+                                            regex: data.regex,
+                                            max_length: data.max_length,
+                                            data: []
+                                        },
+                                        config: {
+                                            code: data.api_code,
+                                            regex: data.regex,
+                                            denomination_step: data.denominationStep
+                                        },
+                                        country_code: countries[i].short,
+                                        data : [
+                                            // countries[i].name,
+                                            // countries[i].name,
+                                            // countries[i].short,
+                                            
+                                            network[j].name,
+                                            network[j].name,
+                                            operatorcode.operatorCode,
+                                            // settingdata.max_length
+                                            (data.max_length).toString(),
+                                        ]
+                                    }
+                                    voucher.push(settingdat)
                                 }
+                                // let settingdat = {
+                                //     name: network[j].name,
+                                //     group: "recharge",
+                                //     category: "mobile",
+                                //     type: "operator",
+                                //     logo: data.logo,
+                                //     service_code: data.serviceCode,
+                                //     calling_code: [
+                                //         data.callingCode,
+                                //     ],
+                                //     settings: {
+                                //         code: data.serviceCode,
+                                //         regex: data.regex,
+                                //         max_length: data.max_length,
+                                //         data: []
+                                //     },
+                                //     config: {
+                                //         code: data.api_code,
+                                //         regex: data.regex,
+                                //         denomination_step: data.denominationStep
+                                //     },
+                                //     country_code: countries[i].short,
+                                //     data : [
+                                //         // countries[i].name,
+                                //         // countries[i].name,
+                                //         // countries[i].short,
+                                        
+                                //         network[j].name,
+                                //         network[j].name,
+                                //         operatorcode.operatorCode,
+                                //         // settingdata.max_length
+                                //         (data.max_length).toString(),
+                                //     ]
+                                // }
                                 console.log("Network DATA");
-                                networkdata.push(settingdat);
+                                // networkdata.push(settingdat);
                                 console.log(networkdata);
                             }
                             
@@ -778,9 +890,9 @@ module.exports = app => {
                         ]
                     }
 
-                    networkdata.push(grouped_in)
-                    networkdata.push(grouped_pk)
-                    networkdata.push(grouped_bd)
+                    mobile_recharge.push(grouped_in)
+                    mobile_recharge.push(grouped_pk)
+                    mobile_recharge.push(grouped_bd)
                     // networkdata.push(grouped_five_card)
                     // networkdata.push(grouped_hello_card)
                     // networkdata.push(grouped_int)
@@ -788,7 +900,11 @@ module.exports = app => {
                     let countryData = {
                         name: countries[i].name,
                         iso_2: countries[i].short,
-                        services: networkdata
+                        services: {
+                            mobile_recharge: mobile_recharge,
+                            utility: utility,
+                            voucher: voucher
+                        }
                     }
                     countryServices.push(countryData);
                     console.log(countryServices);

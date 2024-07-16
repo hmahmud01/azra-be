@@ -51,7 +51,8 @@ exports.dummyPlan = async(req, res, next) => {
         validity: req.body.validity,
         narration: req.body.narration,
         is_range: is_range,
-        api_plan_id: req.body.api_plan_id
+        api_plan_id: req.body.api_plan_id,
+        productcode: req.body.productCode
     }
 
     const plan = await db.plans.create(data);
