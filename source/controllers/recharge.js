@@ -3473,10 +3473,10 @@ exports.recharge = async (req, res, next) => {
 
             console.log("inside DTS API")
 
-            // const apiurl = "https://dvs-api.dtone.com";
-            // const apikey = "Basic YmZmM2ZkMmItZmRiNS00MmUyLTk0NDUtY2FjNDJiNzYyOWNjOjAwOTMxZTBmLThjOWItNGE0Mi1hMTE2LTUwOTAyNmRiOGU5OQ==";
-            const apiurl = "https://preprod-dvs-api.dtone.com";
-            const apikey = "Basic ZjdiMmIyMzItYTk4ZC00NzU0LWFhOGEtODY5NGQ1ZmQyZDc0OjFjNDRiNWE5LWQ5YTctNDU1MC05YmQzLTAzNDVkMDQ1MzJkNA==";
+            const apiurl = "https://dvs-api.dtone.com";
+            const apikey = "Basic YmZmM2ZkMmItZmRiNS00MmUyLTk0NDUtY2FjNDJiNzYyOWNjOjAwOTMxZTBmLThjOWItNGE0Mi1hMTE2LTUwOTAyNmRiOGU5OQ==";
+            // const apiurl = "https://preprod-dvs-api.dtone.com";
+            // const apikey = "Basic ZjdiMmIyMzItYTk4ZC00NzU0LWFhOGEtODY5NGQ1ZmQyZDc0OjFjNDRiNWE5LWQ5YTctNDU1MC05YmQzLTAzNDVkMDQ1MzJkNA==";
 
             const client_id = process.env.LIV_CLIENT_ID
             const transaction_id = '00' + transaction.id
