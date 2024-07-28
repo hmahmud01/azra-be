@@ -3498,7 +3498,8 @@ exports.recharge = async (req, res, next) => {
                 }
             });
             console.log("PLAN DETAIL : ", plan)
-            if (plan.is_range && plan.rechargeType == "cards") {
+
+            if (plan.is_range && (plan.rechargeType == "cards" ||  plan.rechargeType == "MR")) {
                 dtsdata = JSON.stringify({
                     "external_id": transaction_id,
                     "product_id": product_id,
