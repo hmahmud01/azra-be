@@ -385,9 +385,9 @@ module.exports = app => {
             const username = req.body.username
             const password = req.body.password
 
-            const userbalance = await recharge.userPortalBalance(username)
+            // const userbalance = await recharge.userPortalBalance(username)
 
-            console.log("username , password")
+            console.log(username , password)
 
             if (!username || !password){
                 res.status(403).json({
@@ -400,7 +400,7 @@ module.exports = app => {
             }
 
             const existingUser = await findUserByPhone(username);
-            console.log(existingUser)
+            console.log("EXISTING USER : ", existingUser)
 
             if (!existingUser) {
                 res.status(403).json({
@@ -424,6 +424,8 @@ module.exports = app => {
                 throw new Error('Invalid login credentials.');
             }
 
+            const userbalance = await recharge.userPortalBalance(username)
+
             const profileData = await db.userprofile.findOne({
                 where: {
                     userId: existingUser.uuid
@@ -445,17 +447,6 @@ module.exports = app => {
                     userId: existingUser.uuid
                 })
 
-                // console.log("DEVICE OBJECT : ", device)
-
-                // if(device.currentDevice != device_id){
-                //     res.status(403).json({
-                //             "status": false,
-                //             "auth_id": "N/A",
-                //             "desc": "Device Not Matched. Please Use your original Device You logged in with."
-                        
-                //     }) ;
-                //     throw new Error('Invalid DEVICE.');
-                // }
                 device_db = device.currentDevice
             }else{
                 if(deviceData.currentDevice){
@@ -986,21 +977,506 @@ module.exports = app => {
             }  
 
             console.log("BLOCK EXCEEDED")
+    })
 
+    authRoute.post('/apphome', async(req, res, next) => {
+
+        // CLEAR ALL UUID FROM USER LOGIN
+        let user_id = req.body.user_id
+        const existingUser = await db.user.findOne({
+            where: {
+                uuid: user_id
+            }
+        })
+
+        const userbalance = await recharge.userPortalBalance(existingUser.phone)
+
+        const profileData = await db.userprofile.findOne({
+            where: {
+                userId: existingUser.uuid
+            }
+        })
+
+        const deviceData = await db.userdevice.findOne({
+            where: {
+                userId: existingUser.uuid
+            }
+        })
+
+        const post = findUserType(existingUser.usertype);
+
+        if(post == "Sales") {
+            res.json({
+                status: true,
+                name: existingUser.store,
+                phone: existingUser.phone,
+                superior: "admin",
+                post: post,
+                credit_limit: "0.00000",
+                balance: userbalance,
+                can_add_reseller: true,
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                has_token: accessToken,
+                auth_id: accessToken,
+                refresh_token: refreshToken,
+                user_id: existingUser.uuid
+                // superior: existingUser.connectedUsesr
+            })
+        }else if(post == "Sub Reseller") {
+            const superiorUser = await db.user.findOne({
+                where: {
+                    uuid: profileData.connectedUser
+                }
+            })
+            res.json({
+                status: true,
+                name: existingUser.store,
+                phone: existingUser.phone,
+                superior: superiorUser.store,
+                post: post,
+                credit_limit: "0.00000",
+                balance: userbalance,
+                can_add_customer: true,
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                user_id: existingUser.uuid
+            })
+        }else if(post == "Customer") {
+            let uid = existingUser.id
+            let usertype = existingUser.usertype
+            let store = existingUser.store
+            let uuid = existingUser.uuid
+            let email = existingUser.email
+            let phone = existingUser.phone
+            let status = existingUser.status
+            let address = "addr"
+            let name = profileData.f_name + " " + profileData.l_name
             
+            let setting = {}
 
-        // } catch (error) {
-        //     res.status(200).json(
-        //         {
-        //             "status": false,
-        //             "auth_id": "N/A"
-        //         }
-        //     )
-        // }
-        
-        
+            const superiorUser = await db.user.findOne({
+                where: {
+                    uuid: profileData.connectedUser
+                }
+            })
+
+            let superior = superiorUser.store
+
+            let countryServices = []
+
+            const countries = await db.country.findAll()
+            
+            for (let i=0; i<countries.length; i++){
+                
+                let cid = countries[i].uuid
+                let networkdata = []
+                let mobile_recharge = []
+                let voucher = []
+                let utility = []
+                const network = await db.mobile.findAll({
+                    where: {
+                        countryId: cid
+                    }
+                })
 
 
+
+                for (let j=0; j<network.length; j++){
+                    const operatorcode = await db.operatorCode.findOne({
+                        where: {
+                            countryId: cid,
+                            mobileId: network[j].uuid
+                        }
+                    })
+
+                    const settingdata = await db.mobilesetting.findOne({
+                        where: {
+                            mobileId: network[j].uuid
+                        }
+                    }).then(data => {
+                        if (data){
+                            if(data.serviceCode == "MR"){
+                                let settingdat = {
+                                    name: network[j].name,
+                                    group: "recharge",
+                                    category: "mobile",
+                                    type: "operator",
+                                    logo: data.logo,
+                                    service_code: data.serviceCode,
+                                    calling_code: [
+                                        data.callingCode,
+                                    ],
+                                    settings: {
+                                        code: data.serviceCode,
+                                        regex: data.regex,
+                                        max_length: data.max_length,
+                                        data: []
+                                    },
+                                    config: {
+                                        code: data.api_code,
+                                        regex: data.regex,
+                                        denomination_step: data.denominationStep
+                                    },
+                                    country_code: countries[i].short,
+                                    data : [
+                                        // countries[i].name,
+                                        // countries[i].name,
+                                        // countries[i].short,
+                                        
+                                        network[j].name,
+                                        network[j].name,
+                                        operatorcode.operatorCode,
+                                        // settingdata.max_length
+                                        (data.max_length).toString(),
+                                    ]
+                                }
+                                mobile_recharge.push(settingdat)
+                            }else if (data.serviceCode == "UTILITY"){
+                                let settingdat = {
+                                    name: network[j].name,
+                                    group: "recharge",
+                                    category: "mobile",
+                                    type: "operator",
+                                    logo: data.logo,
+                                    service_code: data.serviceCode,
+                                    calling_code: [
+                                        data.callingCode,
+                                    ],
+                                    settings: {
+                                        code: data.serviceCode,
+                                        regex: data.regex,
+                                        max_length: data.max_length,
+                                        data: []
+                                    },
+                                    config: {
+                                        code: data.api_code,
+                                        regex: data.regex,
+                                        denomination_step: data.denominationStep
+                                    },
+                                    country_code: countries[i].short,
+                                    data : [
+                                        // countries[i].name,
+                                        // countries[i].name,
+                                        // countries[i].short,
+                                        
+                                        network[j].name,
+                                        network[j].name,
+                                        operatorcode.operatorCode,
+                                        // settingdata.max_length
+                                        (data.max_length).toString(),
+                                    ]
+                                }
+                                utility.push(settingdat)
+                            }else{
+                                let settingdat = {
+                                    name: network[j].name,
+                                    group: "recharge",
+                                    category: "mobile",
+                                    type: "operator",
+                                    logo: data.logo,
+                                    service_code: data.serviceCode,
+                                    calling_code: [
+                                        data.callingCode,
+                                    ],
+                                    settings: {
+                                        code: data.serviceCode,
+                                        regex: data.regex,
+                                        max_length: data.max_length,
+                                        data: []
+                                    },
+                                    config: {
+                                        code: data.api_code,
+                                        regex: data.regex,
+                                        denomination_step: data.denominationStep
+                                    },
+                                    country_code: countries[i].short,
+                                    data : [
+                                        // countries[i].name,
+                                        // countries[i].name,
+                                        // countries[i].short,
+                                        
+                                        network[j].name,
+                                        network[j].name,
+                                        operatorcode.operatorCode,
+                                        // settingdata.max_length
+                                        (data.max_length).toString(),
+                                    ]
+                                }
+                                voucher.push(settingdat)
+                            }
+                            // let settingdat = {
+                            //     name: network[j].name,
+                            //     group: "recharge",
+                            //     category: "mobile",
+                            //     type: "operator",
+                            //     logo: data.logo,
+                            //     service_code: data.serviceCode,
+                            //     calling_code: [
+                            //         data.callingCode,
+                            //     ],
+                            //     settings: {
+                            //         code: data.serviceCode,
+                            //         regex: data.regex,
+                            //         max_length: data.max_length,
+                            //         data: []
+                            //     },
+                            //     config: {
+                            //         code: data.api_code,
+                            //         regex: data.regex,
+                            //         denomination_step: data.denominationStep
+                            //     },
+                            //     country_code: countries[i].short,
+                            //     data : [
+                            //         // countries[i].name,
+                            //         // countries[i].name,
+                            //         // countries[i].short,
+                                    
+                            //         network[j].name,
+                            //         network[j].name,
+                            //         operatorcode.operatorCode,
+                            //         // settingdata.max_length
+                            //         (data.max_length).toString(),
+                            //     ]
+                            // }
+                            console.log("Network DATA");
+                            // networkdata.push(settingdat);
+                            console.log(networkdata);
+                        }
+                        
+                    })  
+                    
+                }
+
+                let grouped_hello_card = {
+                    "name":"Hello Card",
+                    "group":"cards",
+                    "category":"card",
+                    "type":"operator",
+                    "logo":"HELLO",
+                    "service_code":"HELLO",
+                    "calling_code":[
+                       "971"
+                    ],
+                    "country_code":"AE",
+                    "data":[
+                       "9"
+                    ]
+                }
+
+                let grouped_five_card = {
+                   "name":"Five Card",
+                   "group":"cards",
+                   "category":"card",
+                   "type":"operator",
+                   "logo":"FIVE",
+                   "service_code":"FIVE",
+                   "calling_code":[
+                      "971"
+                   ],
+                   "country_code":"AE",
+                   "data":[
+                      "9"
+                   ]
+                }
+
+                let grouped_salik_card = {
+                    "name":"Salik Card",
+                    "group":"cards",
+                    "category":"card",
+                    "type":"operator",
+                    "logo":"SALIK",
+                    "service_code":"SALIK",
+                    "calling_code":[
+                       "971"
+                    ],
+                    "country_code":"AE",
+                    "data":[
+                       "9"
+                    ]
+                 }
+
+                let grouped_in = {
+                    "name":"India",
+                    "group":"recharge",
+                    "category":"mobile",
+                    "type":"country",
+                    "logo":"IN",
+                    "settings":{
+                       "code":"MR",
+                       "regex":"^[0-9]{10}$",
+                       "max_length":10,
+                       "data":[
+                          
+                       ]
+                    },
+                    "regex":"^[0-9]{10}$",
+                    "service_code":"MR",
+                    "calling_code":[
+                       "91"
+                    ],
+                    "country_code":"IN",
+                    "data":[
+                       "India",
+                       "India",
+                       "IN",
+                       "10"
+                    ]
+                }
+
+                let grouped_pk = {
+                    "name":"Pakistan",
+                    "group":"recharge",
+                    "category":"mobile",
+                    "type":"country",
+                    "logo":"PK",
+                    "service_code":"MR",
+                    "calling_code":[
+                       "92"
+                    ],
+                    "country_code":"PK",
+                    "data":[
+                       "Pakistan",
+                       "Pakistan",
+                       "PK",
+                       "10"
+                    ]
+                }
+
+                let grouped_bd = {
+                    "name":"Bangladesh",
+                    "group":"recharge",
+                    "category":"mobile",
+                    "type":"country",
+                    "logo":"BD",
+                    "service_code":"MR",
+                    "calling_code":[
+                       "880"
+                    ],
+                    "country_code":"BD",
+                    "data":[
+                       "Bangladesh",
+                       "Bangladesh",
+                       "BD",
+                       "10"
+                    ]
+                }
+
+                let grouped_int = {
+                    "name":"International",
+                    "group":"recharge",
+                    "category":"international",
+                    "type":"international",
+                    "logo":"INT",
+                    "service_code":"MR",
+                    "calling_code":[
+                       "00"
+                    ],
+                    "country_code":"INT",
+                    "data":[
+                       "International",
+                       "International",
+                       "mobile",
+                       "0"
+                    ]
+                }
+
+                mobile_recharge.push(grouped_in)
+                mobile_recharge.push(grouped_pk)
+                mobile_recharge.push(grouped_bd)
+                // networkdata.push(grouped_five_card)
+                // networkdata.push(grouped_hello_card)
+                // networkdata.push(grouped_int)
+
+                let countryData = {
+                    name: countries[i].name,
+                    iso_2: countries[i].short,
+                    services: {
+                        mobile_recharge: mobile_recharge,
+                        utility: utility,
+                        voucher: voucher
+                    }
+                }
+                countryServices.push(countryData);
+                console.log(countryServices);
+            }
+
+            console.log("outside loop country services");
+            console.log(countryServices);
+
+            const headerData = {
+                name: "android_settings",
+                chk_status: "chk_running",
+                header: "Sorry",
+                content: "Application is under construction",
+                description: "",
+                highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                status: "running",
+                min_app_version: "68",
+                latest_app_version: "76"
+            }
+
+            const responseData = {
+                status: status,
+                balance: userbalance,
+                address: address,
+                currency: "United Arab Emirates Dirham",
+                email: email,
+                name: name,
+                contact_no: phone,
+                post: post,
+                credit_limit: "0.000000",
+                reward_enabled: false,
+                superior: superior,
+                service_status: {
+                    status: "running",
+                    header: "Sorry",
+                    content: "Application is under construction",
+                    description: "",
+                    highlight: "WILL BE COMPLETED WITHIN 04:30 AM",
+                    min_app_version: "68",
+                    latest_app_version: "76"
+                },
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                countries: countryServices,
+                user_id: uuid
+            }
+
+            logger.info(`${existingUser.phone} has been successfully logged in from device id : ${req.get('device')}`)
+
+            res.setHeader(
+                'service_status', JSON.stringify(headerData)
+            )
+
+            res.json(responseData);
+
+        }else if(post == "Admin") {
+            console.log("ADMIN LOGIN AREA")
+            res.json({
+                status: true,
+                name: existingUser.store,
+                phone: existingUser.phone,
+                superior: "self",
+                post: post,
+                credit_limit: "",
+                balance: "",
+                can_add_reseller: true,
+                min_app_version: "68",
+                latest_app_version: "76",
+                server_address: process.env.SERVER_URL,
+                user_id: existingUser.uuid
+            })
+        }  
+
+        res.json({
+            status: true,
+            existingUser,
+            userbalance
+        })
     })
 
     authRoute.post('/refreshToken', async (req, res, next) => {
