@@ -173,7 +173,14 @@ exports.remainingCredit = async(req, res, next) => {
 exports.salesList = async(req, res, next) => {
     let sales_list = []
     const sales = await db.sales.findAll()
+
+    let total_sales = 0.00
+    for (let sale of sales){
+        total_sales += sale.amount
+    }
+
     res.json({
+        total_sales,
         sales_list : sales.reverse()
     })
 }
@@ -214,7 +221,12 @@ exports.collectionList = async(req, res, next) => {
 exports.earningList = async(req, res, next) => {
     let earning_list = []
     const sales = await db.sales.findAll()
+    let total_earning = 0.00
+    for (let sale of sales){
+        total_earning += sale.profit
+    }
     res.json({
+        total_earning,
         earning_list: sales.reverse()
     })
 }
