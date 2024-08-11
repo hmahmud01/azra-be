@@ -40,6 +40,8 @@ exports.sales = async(req, res, next) => {
 exports.collection = async(req, res, next) => {
     // SEE TABLES BELOW
     // db.collection
+    const TODAY_START = moment().format('YYYY-MM-DD 00:00');
+    const NOW = moment().format('YYYY-MM-DD 23:59');
     let total_collection = 0.00
     const data = await db.useramountsettlement.findAll({
         where: {
@@ -98,6 +100,8 @@ exports.apiBalance = async(req, res, next) => {
 }
 
 exports.marketDue = async(req, res, next) => {
+    const TODAY_START = moment().format('YYYY-MM-DD 00:00');
+    const NOW = moment().format('YYYY-MM-DD 23:59');
     let total_market_due = 0.00
     // const data = await db.useramountsettlement.findAll({
     //     where: {
@@ -119,7 +123,11 @@ exports.marketDue = async(req, res, next) => {
     for(let user of users){
         const data = await db.useramountsettlement.findAll({
             where: {
-                userId: user.uuid
+                userId: user.uuid,
+                createdAt: { 
+                    [Op.gte]: TODAY_START,
+                    [Op.lte]: NOW
+                } 
             }
         })
 
@@ -130,8 +138,6 @@ exports.marketDue = async(req, res, next) => {
             }
         }
     }
-
-
 
     // let total_debit = 0
     // let total_credit = 0
