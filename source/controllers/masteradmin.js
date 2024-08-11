@@ -99,22 +99,48 @@ exports.apiBalance = async(req, res, next) => {
 
 exports.marketDue = async(req, res, next) => {
     let total_market_due = 0.00
-    const data = await db.useramountsettlement.findAll({
+    // const data = await db.useramountsettlement.findAll({
+    //     where: {
+    //         createdAt: { 
+    //           [Op.gte]: TODAY_START,
+    //           [Op.lte]: NOW
+    //        }   
+    //     }
+    // })
+
+    const users = await db.user.findAll({
         where: {
-            createdAt: { 
-              [Op.gte]: TODAY_START,
-              [Op.lte]: NOW
-           }   
+            usertype: "subdealer"
         }
     })
     let total_debit = 0
     let total_credit = 0
-    for (let i=0; i<data.length; i++){
-        total_credit += data[i].credit
-        if(data[i].note == "User Credit withdrawn"){
-            total_debit += data[i].debit
+
+    for(let user of users){
+        const data = await db.useramountsettlement.findAll({
+            where: {
+                userId: user.uuid
+            }
+        })
+
+        for(let i=0; i<data.length; i++){
+            total_credit += data[i].credit
+            if(data[i].note == "User Credit withdrawn"){
+                total_debit += data[i].debit
+            }
         }
     }
+
+
+
+    // let total_debit = 0
+    // let total_credit = 0
+    // for (let i=0; i<data.length; i++){
+    //     total_credit += data[i].credit
+    //     if(data[i].note == "User Credit withdrawn"){
+    //         total_debit += data[i].debit
+    //     }
+    // }
 
     let due = total_credit - total_debit
     res.json({
