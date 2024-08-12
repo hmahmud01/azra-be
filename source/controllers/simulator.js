@@ -145,6 +145,36 @@ const saveResponse = async (response, trxId) => {
     return trxResp;
 }
 
+exports.check = async(req, res, next) => {
+    
+    const user = await db.user.findOne({
+        where: {
+            phone: req.body.username
+        }
+    })
+
+    const percentinfo = await db.agentpercentage.findOne({
+        where: {
+            userId: user.uuid
+        }
+    })
+    let code = "ETS"
+    let percentvalue = 0.0
+
+    const percentdata = percentinfo.percentdata
+    for (let percent of percentdata){
+        if (code in percent){
+            percentvalue = percent[code]
+        }
+    }
+
+    let calc = 25 /100 * percentvalue
+
+    res.json({
+        "msg" : calc
+    })
+}
+
 exports.submitData = async (req, res, next) => {
     const ip_addr = req.socket.remoteAddress;
     const device = req.headers['user-agent']

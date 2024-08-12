@@ -392,7 +392,7 @@ exports.nonRefundedTrx = async(req, res, next) => {
         const doneBy = await db.user.findOne({where: {uuid: result[i].userId}})
         const country = await db.country.findOne({where: {uuid: result[i].countryId}})
         const mobile = await db.mobile.findOne({where: {uuid: result[i].mobileId}})
-        const service = await db.service.findOne({where: {uuid: result[i].serviceId}})
+        // const service = await db.service.findOne({where: {uuid: result[i].serviceId}})
 
         let data = {
             trxId: result[i].id,
@@ -404,7 +404,7 @@ exports.nonRefundedTrx = async(req, res, next) => {
             store: doneBy.store,
             country: country.name,
             network: mobile.name,
-            service: service.name,
+            // service: service.name,
             createdAt: result[i].createdAt
         }
         trx.push(data);

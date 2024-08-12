@@ -8,6 +8,7 @@ module.exports = app => {
 
     // simulatorRoutes.get('/agentbalance', controller.agentBalance);
     simulatorRoutes.post('/submitdata', controller.submitData);
+    simulatorRoutes.post('/check', controller.check);
     simulatorRoutes.get('/alltrx', controller.allTransactions);
     simulatorRoutes.post('/asynctest', controller.asyncTest);
     simulatorRoutes.post('/asyncurl', controller.asyncURL);

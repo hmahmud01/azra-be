@@ -6,6 +6,10 @@ module.exports = (sequelize, Sequelize) => {
         },
         userId: Sequelize.STRING, // Agent User
         percentage: Sequelize.FLOAT,
+        percentdata: {
+            type: Sequelize.JSON,
+            allowNull: true
+        },
         createdAt: {
             type: Sequelize.DATE,
             allowNull: false,

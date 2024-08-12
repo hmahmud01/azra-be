@@ -1548,15 +1548,24 @@ exports.recharge = async (req, res, next) => {
                         numberLockLogger.info(lockinfo)
                         // TODO
                         // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
+                        
                         const percent = await db.agentpercentage.findOne({
                             where: {
                                 userId: user.uuid,
                             }
                         })
+                        let percentCode = "INT"
+                        let percentvalue = 0.0
+                        const percentdata = percentinfo.percentdata
+                        
+                        for (let percentinfo of percentdata){
+                            if (percentCode in percentinfo){
+                                percentvalue = percentinfo[percentCode]
+                            }
+                        }
 
-                        console.log("Agent Percentage : ", percent.percentage);
-
-                        let earned = debit_amount / 100 * percent.percentage
+                        console.log("Agent Percentage : ", percentvalue);
+                        let earned = debit_amount / 100 * percentvalue
 
                         const earnedData = {
                             userId: user.uuid,
@@ -1928,9 +1937,20 @@ exports.recharge = async (req, res, next) => {
                                         }
                                     })
 
-                                    console.log("Agent Percentage : ", percent.percentage);
+                                    let percentCode = "ETS"
+                                    let percentvalue = 0.0
+                                    const percentdata = percentinfo.percentdata
+                                    
+                                    for (let percentinfo of percentdata){
+                                        if (percentCode in percentinfo){
+                                            percentvalue = percentinfo[percentCode]
+                                        }
+                                    }
 
-                                    let earned = debit_amount / 100 * percent.percentage
+                                    console.log("Agent Percentage : ", percentvalue);
+                                    let earned = debit_amount / 100 * percentvalue
+
+                                    // let earned = debit_amount / 100 * percent.percentage
 
                                     const earnedData = {
                                         userId: user.uuid,
@@ -2230,9 +2250,20 @@ exports.recharge = async (req, res, next) => {
                                         }
                                     })
 
-                                    console.log("Agent Percentage : ", percent.percentage);
+                                    // console.log("Agent Percentage : ", percent.percentage);
+                                    // let earned = debit_amount / 100 * percent.percentage
+                                    let percentCode = "DU"
+                                    let percentvalue = 0.0
+                                    const percentdata = percentinfo.percentdata
+                                    
+                                    for (let percentinfo of percentdata){
+                                        if (percentCode in percentinfo){
+                                            percentvalue = percentinfo[percentCode]
+                                        }
+                                    }
 
-                                    let earned = debit_amount / 100 * percent.percentage
+                                    console.log("Agent Percentage : ", percentvalue);
+                                    let earned = debit_amount / 100 * percentvalue
 
                                     const earnedData = {
                                         userId: user.uuid,
@@ -2458,9 +2489,21 @@ exports.recharge = async (req, res, next) => {
                             }
                         })
 
-                        console.log("Agent Percentage : ", percent.percentage);
+                        // console.log("Agent Percentage : ", percent.percentage);
+                        // let earned = debit_amount / 100 * percent.percentage
 
-                        let earned = debit_amount / 100 * percent.percentage
+                        let percentCode = "INT"
+                        let percentvalue = 0.0
+                        const percentdata = percentinfo.percentdata
+                        
+                        for (let percentinfo of percentdata){
+                            if (percentCode in percentinfo){
+                                percentvalue = percentinfo[percentCode]
+                            }
+                        }
+
+                        console.log("Agent Percentage : ", percentvalue);
+                        let earned = debit_amount / 100 * percentvalue
 
                         const earnedData = {
                             userId: user.uuid,
@@ -2794,9 +2837,21 @@ exports.recharge = async (req, res, next) => {
                             }
                         })
 
-                        console.log("Agent Percentage : ", percent.percentage);
+                        // console.log("Agent Percentage : ", percent.percentage);
+                        // let earned = debit_amount / 100 * percent.percentage
 
-                        let earned = debit_amount / 100 * percent.percentage
+                        let percentCode = "INT"
+                        let percentvalue = 0.0
+                        const percentdata = percentinfo.percentdata
+                        
+                        for (let percentinfo of percentdata){
+                            if (percentCode in percentinfo){
+                                percentvalue = percentinfo[percentCode]
+                            }
+                        }
+
+                        console.log("Agent Percentage : ", percentvalue);
+                        let earned = debit_amount / 100 * percentvalue
 
                         const earnedData = {
                             userId: user.uuid,
@@ -3313,9 +3368,21 @@ exports.recharge = async (req, res, next) => {
                                     }
                                 })
 
-                                console.log("Agent Percentage : ", percent.percentage);
+                                // console.log("Agent Percentage : ", percent.percentage);
+                                // let earned = debit_amount / 100 * percent.percentage
 
-                                let earned = debit_amount / 100 * percent.percentage
+                                let percentCode = "INT"
+                                let percentvalue = 0.0
+                                const percentdata = percentinfo.percentdata
+                                
+                                for (let percentinfo of percentdata){
+                                    if (percentCode in percentinfo){
+                                        percentvalue = percentinfo[percentCode]
+                                    }
+                                }
+
+                                console.log("Agent Percentage : ", percentvalue);
+                                let earned = debit_amount / 100 * percentvalue
 
                                 const earnedData = {
                                     userId: user.uuid,
@@ -3651,9 +3718,21 @@ exports.recharge = async (req, res, next) => {
                                         }
                                     })
 
-                                    console.log("Agent Percentage : ", percent.percentage);
+                                    // console.log("Agent Percentage : ", percent.percentage);
+                                    // let earned = debit_amount / 100 * percent.percentage
 
-                                    let earned = debit_amount / 100 * percent.percentage
+                                    let percentCode = "INT"
+                                    let percentvalue = 0.0
+                                    const percentdata = percentinfo.percentdata
+                                    
+                                    for (let percentinfo of percentdata){
+                                        if (percentCode in percentinfo){
+                                            percentvalue = percentinfo[percentCode]
+                                        }
+                                    }
+
+                                    console.log("Agent Percentage : ", percentvalue);
+                                    let earned = debit_amount / 100 * percentvalue
 
                                     const earnedData = {
                                         userId: user.uuid,

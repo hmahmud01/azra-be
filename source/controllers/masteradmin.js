@@ -16,6 +16,8 @@ exports.sales = async(req, res, next) => {
     // SEE TABLES BELOW
     // db.transaction
     // db.sales
+    const TODAY_START = moment().format('YYYY-MM-DD 00:00');
+    const NOW = moment().format('YYYY-MM-DD 23:59');
     console.log("LOGGIN SALES")
     let total_sales = 0.000
 

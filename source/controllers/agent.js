@@ -231,27 +231,38 @@ exports.settleDebt = async(req, res, next)=> {
 }
 
 exports.assignPercent = async(req, res, next) => {
-    accessLog.info(`${req.params.id}|AGENT PERCENT ASSIGNMENT|${req.body.percent}`)
+    accessLog.info(`${req.params.id}|AGENT PERCENT ASSIGNMENT|${req.body}`)
     let uid = 0;
-    const percent = req.body.percent
+    let data = JSON.stringify(req.body)
+    console.log("JSON : ", req.body)
+    console.log("SENDING : ", data)
+    // const percent = req.body.percent
+    // [{"INT": 1.9}, {"ETS": 1252}]
     let id = req.params.id
-
-    await findId(id).then(res => {uid = res});
-
+    let result = await findId(id);
     console.log(`Id is :${id}`)
-
+    console.log (result)
     const percentAssign = await AgentPercentage.update(
         {
-            percentage: percent
+            percentdata: req.body
         },
         {
             where: {
                 userId: id
-            }
+            },
         }
         
     )
-    const logmsg = `Agent Profit has been udpated for ${id} for the amount of ${percent}%`
+
+    console.log(percentAssign)
+    // const percass = await AgentPercentage.create({
+    //     userId: result,
+    //     percentage: 0.1,
+    //     data: data
+    // })
+
+    // console.log(percass)
+    const logmsg = `Agent Profit has been udpated for ${id} for the amount of ${req.body}%`
     const syslog = await SystemLog.create({
         type: "AgentProfit",
         detail: logmsg
