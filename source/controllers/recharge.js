@@ -1008,14 +1008,6 @@ exports.userCollectedAmount = async(username) => {
     })
 
     for (settle of settlements){
-        // if(settle.note == TRANSFER){
-        //     transferred += settle.credit
-        // }
-
-        // if(settle.note == REDEEMED || settle.note == COLLECTED){
-        //     collected += settle.debit
-        // }
-
         transferred += settle.credit
         collected += settle.debit 
     }
