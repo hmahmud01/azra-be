@@ -987,6 +987,41 @@ exports.BalanceTransfer = async (req, res, next) => {
     })
 }
 
+exports.userCollectedAmount = async(username) => {
+    const TRANSFER = "User Credit Amount Sent"
+    const REDEEMED = "User Credit Redeemed"
+    const COLLECTED = "User Credit withdrawn"
+
+    let transferred = 0
+    let collected = 0
+
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    const settlements = await db.useramountsettlement.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    for (settle of settlements){
+        if(settle.note == TRANSFER){
+            transferred += settle.credit
+        }
+
+        if(settle.note == REDEEMED || settle.note == COLLECTED){
+            collected += settle.debit
+        }
+    }
+
+    let remaining = transferred - collected
+
+    return remaining
+}
+
 exports.userPortalBalance = async (username) => {
     const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     let mainBalance = 0.00;

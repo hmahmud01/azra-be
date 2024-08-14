@@ -832,9 +832,10 @@ exports.getAllUsers = async(req, res, next) => {
         }
     })
 
-
     for(let i=0; i<connected_users.length; i++){
         const portalBalance = await rechargeModule.userPortalBalance(connected_users[i].phone)
+        const remainingCollect = await rechargeModule.userCollectedAmount(connected_users[i].phone)
+
         const credit_info = await db.usercredit.findOne({
             where: {
                 userId: connected_users[i].userId
@@ -852,6 +853,7 @@ exports.getAllUsers = async(req, res, next) => {
                 credit_balance: credit_info.credit.toString(),
                 username: connected_users[i].phone,
                 portal_balance: portalBalance.toFixed(2).toString(),
+                remaining_collect: remainingCollect.toFixed(2).toString(),
                 uuid: connected_users[i].userId
             }
 
@@ -865,6 +867,7 @@ exports.getAllUsers = async(req, res, next) => {
                 credit_balance: "0.0000",
                 username: connected_users[i].phone,
                 portal_balance: portalBalance.toFixed(2).toString(),
+                remaining_collect: remainingCollect.toFixed(2).toString(),
                 uuid: connected_users[i].userId
             }
             data = data_1
