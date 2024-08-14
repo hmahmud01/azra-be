@@ -1504,7 +1504,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -1720,7 +1720,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -1935,7 +1935,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -2150,7 +2150,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -2365,7 +2365,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -2580,7 +2580,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -2795,7 +2795,7 @@ exports.recharge = async (req, res, next) => {
                 })
                 let percentCode = "INT"
                 let percentvalue = 0.0
-                const percentdata = percentinfo.percentdata
+                const percentdata = percent.percentdata
                 
                 for (let percentinfo of percentdata){
                     if (percentCode in percentinfo){
@@ -3081,7 +3081,7 @@ exports.recharge = async (req, res, next) => {
         //                 })
         //                 let percentCode = "INT"
         //                 let percentvalue = 0.0
-        //                 const percentdata = percentinfo.percentdata
+        //                 const percentdata = percent.percentdata
                         
         //                 for (let percentinfo of percentdata){
         //                     if (percentCode in percentinfo){
@@ -3464,7 +3464,7 @@ exports.recharge = async (req, res, next) => {
 
         //                             let percentCode = "ETS"
         //                             let percentvalue = 0.0
-        //                             const percentdata = percentinfo.percentdata
+        //                             const percentdata = percent.percentdata
                                     
         //                             for (let percentinfo of percentdata){
         //                                 if (percentCode in percentinfo){
@@ -3779,7 +3779,7 @@ exports.recharge = async (req, res, next) => {
         //                             // let earned = debit_amount / 100 * percent.percentage
         //                             let percentCode = "DU"
         //                             let percentvalue = 0.0
-        //                             const percentdata = percentinfo.percentdata
+        //                             const percentdata = percent.percentdata
                                     
         //                             for (let percentinfo of percentdata){
         //                                 if (percentCode in percentinfo){
@@ -4019,7 +4019,7 @@ exports.recharge = async (req, res, next) => {
 
         //                 let percentCode = "INT"
         //                 let percentvalue = 0.0
-        //                 const percentdata = percentinfo.percentdata
+        //                 const percentdata = percent.percentdata
                         
         //                 for (let percentinfo of percentdata){
         //                     if (percentCode in percentinfo){
@@ -4367,7 +4367,7 @@ exports.recharge = async (req, res, next) => {
 
         //                 let percentCode = "INT"
         //                 let percentvalue = 0.0
-        //                 const percentdata = percentinfo.percentdata
+        //                 const percentdata = percent.percentdata
                         
         //                 for (let percentinfo of percentdata){
         //                     if (percentCode in percentinfo){
@@ -4662,7 +4662,7 @@ exports.recharge = async (req, res, next) => {
 
         //                         let percentCode = "INT"
         //                         let percentvalue = 0.0
-        //                         const percentdata = percentinfo.percentdata
+        //                         const percentdata = percent.percentdata
                                 
         //                         for (let percentinfo of percentdata){
         //                             if (percentCode in percentinfo){
@@ -5012,7 +5012,7 @@ exports.recharge = async (req, res, next) => {
 
         //                             let percentCode = "INT"
         //                             let percentvalue = 0.0
-        //                             const percentdata = percentinfo.percentdata
+        //                             const percentdata = percent.percentdata
                                     
         //                             for (let percentinfo of percentdata){
         //                                 if (percentCode in percentinfo){
