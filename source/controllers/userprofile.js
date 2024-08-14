@@ -45,7 +45,7 @@ exports.userRedeemEarning = async(req, res, next) => {
 
     // console.log(agenttrx)
 
-    const settlement = await UserAmountSettlement.create({
+    const settlement = await db.useramountsettlement.create({
         userId: user.uuid,
         debit: total_earned,
         credit: 0.00,

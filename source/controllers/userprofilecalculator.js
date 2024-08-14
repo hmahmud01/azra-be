@@ -65,7 +65,8 @@ exports.calculateSale = async(username) => {
     let result = []
     const trx = await Transaction.findAll({
         where: {
-            userId: user.uuid
+            userId: user.uuid,
+            rechargeStatus: true
         }
     })
 
