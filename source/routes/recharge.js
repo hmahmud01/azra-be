@@ -1,6 +1,7 @@
 module.exports = app => {
     const express = require('express');
-    const controller = require('../controllers/recharge.js');
+    // const controller = require('../controllers/recharge.js');
+    const controller = require('../controllers/recharge-dummy.js');
     const { authMiddleware } = require("../authsrc/auth/auth.services.js");
 
     const rechargeRouter = express.Router();
