@@ -1110,7 +1110,7 @@ exports.resellerDashboard = async(req, res, next) => {
             "total_commission": "2.41250",
             "total_balance_to_pay": 446.275
         },
-        "credit_amount" : credit_amount.toString(),
+        "credit_amount" : credit_amount.toFixed(2).toString(),
         "credit_limit": credit_limit.toString(),
         "portal_balance": portalBalance.toString()
     }
