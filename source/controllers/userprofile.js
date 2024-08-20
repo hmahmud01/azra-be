@@ -1062,13 +1062,17 @@ exports.resellerDashboard = async(req, res, next) => {
         }
     })
 
+
+
     if (trf_reqs){
         for (let item of trf_reqs){
-            total_transferred += item.requested_amount
+            total_transferred += parseInt(item.requested_amount)
         }
     }else{
         total_transferred = 0
     }
+
+    console.log(`TOTAL TRANSFERRED : ${total_transferred}`)
 
     let no_requests = trf_reqs.length
 
