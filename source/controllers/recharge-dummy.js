@@ -2083,7 +2083,7 @@ exports.recharge = async (req, res, next) => {
                 apiId: api.uuid
             }
             trx_api_id = api.uuid
-            trx_status = true
+            trx_status = false
             if (trx_status) {
                 const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                 const syslog = await db.systemlog.create({
@@ -2728,7 +2728,7 @@ exports.recharge = async (req, res, next) => {
                 apiId: api.uuid
             }
             trx_api_id = api.uuid
-            trx_status = true
+            trx_status = false
             if (trx_status) {
                 const logmsg = `Successful Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                 const syslog = await db.systemlog.create({
