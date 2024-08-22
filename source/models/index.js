@@ -59,6 +59,7 @@ db.planding = require("./planding.model.js")(sequelize, Sequelize);
 db.currency = require("./currency.model.js")(sequelize, Sequelize);
 db.circle = require("./circle.model.js")(sequelize, Sequelize);
 db.purchase = require("./reportpurchase.model.js")(sequelize, Sequelize);
+db.purchasehistory = require("./reportpurchasehistory.model.js")(sequelize, Sequelize);
 db.sales = require("./reportsales.model.js")(sequelize, Sequelize);
 db.agentcommission = require("./agentcommission.model.js")(sequelize, Sequelize);
 

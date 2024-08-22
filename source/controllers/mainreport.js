@@ -224,6 +224,15 @@ exports.purchaseReport = async(req, res, next) => {
     })
 }
 
+exports.purchaseHistoryReport = async(req, res, next) => {
+    const history = await db.purchasehistory.findAll()
+    console.log(`PURCHASE HOST ${history}`)
+    
+    res.json({
+        data: history
+    })
+}
+
 exports.salesReport = async(req, res, next) => {
     accessLog.info(`ACCESS SALES REPORT`)
     let data = [
@@ -302,7 +311,8 @@ exports.addPurchase = async(req, res, next) => {
 
     let queryData = `DIST: ${dist}, TELCO: ${telco}, PURCHASE: ${purchase}, PAYABLE: ${payable}`
 
-    const entry = await db.purchase.create({
+    console.log("PURCHASE HISTORY ENTERING")
+    const purchasehistoryentry = await db.purchasehistory.create({
         telco: telco,
         dist: dist,
         purchase: purchase,
@@ -313,9 +323,55 @@ exports.addPurchase = async(req, res, next) => {
         locale: locale,
         conv: conv
     })
+
+    const existingpurchase = await db.purchase.findOne({
+        where: {
+            dist: data.dist
+        }
+    })
+
+    if(existingpurchase != null){
+        console.log(`purchase history found : ${existingpurchase}`)
+        let update_balance = parseFloat(existingpurchase.purchase) +  parseFloat(purchase)
+        const upd_purchase = await db.purchase.update(
+            {
+                purchase: update_balance,
+                commission: commission,
+                payable: payable
+            },
+            {
+                where: {
+                    uuid: existingpurchase.uuid
+                }
+            }
+        )
+    }else{
+        console.log("No purchase found with this dist. creating new Entry")
+        const entry = await db.purchase.create({
+            telco: telco,
+            dist: dist,
+            purchase: purchase,
+            amountpurchased: purchase,
+            payable: payable,
+            commission: commission,
+            entrydate: entrydate,
+            locale: locale,
+            conv: conv
+        })
+    }
+
+    
     
     res.json({
         data: queryData
+    })
+}
+
+exports.updatePurchase = async(req, res, next) => {
+    accessLog.info(`UPDATE PURCHASE ENTRY|${JSON.stringify(req.body)}`)
+    console.log(`Updating purchase Entry : ${req.body}`)
+    res.json({
+        msg: "success"
     })
 }
 
