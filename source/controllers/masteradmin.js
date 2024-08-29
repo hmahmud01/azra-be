@@ -116,7 +116,7 @@ exports.marketDue = async(req, res, next) => {
 
     const users = await db.user.findAll({
         where: {
-            usertype: "subdealer"
+            usertype: "agent"
         }
     })
 
