@@ -211,21 +211,6 @@ exports.remainingCredit = async(req, res, next) => {
 // SUMMARIZED FUNCTION ENDS
 
 // LISTING FUNCTION
-exports.salesList = async(req, res, next) => {
-    let sales_list = []
-    const sales = await db.sales.findAll()
-
-    let total_sales = 0.00
-    for (let sale of sales){
-        total_sales += sale.amount
-    }
-
-    res.json({
-        total_sales,
-        sales_list : sales.reverse()
-    })
-}
-
 exports.collectionList = async(req, res, next) => {
     let collection_list = []
     const stl = await db.useramountsettlement.findAll()
@@ -259,17 +244,72 @@ exports.collectionList = async(req, res, next) => {
     })
 }
 
-exports.earningList = async(req, res, next) => {
-    let earning_list = []
-    const sales = await db.sales.findAll()
-    let total_earning = 0.00
-    for (let sale of sales){
-        total_earning += sale.profit
+exports.salesList = async(req, res, next) => {
+    let limit = req.query.limit
+    if (limit){
+        console.log(typeof(limit))
+        const sales = await db.sales.findAll({
+            order: [['date', 'DESC']],
+            limit: parseInt(limit),
+        })
+        let total_sales = 0.00
+        for (let sale of sales){
+            total_sales += sale.amount
+        }  
+
+        res.json({
+            total_sales,
+            sales_list : sales.reverse()
+        })
+
+    }else{
+        const sales = await db.sales.findAll()
+        let total_sales = 0.00
+        for (let sale of sales){
+            total_sales += sale.amount
+        }    
+
+        res.json({
+            total_sales,
+            sales_list : sales.reverse()
+        })
     }
-    res.json({
-        total_earning,
-        earning_list: sales.reverse()
-    })
+
+    // res.json({
+    //     total_sales,
+    //     sales_list : sales.reverse()
+    // })
+    
+}
+
+exports.earningList = async(req, res, next) => {
+    let limit = req.query.limit
+
+    console.log(limit)
+    if(limit){
+        const sales = await db.sales.findAll({
+            order: [['date', 'DESC']],
+            limit: parseInt(limit),
+        })
+        let total_earning = 0.00
+        for (let sale of sales){
+            total_earning += sale.profit
+        }
+        res.json({
+            total_earning,
+            earning_list: sales.reverse()
+        })
+    }else{
+        const sales = await db.sales.findAll()
+        let total_earning = 0.00
+        for (let sale of sales){
+            total_earning += sale.profit
+        }
+        res.json({
+            total_earning,
+            earning_list: sales.reverse()
+        })
+    }
 }
 
 exports.apiList = async(req, res, next) => {
