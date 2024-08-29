@@ -1123,6 +1123,7 @@ exports.resellerDashboard = async(req, res, next) => {
         "credit_amount" : credit_amount.toFixed(2).toString(),
         "market_due" : market_due.toFixed(2).toString(),
         "credit_limit": credit_limit.toString(),
+        "total_collection": total_collection.toFixed(2).toString(),
         "portal_balance": portalBalance.toString()
     }
 
