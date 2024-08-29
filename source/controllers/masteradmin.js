@@ -336,10 +336,18 @@ exports.customerCollectionHistory = async(req, res, next) => {
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
     const NOW = moment().format('YYYY-MM-DD 23:59');
     let collection_history = []
-    let user_id = req.body.user_id
+    let username = req.body.username_reseller
+
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    
     const customers = await db.userprofile.findAll({
         where: {
-            connectedUser: user_id
+            connectedUser: user.uuid
         }
     })
 
