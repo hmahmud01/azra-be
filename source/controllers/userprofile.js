@@ -1026,7 +1026,13 @@ exports.resellerDashboard = async(req, res, next) => {
     const portalBalance = await rechargeModule.userPortalBalance(req.body.username)
     let credit_limit = "0.0000"
     let credit_total = 0.0000
-    let credit_amount = 0.000
+    let credit_amount = 0.0000
+
+    let total_sales = 0.0000
+    let market_due = 0.0000
+    let total_collection = 0.0000
+
+
     const user = await db.user.findOne({
         where: {
             phone: req.body.username
@@ -1041,7 +1047,11 @@ exports.resellerDashboard = async(req, res, next) => {
 
     for (let i=0; i<connected_users.length; i++){
         const remainingCollect = await rechargeModule.userCollectedAmount(connected_users[i].phone)
-        credit_amount += remainingCollect
+        market_due += remainingCollect
+        const collected = await rechargeModule.userCollection(connected_users[i].phone)
+        total_collection+= collected
+        const sales = await rechargeModule.customerSales(connected_users[i].phone)
+        total_sales += sales
     }
 
 
@@ -1096,7 +1106,7 @@ exports.resellerDashboard = async(req, res, next) => {
         "total_credited": "10000.00000",
         "total_transferred": total_transferred,
         "no_of_sales": no_requests,
-        "total_sales": "1097.55833",
+        "total_sales": total_sales.toFixed(2).toString(),
         "total_commission": "10.17551",
         "total_paid": "0",
         "total_balance_to_pay": 1087.38282,
@@ -1111,6 +1121,7 @@ exports.resellerDashboard = async(req, res, next) => {
             "total_balance_to_pay": 446.275
         },
         "credit_amount" : credit_amount.toFixed(2).toString(),
+        "market_due" : market_due.toFixed(2).toString(),
         "credit_limit": credit_limit.toString(),
         "portal_balance": portalBalance.toString()
     }

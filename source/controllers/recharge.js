@@ -987,6 +987,43 @@ exports.BalanceTransfer = async (req, res, next) => {
     })
 }
 
+exports.customerSales = async(username) => {
+    let sales = 0.0000
+
+    const salesentries = await db.sales.findAll({
+        where: {
+            agent: username
+        }
+    })
+
+    for (let entry of salesentries){
+        sales += entry.amount
+    }
+
+    return sales
+}
+
+exports.userCollection = async(username) => {
+    let collected = 0
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    })
+
+    const settlements = await db.useramountsettlement.findAll({
+        where: {
+            userId: user.uuid
+        }
+    })
+
+    for (let settle of settlements){
+        collected += settle.debit
+    }
+
+    return collected
+}
+
 exports.userCollectedAmount = async(username) => {
     const TRANSFER = "User Credit Amount Sent"
     const REDEEMED = "User Credit Redeemed"
