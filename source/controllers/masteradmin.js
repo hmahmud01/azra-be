@@ -5,7 +5,7 @@ const rechargeModule = require("./recharge");
 const calculator = require("./userprofilecalculator");
 
 const { accessLog } = require("../authsrc/middlewares");
-const { Op } = require('sequelize');
+const { Op, col } = require('sequelize');
 const moment = require("moment");
 
 const TODAY_START = moment().format('YYYY-MM-DD 00:00');
@@ -119,17 +119,24 @@ exports.marketDue = async(req, res, next) => {
             usertype: "subdealer"
         }
     })
+
     let total_debit = 0
     let total_credit = 0
 
     for(let user of users){
+        // const data = await db.useramountsettlement.findAll({
+        //     where: {
+        //         userId: user.uuid,
+        //         createdAt: { 
+        //             [Op.gte]: TODAY_START,
+        //             [Op.lte]: NOW
+        //         } 
+        //     }
+        // })
+
         const data = await db.useramountsettlement.findAll({
             where: {
                 userId: user.uuid,
-                createdAt: { 
-                    [Op.gte]: TODAY_START,
-                    [Op.lte]: NOW
-                } 
             }
         })
 
@@ -274,6 +281,101 @@ exports.apiList = async(req, res, next) => {
         api_list: apipurchase
     })
 }
+
+exports.resellerCollectionHistory = async(req, res, next) => {
+    const TODAY_START = moment().format('YYYY-MM-DD 00:00');
+    const NOW = moment().format('YYYY-MM-DD 23:59');
+    let collection_history = []
+    const users = await db.user.findAll({
+        where: {
+            usertype: "subdealer"
+        }
+    })
+
+    for (let user of users){
+        let total = 0.00
+
+        const customers = await db.userprofile.findAll({
+            where: {
+                connectedUser: user.uuid
+            }
+        })
+
+        for (let customer of customers){
+            const datas = await db.useramountsettlement.findAll({
+                where: {
+                    userId: customer.userId,
+                    createdAt: {
+                        [Op.gte]: TODAY_START,
+                        [Op.lte]: NOW
+                    }
+                }
+            })
+
+            for (let data of datas){
+                total += data.debit
+            }
+        }
+
+        let object = {
+            user_id: user.uuid,
+            username: user.phone,
+            store: user.store,
+            total: total
+        }
+
+        collection_history.push(object)
+    }
+
+    res.json({
+        reseller_collection_history: collection_history
+    })
+}
+
+exports.customerCollectionHistory = async(req, res, next) => {
+    const TODAY_START = moment().format('YYYY-MM-DD 00:00');
+    const NOW = moment().format('YYYY-MM-DD 23:59');
+    let collection_history = []
+    let user_id = req.body.user_id
+    const customers = await db.userprofile.findAll({
+        where: {
+            connectedUser: user_id
+        }
+    })
+
+    for (let customer of customers) {
+        let total = 0.00
+        const datas = await db.useramountsettlement.findAll({
+            where: {
+                userId: customer.userId,
+                createdAt: {
+                    [Op.gte]: TODAY_START,
+                    [Op.lte]: NOW
+                }
+            }
+        })
+
+        for (let data of datas){
+            total = data.debit
+        }
+
+        let object = {
+            user_id: customer.userId,
+            username: customer.phone,
+            total: total
+        }
+
+        collection_history.push(object)
+    }
+
+    res.json({
+        customer_collection_history: collection_history
+    })
+
+
+}
+
+
 
 // FUNCTION: ONLY RESELLER TRANSFER LIST
 exports.resellerBalanceTransferHistory = async(req, res, next) => {
