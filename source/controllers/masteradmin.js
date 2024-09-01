@@ -106,14 +106,7 @@ exports.marketDue = async (req, res, next) => {
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
     const NOW = moment().format('YYYY-MM-DD 23:59');
     let total_market_due = 0.00
-    // const data = await db.useramountsettlement.findAll({
-    //     where: {
-    //         createdAt: { 
-    //           [Op.gte]: TODAY_START,
-    //           [Op.lte]: NOW
-    //        }   
-    //     }
-    // })
+
 
     const users = await db.user.findAll({
         where: {
@@ -125,16 +118,6 @@ exports.marketDue = async (req, res, next) => {
     let total_credit = 0
 
     for (let user of users) {
-        // const data = await db.useramountsettlement.findAll({
-        //     where: {
-        //         userId: user.uuid,
-        //         createdAt: { 
-        //             [Op.gte]: TODAY_START,
-        //             [Op.lte]: NOW
-        //         } 
-        //     }
-        // })
-
         const data = await db.useramountsettlement.findAll({
             where: {
                 userId: user.uuid,
@@ -148,15 +131,6 @@ exports.marketDue = async (req, res, next) => {
             }
         }
     }
-
-    // let total_debit = 0
-    // let total_credit = 0
-    // for (let i=0; i<data.length; i++){
-    //     total_credit += data[i].credit
-    //     if(data[i].note == "User Credit withdrawn"){
-    //         total_debit += data[i].debit
-    //     }
-    // }
 
     let due = total_credit - total_debit
     res.json({
@@ -201,7 +175,6 @@ exports.remainingCredit = async (req, res, next) => {
         let balance = await rechargeModule.userPortalBalance(user.phone)
         total_customer_balance += balance
     }
-    // console.log("REMAINING : ", remaining_credit_limit)
     console.log("CUSTOMER : ", total_customer_balance)
 
     res.json({
@@ -405,32 +378,6 @@ exports.lastCollection = async(req, res, next) => {
             order: [[fn('DATE', col('createdAt')), 'ASC']]
         });
 
-        // const collectionDataPlain = collectionData.map(record => record.get({ plain: true }));
-
-        // // Create a map for quick lookup
-        // const collectionMap = {};
-        // collectionDataPlain.forEach(item => {
-        //     const date = item.date.toISOString().split('T')[0]; // Ensure date is in 'YYYY-MM-DD' format
-        //     collectionMap[date] = {
-        //         totalAmount: parseFloat(item.totalAmount)
-        //     };
-        // });
-
-        // // Merge the data
-        // const aggregatedData = last30Days.map(date => {
-        //     if (collectionMap[date]) {
-        //         return {
-        //             date,
-        //             totalAmount: collectionMap[date].totalAmount
-        //         };
-        //     } else {
-        //         return {
-        //             date,
-        //             totalAmount: 0
-        //         };
-        //     }
-        // });
-
         // Convert sales data into a simpler format
         const collectionMap = collectionData.reduce((acc, item) => {
             const dateString = item.dataValues.date;
@@ -456,6 +403,98 @@ exports.lastCollection = async(req, res, next) => {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
     }
+}
+
+exports.resellerDueList = async(req, res, next) => {
+    let result = []
+    const users = await db.user.findAll({
+        where: {
+            usertype: "subdealer"
+        }
+    })
+
+    for (let user of users){
+        const agentprofiles = await db.userprofile.findAll({
+            where: {
+                connectedUser: user.uuid
+            }
+        })
+
+        let total_debit = 0
+        let total_credit = 0
+
+        for (profile of agentprofiles){
+            const data = await db.useramountsettlement.findAll({
+                where: {
+                    userId: profile.userId,
+                }
+            })
+    
+            for (let i = 0; i < data.length; i++) {
+                total_credit += data[i].credit
+                if (data[i].note == "User Credit withdrawn") {
+                    total_debit += data[i].debit
+                }
+            }
+        }
+
+        let due = total_credit - total_debit
+
+        let duedata = {
+            reseller : user.phone,
+            due: due
+        }
+
+        result.push(duedata)
+    }
+    res.json({
+        resellerduelist: result
+    })
+}
+
+exports.customerDueList = async(req, res, next) => {
+    let result = []
+    let username = req.body.username
+    const user = await db.user.findOne({
+        where: {
+            phone: username
+        }
+    }) 
+    const customers = await db.userprofile.findAll({
+        where: {
+            connectedUser: user.uuid
+        }
+    }) 
+
+    for (let customer of customers) {
+        let total_debit = 0
+        let total_credit = 0
+        const data = await db.useramountsettlement.findAll({
+            where: {
+                userId: customer.userId,
+            }
+        })
+
+        for (let i = 0; i < data.length; i++) {
+            total_credit += data[i].credit
+            if (data[i].note == "User Credit withdrawn") {
+                total_debit += data[i].debit
+            }
+        }
+
+        let due = total_credit - total_debit
+
+        let duedata = {
+            customer : customer.phone,
+            due: due
+        }
+
+        result.push(duedata)
+    }
+
+    res.json({
+        customerduelist: result
+    })
 }
 
 exports.apiList = async (req, res, next) => {

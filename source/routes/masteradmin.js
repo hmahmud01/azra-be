@@ -6,7 +6,6 @@ module.exports = app => {
     masterAdminRouter = express.Router();
     masterAdminRouter.post('/sales-admin', controller.sales)
     masterAdminRouter.post('/collection-admin', controller.collection)
-    masterAdminRouter.post('/last-30-day-collection', controller.lastCollection)
     masterAdminRouter.post('/earning-admin', controller.earning)
     masterAdminRouter.post('/apibalance-admin', controller.apiBalance)
     masterAdminRouter.post('/marketdue-admin', controller.marketDue)
@@ -14,6 +13,9 @@ module.exports = app => {
     masterAdminRouter.post('/saleslist-admin', controller.salesList)
     masterAdminRouter.post('/earninglist-admin', controller.earningList)
     masterAdminRouter.post('/last-30-day-sales', controller.lastSales)
+    masterAdminRouter.post('/last-30-day-collection', controller.lastCollection)
+    masterAdminRouter.post('/reseller-due-list', controller.resellerDueList)
+    masterAdminRouter.post('/customer-due-list', controller.customerDueList)
     masterAdminRouter.post('/collectionlist-admin', controller.collectionList)
     masterAdminRouter.post('/apilist-admin', controller.apiList)
     masterAdminRouter.post('/resellercollectionhistory-admin', controller.resellerCollectionHistory)
