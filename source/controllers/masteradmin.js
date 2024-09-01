@@ -5,14 +5,15 @@ const rechargeModule = require("./recharge");
 const calculator = require("./userprofilecalculator");
 
 const { accessLog } = require("../authsrc/middlewares");
-const { Op, col } = require('sequelize');
+// const { Op, col } = require('sequelize');
+const { fn, col, Op, literal } = require('sequelize');
 const moment = require("moment");
 
 const TODAY_START = moment().format('YYYY-MM-DD 00:00');
 const NOW = moment().format('YYYY-MM-DD 23:59');
 
 // SUMMARIZED TILE DATA CALCULATED FUNCTIONS
-exports.sales = async(req, res, next) => {
+exports.sales = async (req, res, next) => {
     // SEE TABLES BELOW
     // db.transaction
     // db.sales
@@ -23,13 +24,13 @@ exports.sales = async(req, res, next) => {
 
     const sales = await db.sales.findAll({
         where: {
-            createdAt: { 
-              [Op.gte]: TODAY_START,
-              [Op.lte]: NOW
-           }   
+            createdAt: {
+                [Op.gte]: TODAY_START,
+                [Op.lte]: NOW
+            }
         }
     })
-    for (let i = 0; i<sales.length; i++) {
+    for (let i = 0; i < sales.length; i++) {
         total_sales += sales[i].amount
         console.log(sales[i].amount)
     }
@@ -39,7 +40,7 @@ exports.sales = async(req, res, next) => {
     })
 }
 
-exports.collection = async(req, res, next) => {
+exports.collection = async (req, res, next) => {
     // SEE TABLES BELOW
     // db.collection
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
@@ -47,15 +48,15 @@ exports.collection = async(req, res, next) => {
     let total_collection = 0.00
     const data = await db.useramountsettlement.findAll({
         where: {
-            createdAt: { 
-              [Op.gte]: TODAY_START,
-              [Op.lte]: NOW
-           }   
+            createdAt: {
+                [Op.gte]: TODAY_START,
+                [Op.lte]: NOW
+            }
         }
     })
     let total_debit = 0
-    for (let i=0; i<data.length; i++){
-        if(data[i].note == "User Credit withdrawn"){
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].note == "User Credit withdrawn") {
             total_debit += data[i].debit
         }
     }
@@ -64,7 +65,7 @@ exports.collection = async(req, res, next) => {
     })
 }
 
-exports.earning = async(req, res, next) => {
+exports.earning = async (req, res, next) => {
     // SEE TABLES BELOW
     // db.organizationearned
     // db.sales
@@ -72,13 +73,13 @@ exports.earning = async(req, res, next) => {
 
     const sales = await db.sales.findAll({
         where: {
-            createdAt: { 
-              [Op.gte]: TODAY_START,
-              [Op.lte]: NOW
-           }   
+            createdAt: {
+                [Op.gte]: TODAY_START,
+                [Op.lte]: NOW
+            }
         }
     })
-    for (let i = 0; i<sales.length; i++) {
+    for (let i = 0; i < sales.length; i++) {
         earning_summary += sales[i].profit
     }
     res.json({
@@ -86,14 +87,14 @@ exports.earning = async(req, res, next) => {
     })
 }
 
-exports.apiBalance = async(req, res, next) => {
+exports.apiBalance = async (req, res, next) => {
     // SEE TABLES BELOW
     // db.api
     // db.purchase
 
     let total_api_balance = 0.00
     const purchases = await db.purchase.findAll()
-    for (let i = 0; i<purchases.length; i++) {
+    for (let i = 0; i < purchases.length; i++) {
         total_api_balance += purchases[i].purchase
     }
     res.json({
@@ -101,7 +102,7 @@ exports.apiBalance = async(req, res, next) => {
     })
 }
 
-exports.marketDue = async(req, res, next) => {
+exports.marketDue = async (req, res, next) => {
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
     const NOW = moment().format('YYYY-MM-DD 23:59');
     let total_market_due = 0.00
@@ -123,7 +124,7 @@ exports.marketDue = async(req, res, next) => {
     let total_debit = 0
     let total_credit = 0
 
-    for(let user of users){
+    for (let user of users) {
         // const data = await db.useramountsettlement.findAll({
         //     where: {
         //         userId: user.uuid,
@@ -140,9 +141,9 @@ exports.marketDue = async(req, res, next) => {
             }
         })
 
-        for(let i=0; i<data.length; i++){
+        for (let i = 0; i < data.length; i++) {
             total_credit += data[i].credit
-            if(data[i].note == "User Credit withdrawn"){
+            if (data[i].note == "User Credit withdrawn") {
                 total_debit += data[i].debit
             }
         }
@@ -163,7 +164,7 @@ exports.marketDue = async(req, res, next) => {
     })
 }
 
-exports.remainingCredit = async(req, res, next) => {
+exports.remainingCredit = async (req, res, next) => {
     let remaining_credit_limit = 0.00
     // GET TOTAL API BALANCE THEN GET TOTAL MARKET 
     // REMANING CREDIT = API BALANCE - TOTAL MARKET DUE
@@ -196,7 +197,7 @@ exports.remainingCredit = async(req, res, next) => {
         }
     })
 
-    for (let user of users){
+    for (let user of users) {
         let balance = await rechargeModule.userPortalBalance(user.phone)
         total_customer_balance += balance
     }
@@ -211,11 +212,11 @@ exports.remainingCredit = async(req, res, next) => {
 // SUMMARIZED FUNCTION ENDS
 
 // LISTING FUNCTION
-exports.collectionList = async(req, res, next) => {
+exports.collectionList = async (req, res, next) => {
     let collection_list = []
     const stl = await db.useramountsettlement.findAll()
     const users = await db.user.findAll()
-    for (let user of users){
+    for (let user of users) {
         let total = 0.00
 
         const data = await db.useramountsettlement.findAll({
@@ -225,8 +226,8 @@ exports.collectionList = async(req, res, next) => {
             }
         })
 
-        if(data.length > 0) {
-            for (let settle of data){
+        if (data.length > 0) {
+            for (let settle of data) {
                 total += settle.debit
             }
             let object = {
@@ -237,41 +238,41 @@ exports.collectionList = async(req, res, next) => {
             }
 
             collection_list.push(object)
-        }        
+        }
     }
     res.json({
         collection_list: collection_list.reverse()
     })
 }
 
-exports.salesList = async(req, res, next) => {
+exports.salesList = async (req, res, next) => {
     let limit = req.query.limit
-    if (limit){
-        console.log(typeof(limit))
+    if (limit) {
+        console.log(typeof (limit))
         const sales = await db.sales.findAll({
             order: [['date', 'DESC']],
             limit: parseInt(limit),
         })
         let total_sales = 0.00
-        for (let sale of sales){
+        for (let sale of sales) {
             total_sales += sale.amount
-        }  
+        }
 
         res.json({
             total_sales,
-            sales_list : sales.reverse()
+            sales_list: sales.reverse()
         })
 
-    }else{
+    } else {
         const sales = await db.sales.findAll()
         let total_sales = 0.00
-        for (let sale of sales){
+        for (let sale of sales) {
             total_sales += sale.amount
-        }    
+        }
 
         res.json({
             total_sales,
-            sales_list : sales.reverse()
+            sales_list: sales.reverse()
         })
     }
 
@@ -279,30 +280,30 @@ exports.salesList = async(req, res, next) => {
     //     total_sales,
     //     sales_list : sales.reverse()
     // })
-    
+
 }
 
-exports.earningList = async(req, res, next) => {
+exports.earningList = async (req, res, next) => {
     let limit = req.query.limit
 
     console.log(limit)
-    if(limit){
+    if (limit) {
         const sales = await db.sales.findAll({
             order: [['date', 'DESC']],
             limit: parseInt(limit),
         })
         let total_earning = 0.00
-        for (let sale of sales){
+        for (let sale of sales) {
             total_earning += sale.profit
         }
         res.json({
             total_earning,
             earning_list: sales.reverse()
         })
-    }else{
+    } else {
         const sales = await db.sales.findAll()
         let total_earning = 0.00
-        for (let sale of sales){
+        for (let sale of sales) {
             total_earning += sale.profit
         }
         res.json({
@@ -312,7 +313,137 @@ exports.earningList = async(req, res, next) => {
     }
 }
 
-exports.apiList = async(req, res, next) => {
+function getLast30Days() {
+    const days = [];
+    const today = new Date();
+
+    for (let i = 29; i >= 0; i--) { // 0 to 29 for the last 30 days
+        const pastDate = new Date();
+        pastDate.setDate(today.getDate() - i);
+        const year = pastDate.getFullYear();
+        const month = String(pastDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(pastDate.getDate()).padStart(2, '0');
+        days.push(`${year}-${month}-${day}`);
+    }
+
+    return days;
+}
+
+exports.lastSales = async (req, res, next) => {
+    // [Op.gte]: fn('DATE_SUB', fn('NOW'), fn('INTERVAL', 30, 'DAY'))
+    try {
+        const salesData = await db.sales.findAll({
+            attributes: [
+                [fn('DATE', col('date')), 'date'],
+                [fn('SUM', col('amount')), 'totalAmount'],
+                [fn('SUM', col('profit')), 'totalProfit']
+            ],
+            where: {
+                date: {
+                    [Op.gte]: literal(`DATE_SUB(NOW(), INTERVAL 30 DAY)`)
+                }
+            },
+            group: [fn('DATE', col('date'))],
+            order: [[fn('DATE', col('date')), 'ASC']]
+        });
+        const salesDataPlain = salesData.map(record => record.get({ plain: true }));
+
+        // Generate the last 30 days
+        const last30Days = getLast30Days();
+
+        // Create a map for quick lookup
+        const salesMap = {};
+        salesDataPlain.forEach(item => {
+            const date = item.date.toISOString().split('T')[0]; // Ensure date is in 'YYYY-MM-DD' format
+            salesMap[date] = {
+                totalAmount: parseFloat(item.totalAmount),
+                totalProfit: parseFloat(item.totalProfit)
+            };
+        });
+
+        // Merge the data
+        const aggregatedData = last30Days.map(date => {
+            if (salesMap[date]) {
+                return {
+                    date,
+                    totalAmount: salesMap[date].totalAmount,
+                    totalProfit: salesMap[date].totalProfit
+                };
+            } else {
+                return {
+                    date,
+                    totalAmount: 0,
+                    totalProfit: 0
+                };
+            }
+        });
+
+        
+
+        console.log(`SALES DATA : ${salesData}`);
+        console.log(`AGGREGATED DATA : ${aggregatedData}`)
+        res.json(aggregatedData);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'An error occurred while fetching sales data.' });
+    }
+}
+
+exports.lastCollection = async(req, res, next) => {
+    try {
+        const collectionData = await db.useramountsettlement.findAll({
+            attributes: [
+                [fn('DATE', col('createdAt')), 'date'],
+                [fn('SUM', col('debit')), 'totalAmount'],
+            ],
+            where: {
+                createdAt: {
+                    [Op.gte]: literal(`DATE_SUB(NOW(), INTERVAL 30 DAY)`)
+                },
+                note: "User Credit withdrawn",
+            },
+            group: [fn('DATE', col('createdAt'))],
+            order: [[fn('DATE', col('createdAt')), 'ASC']]
+        });
+
+        const collectionDataPlain = collectionData.map(record => record.get({ plain: true }));
+
+        // Generate the last 30 days
+        const last30Days = getLast30Days();
+
+        // Create a map for quick lookup
+        const collectionMap = {};
+        collectionDataPlain.forEach(item => {
+            const date = item.date.toISOString().split('T')[0]; // Ensure date is in 'YYYY-MM-DD' format
+            collectionMap[date] = {
+                totalAmount: parseFloat(item.totalAmount)
+            };
+        });
+
+        // Merge the data
+        const aggregatedData = last30Days.map(date => {
+            if (collectionMap[date]) {
+                return {
+                    date,
+                    totalAmount: collectionMap[date].totalAmount
+                };
+            } else {
+                return {
+                    date,
+                    totalAmount: 0
+                };
+            }
+        });
+
+        console.log(collectionData);
+        res.json(aggregatedData);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'An error occurred while fetching sales data.' });
+    }
+}
+
+exports.apiList = async (req, res, next) => {
     let api_list = []
     const apis = await db.api.findAll()
 
@@ -322,7 +453,7 @@ exports.apiList = async(req, res, next) => {
     })
 }
 
-exports.resellerCollectionHistory = async(req, res, next) => {
+exports.resellerCollectionHistory = async (req, res, next) => {
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
     const NOW = moment().format('YYYY-MM-DD 23:59');
     let collection_history = []
@@ -332,7 +463,7 @@ exports.resellerCollectionHistory = async(req, res, next) => {
         }
     })
 
-    for (let user of users){
+    for (let user of users) {
         let total = 0.00
 
         const customers = await db.userprofile.findAll({
@@ -341,7 +472,7 @@ exports.resellerCollectionHistory = async(req, res, next) => {
             }
         })
 
-        for (let customer of customers){
+        for (let customer of customers) {
             const datas = await db.useramountsettlement.findAll({
                 where: {
                     userId: customer.userId,
@@ -352,7 +483,7 @@ exports.resellerCollectionHistory = async(req, res, next) => {
                 }
             })
 
-            for (let data of datas){
+            for (let data of datas) {
                 total += data.debit
             }
         }
@@ -372,7 +503,7 @@ exports.resellerCollectionHistory = async(req, res, next) => {
     })
 }
 
-exports.customerCollectionHistory = async(req, res, next) => {
+exports.customerCollectionHistory = async (req, res, next) => {
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
     const NOW = moment().format('YYYY-MM-DD 23:59');
     let collection_history = []
@@ -384,7 +515,7 @@ exports.customerCollectionHistory = async(req, res, next) => {
         }
     })
 
-    
+
     const customers = await db.userprofile.findAll({
         where: {
             connectedUser: user.uuid
@@ -403,7 +534,7 @@ exports.customerCollectionHistory = async(req, res, next) => {
             }
         })
 
-        for (let data of datas){
+        for (let data of datas) {
             total = data.debit
         }
 
@@ -426,7 +557,7 @@ exports.customerCollectionHistory = async(req, res, next) => {
 
 
 // FUNCTION: ONLY RESELLER TRANSFER LIST
-exports.resellerBalanceTransferHistory = async(req, res, next) => {
+exports.resellerBalanceTransferHistory = async (req, res, next) => {
     let balance_transfer_history = []
     const trf_data = await db.useramountsettlement.findAll({
         where: {
@@ -439,7 +570,7 @@ exports.resellerBalanceTransferHistory = async(req, res, next) => {
             usertype: "subdealer"
         }
     })
-    for (let user of users){
+    for (let user of users) {
         let total = 0.00
 
         const data = await db.useramountsettlement.findAll({
@@ -449,8 +580,8 @@ exports.resellerBalanceTransferHistory = async(req, res, next) => {
             }
         })
 
-        if(data.length > 0) {
-            for (let settle of data){
+        if (data.length > 0) {
+            for (let settle of data) {
                 total += settle.credit
             }
 
@@ -463,7 +594,7 @@ exports.resellerBalanceTransferHistory = async(req, res, next) => {
             }
 
             balance_transfer_history.push(object)
-        }        
+        }
     }
     res.json({
         balance_transfer_history: balance_transfer_history.reverse()
@@ -472,9 +603,9 @@ exports.resellerBalanceTransferHistory = async(req, res, next) => {
 
 
 // FUNCTION: CUSTOMER OF CORRESPONDING RESELLER TRANSFER REQUEST
-exports.resellerCustomerBalanceTransferHistory = async(req, res, next) => {
+exports.resellerCustomerBalanceTransferHistory = async (req, res, next) => {
     let user_id = req.body.user_id
-    
+
 
     const userprofiles = await db.userprofile.findAll({
         where: {
@@ -483,7 +614,7 @@ exports.resellerCustomerBalanceTransferHistory = async(req, res, next) => {
     })
 
     let customers = []
-    for(let profile of userprofiles){
+    for (let profile of userprofiles) {
         let customer_total = 0.0
         const customer_data = await db.useramountsettlement.findAll({
             where: {
@@ -492,10 +623,10 @@ exports.resellerCustomerBalanceTransferHistory = async(req, res, next) => {
             }
         })
 
-        for (let credit of customer_data){
+        for (let credit of customer_data) {
             customer_total += credit.credit
         }
-        
+
         let customer_obj = {
             store: "",
             username: profile.phone,
@@ -517,7 +648,7 @@ exports.resellerCustomerBalanceTransferHistory = async(req, res, next) => {
 // LISTING FUNCTION ENDS
 
 // RESELLER LIST
-exports.resellerList = async(req, res ,next) => {
+exports.resellerList = async (req, res, next) => {
     const resellers = await db.user.findAll({
         where: {
             usertype: "subdealer"
