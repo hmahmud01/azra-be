@@ -1360,33 +1360,6 @@ exports.recharge = async (req, res, next) => {
 
         const transaction = await db.transaction.create(transaction_data)
 
-        // TODO
-        let api_bal = 0.000
-        let failed_bal = 0.000
-        let api_profit = 0.000
-
-        const purchase = await db.purchase.findOne({
-            dist: api.name
-        })
-
-        if (purchase) {
-            api_bal = purchase.purchase
-            // api_profit = purchase.commission / 100 * parseFloat(debit_amount)
-            api_profit = parseFloat(debit_amount) / 100 * purchase.commission
-        }
-
-        console.log("api balance : ", api_bal)
-
-        const sale = await db.sales.create({
-            balance: api_bal,
-            amount: parseFloat(debit_amount),
-            agent: data.username,
-            number: data.ui_number,
-            operator: network.name,
-            api: api.name,
-            profit: api_profit
-        })
-
         const trxSource = await db.transactionsource.create({
             ip_addr: ip_addr,
             device: device,
@@ -1429,6 +1402,55 @@ exports.recharge = async (req, res, next) => {
         console.log(balance);
 
         console.log("TRANSACATION BUILT > BALANCE LOCKED > NUMBER LOCKED");
+
+        const percent = await db.agentpercentage.findOne({
+            where: {
+                userId: user.uuid,
+            }
+        })
+        let percentCode = ""
+        let percentvalue = 0.0
+        if(api.code == "ETS"){
+            percentCode = "ETS"
+        }else if(api.code == "DU"){
+            percentCode= "DU"
+        }else {
+            percentCode = "INT"
+        }
+
+        const percentdata = percent.percentdata
+                
+        for (let percentinfo of percentdata){
+            if (percentCode in percentinfo){
+                percentvalue = percentinfo[percentCode]
+            }
+        }
+
+        // TODO
+        let api_bal = 0.000
+        let failed_bal = 0.000
+        let api_profit = 0.000
+
+        const purchase = await db.purchase.findOne({
+            dist: api.name
+        })
+
+        if (purchase) {
+            api_bal = purchase.purchase
+            api_profit = parseFloat(debit_amount) / 100 * (purchase.commission - percentvalue)
+        }
+
+        console.log("api balance : ", api_bal)
+
+        const sale = await db.sales.create({
+            balance: api_bal,
+            amount: parseFloat(debit_amount),
+            agent: data.username,
+            number: data.ui_number,
+            operator: network.name,
+            api: api.name,
+            profit: api_profit
+        })
 
         if (api.code == "LIV") {
             trx_data = {
@@ -1497,20 +1519,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "INT"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
@@ -1713,20 +1735,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "ETS"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
@@ -1928,20 +1950,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "DU"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
@@ -2143,20 +2165,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "INT"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
@@ -2358,20 +2380,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "INT"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
@@ -2573,20 +2595,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "INT"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
@@ -2788,20 +2810,20 @@ exports.recharge = async (req, res, next) => {
                 // TODO
                 // GET AGENT CUT FROM AGENTPERCENTAGE TABLE
                 
-                const percent = await db.agentpercentage.findOne({
-                    where: {
-                        userId: user.uuid,
-                    }
-                })
-                let percentCode = "INT"
-                let percentvalue = 0.0
-                const percentdata = percent.percentdata
+                // const percent = await db.agentpercentage.findOne({
+                //     where: {
+                //         userId: user.uuid,
+                //     }
+                // })
+                // let percentCode = "INT"
+                // let percentvalue = 0.0
+                // const percentdata = percent.percentdata
                 
-                for (let percentinfo of percentdata){
-                    if (percentCode in percentinfo){
-                        percentvalue = percentinfo[percentCode]
-                    }
-                }
+                // for (let percentinfo of percentdata){
+                //     if (percentCode in percentinfo){
+                //         percentvalue = percentinfo[percentCode]
+                //     }
+                // }
 
                 console.log("Agent Percentage : ", percentvalue);
                 let earned = debit_amount / 100 * percentvalue
