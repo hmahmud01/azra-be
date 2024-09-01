@@ -313,25 +313,36 @@ exports.earningList = async (req, res, next) => {
     }
 }
 
+// function getLast30Days() {
+//     const days = [];
+//     const today = new Date();
+
+//     for (let i = 29; i >= 0; i--) { // 0 to 29 for the last 30 days
+//         const pastDate = new Date();
+//         pastDate.setDate(today.getDate() - i);
+//         const year = pastDate.getFullYear();
+//         const month = String(pastDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+//         const day = String(pastDate.getDate()).padStart(2, '0');
+//         days.push(`${year}-${month}-${day}`);
+//     }
+
+//     return days;
+// }
+
 function getLast30Days() {
-    const days = [];
-    const today = new Date();
-
-    for (let i = 29; i >= 0; i--) { // 0 to 29 for the last 30 days
-        const pastDate = new Date();
-        pastDate.setDate(today.getDate() - i);
-        const year = pastDate.getFullYear();
-        const month = String(pastDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-        const day = String(pastDate.getDate()).padStart(2, '0');
-        days.push(`${year}-${month}-${day}`);
+    const dates = [];
+    for (let i = 0; i < 30; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      dates.push(date.toISOString().split('T')[0]); // Format: YYYY-MM-DD
     }
-
-    return days;
-}
+    return dates.reverse(); // To keep them in ascending order
+  }
 
 exports.lastSales = async (req, res, next) => {
     // [Op.gte]: fn('DATE_SUB', fn('NOW'), fn('INTERVAL', 30, 'DAY'))
     try {
+        const last30Days = getLast30Days();
         const salesData = await db.sales.findAll({
             attributes: [
                 [fn('DATE', col('date')), 'date'],
@@ -346,43 +357,63 @@ exports.lastSales = async (req, res, next) => {
             group: [fn('DATE', col('date'))],
             order: [[fn('DATE', col('date')), 'ASC']]
         });
-        const salesDataPlain = salesData.map(record => record.get({ plain: true }));
+        // const salesDataPlain = salesData.map(record => record.get({ plain: true }));
 
-        // Generate the last 30 days
-        const last30Days = getLast30Days();
+        // // Generate the last 30 days
+        // const last30Days = getLast30Days();
 
-        // Create a map for quick lookup
-        const salesMap = {};
-        salesDataPlain.forEach(item => {
-            const date = item.date.toISOString().split('T')[0]; // Ensure date is in 'YYYY-MM-DD' format
-            salesMap[date] = {
-                totalAmount: parseFloat(item.totalAmount),
-                totalProfit: parseFloat(item.totalProfit)
+        // // Create a map for quick lookup
+        // const salesMap = {};
+        // salesDataPlain.forEach(item => {
+        //     const date = item.date.toISOString().split('T')[0];
+        //     salesMap[date] = {
+        //         totalAmount: parseFloat(item.totalAmount),
+        //         totalProfit: parseFloat(item.totalProfit)
+        //     };
+        // });
+
+        // // Merge the data
+        // const aggregatedData = last30Days.map(date => {
+        //     if (salesMap[date]) {
+        //         return {
+        //             date,
+        //             totalAmount: salesMap[date].totalAmount,
+        //             totalProfit: salesMap[date].totalProfit
+        //         };
+        //     } else {
+        //         return {
+        //             date,
+        //             totalAmount: 0,
+        //             totalProfit: 0
+        //         };
+        //     }
+        // });
+
+        // Convert sales data into a simpler format
+        const salesMap = salesData.reduce((acc, item) => {
+            const dateString = item.dataValues.date;
+            acc[dateString] = {
+                totalAmount: item.dataValues.totalAmount,
+                totalProfit: item.dataValues.totalProfit
             };
-        });
+            return acc;
+        }, {});
 
-        // Merge the data
-        const aggregatedData = last30Days.map(date => {
-            if (salesMap[date]) {
-                return {
-                    date,
-                    totalAmount: salesMap[date].totalAmount,
-                    totalProfit: salesMap[date].totalProfit
-                };
-            } else {
-                return {
-                    date,
-                    totalAmount: 0,
-                    totalProfit: 0
-                };
-            }
+        // Map over last 30 days and merge with sales data
+        const formattedData = last30Days.map(date => {
+            const salesForDate = salesMap[date] || { totalAmount: 0, totalProfit: 0 };
+            return {
+                date,
+                totalAmount: salesForDate.totalAmount,
+                totalProfit: salesForDate.totalProfit
+            };
         });
 
         
 
         console.log(`SALES DATA : ${salesData}`);
-        console.log(`AGGREGATED DATA : ${aggregatedData}`)
-        res.json(aggregatedData);
+        console.log(`AGGREGATED DATA : ${formattedData}`)
+        res.json(formattedData);
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
