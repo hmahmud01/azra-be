@@ -357,37 +357,6 @@ exports.lastSales = async (req, res, next) => {
             group: [fn('DATE', col('date'))],
             order: [[fn('DATE', col('date')), 'ASC']]
         });
-        // const salesDataPlain = salesData.map(record => record.get({ plain: true }));
-
-        // // Generate the last 30 days
-        // const last30Days = getLast30Days();
-
-        // // Create a map for quick lookup
-        // const salesMap = {};
-        // salesDataPlain.forEach(item => {
-        //     const date = item.date.toISOString().split('T')[0];
-        //     salesMap[date] = {
-        //         totalAmount: parseFloat(item.totalAmount),
-        //         totalProfit: parseFloat(item.totalProfit)
-        //     };
-        // });
-
-        // // Merge the data
-        // const aggregatedData = last30Days.map(date => {
-        //     if (salesMap[date]) {
-        //         return {
-        //             date,
-        //             totalAmount: salesMap[date].totalAmount,
-        //             totalProfit: salesMap[date].totalProfit
-        //         };
-        //     } else {
-        //         return {
-        //             date,
-        //             totalAmount: 0,
-        //             totalProfit: 0
-        //         };
-        //     }
-        // });
 
         // Convert sales data into a simpler format
         const salesMap = salesData.reduce((acc, item) => {
@@ -409,10 +378,8 @@ exports.lastSales = async (req, res, next) => {
             };
         });
 
-        
-
         console.log(`SALES DATA : ${salesData}`);
-        console.log(`AGGREGATED DATA : ${formattedData}`)
+        console.log(formattedData)
         res.json(formattedData);
     } catch (error) {
         console.log(error)
@@ -422,6 +389,7 @@ exports.lastSales = async (req, res, next) => {
 
 exports.lastCollection = async(req, res, next) => {
     try {
+        const last30Days = getLast30Days();
         const collectionData = await db.useramountsettlement.findAll({
             attributes: [
                 [fn('DATE', col('createdAt')), 'date'],
@@ -437,37 +405,53 @@ exports.lastCollection = async(req, res, next) => {
             order: [[fn('DATE', col('createdAt')), 'ASC']]
         });
 
-        const collectionDataPlain = collectionData.map(record => record.get({ plain: true }));
+        // const collectionDataPlain = collectionData.map(record => record.get({ plain: true }));
 
-        // Generate the last 30 days
-        const last30Days = getLast30Days();
+        // // Create a map for quick lookup
+        // const collectionMap = {};
+        // collectionDataPlain.forEach(item => {
+        //     const date = item.date.toISOString().split('T')[0]; // Ensure date is in 'YYYY-MM-DD' format
+        //     collectionMap[date] = {
+        //         totalAmount: parseFloat(item.totalAmount)
+        //     };
+        // });
 
-        // Create a map for quick lookup
-        const collectionMap = {};
-        collectionDataPlain.forEach(item => {
-            const date = item.date.toISOString().split('T')[0]; // Ensure date is in 'YYYY-MM-DD' format
-            collectionMap[date] = {
-                totalAmount: parseFloat(item.totalAmount)
+        // // Merge the data
+        // const aggregatedData = last30Days.map(date => {
+        //     if (collectionMap[date]) {
+        //         return {
+        //             date,
+        //             totalAmount: collectionMap[date].totalAmount
+        //         };
+        //     } else {
+        //         return {
+        //             date,
+        //             totalAmount: 0
+        //         };
+        //     }
+        // });
+
+        // Convert sales data into a simpler format
+        const collectionMap = collectionData.reduce((acc, item) => {
+            const dateString = item.dataValues.date;
+            acc[dateString] = {
+                totalAmount: item.dataValues.totalAmount
+            };
+            return acc;
+        }, {});
+
+        // Map over last 30 days and merge with sales data
+        const formattedData = last30Days.map(date => {
+            const collectionForDate = collectionMap[date] || { totalAmount: 0 };
+            return {
+                date,
+                totalAmount: collectionForDate.totalAmount
             };
         });
 
-        // Merge the data
-        const aggregatedData = last30Days.map(date => {
-            if (collectionMap[date]) {
-                return {
-                    date,
-                    totalAmount: collectionMap[date].totalAmount
-                };
-            } else {
-                return {
-                    date,
-                    totalAmount: 0
-                };
-            }
-        });
-
         console.log(collectionData);
-        res.json(aggregatedData);
+        console.log(formattedData);
+        res.json(formattedData);
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
