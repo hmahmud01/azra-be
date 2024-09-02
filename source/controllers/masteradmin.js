@@ -305,12 +305,12 @@ exports.earningList = async (req, res, next) => {
 function getLast30Days() {
     const dates = [];
     for (let i = 0; i < 30; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      dates.push(date.toISOString().split('T')[0]); // Format: YYYY-MM-DD
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        dates.push(date.toISOString().split('T')[0]); // Format: YYYY-MM-DD
     }
     return dates.reverse(); // To keep them in ascending order
-  }
+}
 
 exports.lastSales = async (req, res, next) => {
     // [Op.gte]: fn('DATE_SUB', fn('NOW'), fn('INTERVAL', 30, 'DAY'))
@@ -353,14 +353,15 @@ exports.lastSales = async (req, res, next) => {
 
         console.log(`SALES DATA : ${salesData}`);
         console.log(formattedData)
-        res.json({result : formattedData});
+        res.json({ result: formattedData.reverse() });
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
     }
 }
 
-exports.lastCollection = async(req, res, next) => {
+// AGGREGATED DATA
+exports.lastCollection = async (req, res, next) => {
     try {
         const last30Days = getLast30Days();
         const collectionData = await db.useramountsettlement.findAll({
@@ -398,14 +399,160 @@ exports.lastCollection = async(req, res, next) => {
 
         console.log(collectionData);
         console.log(formattedData);
-        res.json({result : formattedData});
+        res.json({ result: formattedData.reverse() });
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
     }
 }
 
-exports.resellerDueList = async(req, res, next) => {
+// AGGREGATED DATA
+exports.lastSalesResellers = async (req, res, next) => {
+    // [Op.gte]: fn('DATE_SUB', fn('NOW'), fn('INTERVAL', 30, 'DAY'))
+    let username = req.body.username
+    try {
+        const last30Days = getLast30Days();
+        const salesData = await db.sales.findAll({
+            attributes: [
+                [fn('DATE', col('date')), 'date'],
+                [fn('SUM', col('amount')), 'totalAmount'],
+                [fn('SUM', col('profit')), 'totalProfit']
+            ],
+            where: {
+                date: {
+                    [Op.gte]: literal(`DATE_SUB(NOW(), INTERVAL 30 DAY)`)
+                }
+            },
+            group: [fn('DATE', col('date'))],
+            order: [[fn('DATE', col('date')), 'ASC']]
+        });
+
+        // Convert sales data into a simpler format
+        const salesMap = salesData.reduce((acc, item) => {
+            const dateString = item.dataValues.date;
+            acc[dateString] = {
+                totalAmount: item.dataValues.totalAmount,
+                totalProfit: item.dataValues.totalProfit
+            };
+            return acc;
+        }, {});
+
+        // Map over last 30 days and merge with sales data
+        const formattedData = last30Days.map(date => {
+            const salesForDate = salesMap[date] || { totalAmount: 0, totalProfit: 0 };
+            return {
+                date,
+                totalAmount: salesForDate.totalAmount,
+                totalProfit: salesForDate.totalProfit
+            };
+        });
+
+        console.log(`SALES DATA : ${salesData}`);
+        console.log(formattedData)
+        res.json({ result: formattedData.reverse() });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'An error occurred while fetching sales data.' });
+    }
+}
+
+// AGGREGATED DATA
+exports.lastCollectionResellers = async (req, res, next) => {
+    let username = req.body.username
+    try {
+        const last30Days = getLast30Days();
+        const collectionData = await db.useramountsettlement.findAll({
+            attributes: [
+                [fn('DATE', col('createdAt')), 'date'],
+                [fn('SUM', col('debit')), 'totalAmount'],
+            ],
+            where: {
+                createdAt: {
+                    [Op.gte]: literal(`DATE_SUB(NOW(), INTERVAL 30 DAY)`)
+                },
+                collectorId: username,
+                note: "User Credit withdrawn",
+            },
+            group: [fn('DATE', col('createdAt'))],
+            order: [[fn('DATE', col('createdAt')), 'ASC']]
+        });
+
+        // Convert sales data into a simpler format
+        const collectionMap = collectionData.reduce((acc, item) => {
+            const dateString = item.dataValues.date;
+            acc[dateString] = {
+                totalAmount: item.dataValues.totalAmount
+            };
+            return acc;
+        }, {});
+
+        // Map over last 30 days and merge with sales data
+        const formattedData = last30Days.map(date => {
+            const collectionForDate = collectionMap[date] || { totalAmount: 0 };
+            return {
+                date,
+                totalAmount: collectionForDate.totalAmount
+            };
+        });
+
+        console.log(collectionData);
+        console.log(formattedData);
+        res.json({ result: formattedData.reverse() });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'An error occurred while fetching sales data.' });
+    }
+}
+
+// AGGREGATED DATA
+exports.transferredList = async (req, res, next) => {
+    let username = req.body.username
+    try {
+        const last30Days = getLast30Days();
+        const transferData = await db.agenttransferrequest.findAll({
+            attributes: [
+                [fn('DATE', col('createdAt')), 'date'],
+                [fn('SUM', col('requested_amount')), 'amount'],
+            ],
+            where: {
+                createdAt: {
+                    [Op.gte]: literal(`DATE_SUB(NOW(), INTERVAL 30 DAY)`)
+                },
+                provider_name: username,
+                status: "Approved",
+            },
+            group: [fn('DATE', col('createdAt'))],
+            order: [[fn('DATE', col('createdAt')), 'DESC']]
+        });
+
+        // Convert sales data into a simpler format
+        const transferMap = transferData.reduce((acc, item) => {
+            const dateString = item.dataValues.date;
+            acc[dateString] = {
+                totalAmount: item.dataValues.amount
+            };
+            return acc;
+        }, {});
+
+        // Map over last 30 days and merge with sales data
+        const formattedData = last30Days.map(date => {
+            const transferForDate = transferMap[date] || { totalAmount: 0 };
+            return {
+                date,
+                totalAmount: transferForDate.totalAmount
+            };
+        });
+
+        console.log(transferData);
+        console.log(formattedData);
+        res.json({ result: formattedData.reverse() });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'An error occurred while fetching sales data.' });
+    }
+}
+
+exports.resellerDueList = async (req, res, next) => {
     let result = []
     const users = await db.user.findAll({
         where: {
@@ -413,7 +560,7 @@ exports.resellerDueList = async(req, res, next) => {
         }
     })
 
-    for (let user of users){
+    for (let user of users) {
         const agentprofiles = await db.userprofile.findAll({
             where: {
                 connectedUser: user.uuid
@@ -423,13 +570,13 @@ exports.resellerDueList = async(req, res, next) => {
         let total_debit = 0
         let total_credit = 0
 
-        for (profile of agentprofiles){
+        for (profile of agentprofiles) {
             const data = await db.useramountsettlement.findAll({
                 where: {
                     userId: profile.userId,
                 }
             })
-    
+
             for (let i = 0; i < data.length; i++) {
                 total_credit += data[i].credit
                 if (data[i].note == "User Credit withdrawn") {
@@ -441,7 +588,7 @@ exports.resellerDueList = async(req, res, next) => {
         let due = total_credit - total_debit
 
         let duedata = {
-            reseller : user.phone,
+            reseller: user.phone,
             due: due
         }
 
@@ -452,19 +599,19 @@ exports.resellerDueList = async(req, res, next) => {
     })
 }
 
-exports.customerDueList = async(req, res, next) => {
+exports.customerDueList = async (req, res, next) => {
     let result = []
     let username = req.body.username
     const user = await db.user.findOne({
         where: {
             phone: username
         }
-    }) 
+    })
     const customers = await db.userprofile.findAll({
         where: {
             connectedUser: user.uuid
         }
-    }) 
+    })
 
     for (let customer of customers) {
         let total_debit = 0
@@ -485,7 +632,7 @@ exports.customerDueList = async(req, res, next) => {
         let due = total_credit - total_debit
 
         let duedata = {
-            customer : customer.phone,
+            customer: customer.phone,
             due: due
         }
 
@@ -496,6 +643,8 @@ exports.customerDueList = async(req, res, next) => {
         customerduelist: result
     })
 }
+
+
 
 exports.apiList = async (req, res, next) => {
     let api_list = []
