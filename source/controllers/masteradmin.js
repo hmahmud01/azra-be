@@ -353,7 +353,7 @@ exports.lastSales = async (req, res, next) => {
 
         console.log(`SALES DATA : ${salesData}`);
         console.log(formattedData)
-        res.json(formattedData);
+        res.json({result : formattedData});
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
@@ -398,7 +398,7 @@ exports.lastCollection = async(req, res, next) => {
 
         console.log(collectionData);
         console.log(formattedData);
-        res.json(formattedData);
+        res.json({result : formattedData});
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
