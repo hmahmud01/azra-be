@@ -456,6 +456,7 @@ exports.lastSalesResellers = async (req, res, next) => {
     }
 }
 
+
 // AGGREGATED DATA
 exports.lastCollectionResellers = async (req, res, next) => {
     let username = req.body.username
@@ -551,6 +552,82 @@ exports.transferredList = async (req, res, next) => {
         res.status(500).json({ error: 'An error occurred while fetching sales data.' });
     }
 }
+
+exports.resellerCustomerSalesList = async(req, res, next) => {
+    let result = []
+    const user = await db.user.findOne({
+        where: {
+            phone: req.body.username
+        }
+    })
+
+    const connected_users = await db.userprofile.findAll({
+        where: {
+            connectedUser: user.uuid
+        }
+    })
+
+    for (let profile of connected_users){
+        const sales = await rechargeModule.customerSales(profile.phone)
+        let object = {
+            "username": profile.phone,
+            "amount": sales
+        }
+
+        result.push(object)
+    }
+
+    res.json({
+        result: result
+    })
+}
+
+exports.customerLastSalesList = async(req, res, next) => {
+    let username = req.body.username
+    try {
+        const last30Days = getLast30Days();
+        const salesData = await db.sales.findAll({
+            attributes: [
+                [fn('DATE', col('date')), 'date'],
+                [fn('SUM', col('amount')), 'totalAmount']
+            ],
+            where: {
+                date: {
+                    [Op.gte]: literal(`DATE_SUB(NOW(), INTERVAL 30 DAY)`)
+                },
+                agent: username
+            },
+            group: [fn('DATE', col('date'))],
+            order: [[fn('DATE', col('date')), 'DESC']]
+        });
+
+        // Convert sales data into a simpler format
+        const salesMap = salesData.reduce((acc, item) => {
+            const dateString = item.dataValues.date;
+            acc[dateString] = {
+                totalAmount: item.dataValues.totalAmount
+            };
+            return acc;
+        }, {});
+
+        // Map over last 30 days and merge with sales data
+        const formattedData = last30Days.map(date => {
+            const salesForDate = salesMap[date] || { totalAmount: 0 };
+            return {
+                date,
+                totalAmount: salesForDate.totalAmount
+            };
+        });
+
+        console.log(`SALES DATA : ${salesData}`);
+        console.log(formattedData)
+        res.json({ result: formattedData.reverse() });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'An error occurred while fetching sales data.' });
+    }
+}
+
 
 exports.resellerDueList = async (req, res, next) => {
     let result = []
