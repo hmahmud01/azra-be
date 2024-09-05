@@ -1211,8 +1211,8 @@ const apiPriority = (req, res, next) => {
 
 }
 
-const trxSuccess = async (api_name, trx_data, lockednumber_id, lockedBalance_id, user_uuid, trx_uuid, trx_api_id, network_uuid, mobile, api_code) => {
-
+const trxSuccess = async (purchase, api_name, trx_data, lockednumber_id, lockedBalance_id, user_uuid, trx_uuid, trx_api_id, network_uuid, mobile, api_code) => {
+    console.log(purchase, purchase.purchase)
     if (purchase) {
         let upd_bal = purchase.purchase - parseFloat(debit_amount)
 
