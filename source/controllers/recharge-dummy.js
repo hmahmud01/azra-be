@@ -1624,7 +1624,7 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-                    const successtrxresponse = await trxSuccess(api.name, trx_data, lockedNumber.id, lockedBalance.id, user.uuid, transaction.uuid, network.uuid, mobile, api.code)
+                    const successtrxresponse = await trxSuccess(purchase, api.name, trx_data, lockedNumber.id, lockedBalance.id, user.uuid, transaction.uuid, network.uuid, mobile, api.code)
 
                     apiResp = {
                         status: "success",
