@@ -1594,20 +1594,6 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    // apiResp = {
-                    //     status: "success",
-                    //     balance: (userbalance - debit_amount),
-                    //     api_trans_code: api.id,
-                    //     message: [{
-                    //         "description": "Transaction successfull",
-                    //         "code": "200",
-                    //     }],
-                    //     trans_id: data.sub_operator_code + transaction.id,
-                    //     trans_code: `${api.code}-${transaction.uuid}`,
-                    //     trans_date: now,
-                    //     request_endtime: now
-                    // }
-
                     const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
                     console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
@@ -1619,26 +1605,9 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    // apiResp = {
-                    //     status: "failed",
-                    //     balance: userbalance,
-                    //     api_trans_code: api.id,
-                    //     message: [{
-                    //         "description": "Transaction was unsuccessfull",
-                    //         "code": "200",
-                    //     }],
-                    //     trans_id: data.sub_operator_code + transaction.id,
-                    //     trans_code: `${api.code}-${transaction.uuid}`,
-                    //     trans_date: now,
-                    //     request_endtime: now
-                    // }
 
                     const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
                     console.log(builtResponse)
@@ -1665,21 +1634,10 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    apiResp = {
-                        status: "success",
-                        balance: (userbalance - debit_amount),
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction successfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+                    const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -1687,28 +1645,14 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    apiResp = {
-                        status: "failed",
-                        balance: userbalance,
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction was unsuccessfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+
+                    const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 }
     
             } else if (api.code == "DU") {
@@ -1729,21 +1673,10 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    apiResp = {
-                        status: "success",
-                        balance: (userbalance - debit_amount),
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction successfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+                    const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -1751,28 +1684,14 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    apiResp = {
-                        status: "failed",
-                        balance: userbalance,
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction was unsuccessfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+
+                    const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 }
     
             } else if (api.code == "RDY") {
@@ -1793,21 +1712,10 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    apiResp = {
-                        status: "success",
-                        balance: (userbalance - debit_amount),
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction successfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+                    const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -1815,28 +1723,14 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    apiResp = {
-                        status: "failed",
-                        balance: userbalance,
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction was unsuccessfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+
+                    const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 }
     
             } else if (api.code == "EZL") {
@@ -1857,21 +1751,10 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    apiResp = {
-                        status: "success",
-                        balance: (userbalance - debit_amount),
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction successfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+                    const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -1879,28 +1762,14 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    apiResp = {
-                        status: "failed",
-                        balance: userbalance,
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction was unsuccessfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+
+                    const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 }
     
             } else if (api.code == "DNG") {
@@ -1921,21 +1790,10 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    apiResp = {
-                        status: "success",
-                        balance: (userbalance - debit_amount),
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction successfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+                    const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -1943,28 +1801,14 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    apiResp = {
-                        status: "failed",
-                        balance: userbalance,
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction was unsuccessfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+
+                    const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 }
     
             } else if (api.code == "DTS") {
@@ -1985,21 +1829,10 @@ exports.recharge = async (req, res, next) => {
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
-                    apiResp = {
-                        status: "success",
-                        balance: (userbalance - debit_amount),
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction successfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+                    const builtResponse = await successResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 } else {
                     const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
                     const syslog = await db.systemlog.create({
@@ -2007,28 +1840,14 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-
-                    // MAKING A NEW FUNCTION
-
                     const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
-                    // FUNCTION ENDS
-                    apiResp = {
-                        status: "failed",
-                        balance: userbalance,
-                        api_trans_code: api.id,
-                        message: [{
-                            "description": "Transaction was unsuccessfull",
-                            "code": "200",
-                        }],
-                        trans_id: data.sub_operator_code + transaction.id,
-                        trans_code: `${api.code}-${transaction.uuid}`,
-                        trans_date: now,
-                        request_endtime: now
-                    }
+
+                    const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                    console.log(builtResponse)
                     logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
-                    res.json(apiResp)
+                    res.json(builtResponse)
                 }
     
             } else {
@@ -2043,20 +1862,10 @@ exports.recharge = async (req, res, next) => {
                 let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                 numberLockLogger.info(lockinfo)
 
-                apiResp = {
-                    status: "failed",
-                    balance: userbalance,
-                    api_trans_code: api.id,
-                    message: [{
-                        "description": "Transaction was unsuccessfull",
-                        "code": "200",
-                    }],
-                    trans_id: data.sub_operator_code + transaction.id,
-                    trans_code: `${api.code}-${transaction.uuid}`,
-                    trans_date: now,
-                    request_endtime: now
-                }
-                res.json(apiResp)
+                const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                console.log(builtResponse)
+                logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                res.json(builtResponse)
             }
         }else{
             console.log("********API BALANCE NOT AVAILABLE************")
@@ -2069,20 +1878,11 @@ exports.recharge = async (req, res, next) => {
             const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
             let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
             numberLockLogger.info(lockinfo)
-            apiResp = {
-                status: "failed",
-                balance: userbalance,
-                api_trans_code: api.id,
-                message: [{
-                    "description": "Out Of Balance. Transaction Failed",
-                    "code": "200",
-                }],
-                trans_id: data.sub_operator_code + transaction.id,
-                trans_code: `${api.code}-${transaction.uuid}`,
-                trans_date: now,
-                request_endtime: now
-            }
-            res.json(apiResp)
+            
+            const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+            console.log(builtResponse)
+            logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+            res.json(builtResponse)
         }
     }
 }
