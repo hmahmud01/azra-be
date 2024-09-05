@@ -1290,7 +1290,7 @@ const trxFailed = async (failed_bal, debit_amount, username, ui_number, network_
     console.log("Balance Unavailable");
 }
 
-const successResponse = async(userbalance, debit_amount, api_id, sub_code, trx_id, api_code, trx_uuid, now, now) => {
+const successResponse = async(userbalance, debit_amount, api_id, sub_code, trx_id, api_code, trx_uuid, trans_now, req_now) => {
     let apiResp = {
         status: "success",
         balance: (userbalance - debit_amount),
@@ -1301,14 +1301,14 @@ const successResponse = async(userbalance, debit_amount, api_id, sub_code, trx_i
         }],
         trans_id: sub_code + trx_id,
         trans_code: `${api_code}-${trx_uuid}`,
-        trans_date: now,
-        request_endtime: now
+        trans_date: trans_now,
+        request_endtime: req_now
     }
 
     return apiResp
 }
 
-const failedResponse = async(userbalance, api_id, sub_code, trx_id, api_code, trx_uuid, now, now) => {
+const failedResponse = async(userbalance, api_id, sub_code, trx_id, api_code, trx_uuid, trans_now, req_now) => {
     let apiResp = {
         status: "failed",
         balance: userbalance,
@@ -1319,8 +1319,8 @@ const failedResponse = async(userbalance, api_id, sub_code, trx_id, api_code, tr
         }],
         trans_id: sub_code + trx_id,
         trans_code: `${api_code}-${trx_uuid}`,
-        trans_date: now,
-        request_endtime: now
+        trans_date: trans_now,
+        request_endtime: req_now
     }
 
     return apiResp
