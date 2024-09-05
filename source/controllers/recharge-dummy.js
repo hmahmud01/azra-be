@@ -1211,8 +1211,8 @@ const apiPriority = (req, res, next) => {
 
 }
 
-const trxSuccess = async (purchase, api_name, trx_data, lockednumber_id, lockedBalance_id, user_uuid, trx_uuid, trx_api_id, network_uuid, mobile, api_code) => {
-    console.log(purchase, purchase.purchase)
+const trxSuccess = async (purchase, debit_amount, api_name, trx_data, lockednumber_id, lockedBalance_id, user_uuid, trx_uuid, trx_api_id, network_uuid, mobile, api_code) => {
+
     if (purchase) {
         let upd_bal = purchase.purchase - parseFloat(debit_amount)
 
@@ -1624,7 +1624,7 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-                    const successtrxresponse = await trxSuccess(purchase, api.name, trx_data, lockedNumber.id, lockedBalance.id, user.uuid, transaction.uuid, network.uuid, mobile, api.code)
+                    const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, user.uuid, transaction.uuid, network.uuid, mobile, api.code)
 
                     apiResp = {
                         status: "success",
