@@ -733,6 +733,37 @@ exports.apiList = async (req, res, next) => {
     })
 }
 
+exports.apiDirectory = async(req, res, next) => {
+    let directory = []
+    const purchases = await db.purchase.findAll()
+
+    for (let purchase of purchases){
+        const api = await db.api.findOne({
+            where: {
+                name: purchase.dist
+            }
+        })
+
+        const plans = await db.plans.findAll({
+            where: {
+                api_plan_id: api.uuid
+            }
+        })
+
+        let obj = {
+            api: api.name,
+            plans: plans
+        }
+        directory.push(obj)
+    }
+
+    res.json({
+        result: directory
+    })
+
+
+}
+
 exports.resellerCollectionHistory = async (req, res, next) => {
     const TODAY_START = moment().format('YYYY-MM-DD 00:00');
     const NOW = moment().format('YYYY-MM-DD 23:59');

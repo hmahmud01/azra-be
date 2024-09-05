@@ -22,6 +22,7 @@ module.exports = app => {
     masterAdminRouter.post('/customer-due-list', controller.customerDueList)
     masterAdminRouter.post('/collectionlist-admin', controller.collectionList)
     masterAdminRouter.post('/apilist-admin', controller.apiList)
+    masterAdminRouter.post('/apidirectory-admin', controller.apiDirectory)
     masterAdminRouter.post('/resellercollectionhistory-admin', controller.resellerCollectionHistory)
     masterAdminRouter.post('/customercollectionhistory-admin', controller.customerCollectionHistory)
     masterAdminRouter.post('/resellerbalancetransferhistory-admin', controller.resellerBalanceTransferHistory)
