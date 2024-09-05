@@ -1300,7 +1300,7 @@ const trxSuccess = async (purchase, debit_amount, api_name, trx_data, lockednumb
     console.log("Organization earning : ", orgEarning);
 }
 
-const trxFailed = async (failed_bal, debit_amount, username, ui_number, network_name, api_name, api_profit, trx_id, trx_uuid, lockedNumber_id, lockedBalance_id) => {
+const trxFailed = async (failed_bal, debit_amount, username, ui_number, network_name, api_name, api_profit, trx_id, user_uuid, trx_uuid, lockedNumber_id, lockedBalance_id) => {
     const sale_upd = await db.sales.create({
         balance: failed_bal,
         amount: -(parseFloat(debit_amount)),
@@ -1321,7 +1321,7 @@ const trxFailed = async (failed_bal, debit_amount, username, ui_number, network_
         })
 
     const transfer = await db.agenttransaction.create({
-        userId: user.uuid,
+        userId: user_uuid,
         transferedAmount: debit_amount,
         dedcutedAmount: 0.00,
         transactionId: trx_uuid
@@ -1619,7 +1619,7 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-                    const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, percentvalue, user.uuid, transaction.uuid, network.uuid)
+                    const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, percentvalue, user.uuid, transaction.uuid, trx_api_id, network.uuid)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
@@ -1648,7 +1648,7 @@ exports.recharge = async (req, res, next) => {
 
                     // MAKING A NEW FUNCTION
 
-                    const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, transaction.uuid, lockedNumber.id, lockedBalance.id)
+                    const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
                     // FUNCTION ENDS
