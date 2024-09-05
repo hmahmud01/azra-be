@@ -1211,7 +1211,7 @@ const apiPriority = (req, res, next) => {
 
 }
 
-const trxSuccess = async (purchase, debit_amount, api_name, trx_data, lockednumber_id, lockedBalance_id, user_uuid, trx_uuid, trx_api_id, network_uuid) => {
+const trxSuccess = async (purchase, debit_amount, api_name, trx_data, lockednumber_id, lockedBalance_id, percentvalue, user_uuid, trx_uuid, trx_api_id, network_uuid) => {
 
     if (purchase) {
         let upd_bal = purchase.purchase - parseFloat(debit_amount)
@@ -1619,7 +1619,7 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-                    const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, user.uuid, transaction.uuid, network.uuid, mobile, api.code)
+                    const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, percentvalue, user.uuid, transaction.uuid, network.uuid, mobile, api.code)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api_code}|RECHARGE DONE`
                     numberLockLogger.info(lockinfo)
 
