@@ -1418,6 +1418,24 @@ const successResponse = async(userbalance, debit_amount, api_id, sub_code, trx_i
     return apiResp
 }
 
+const successPinResponse = async(userbalance, debit_amount, api_id, sub_code, trx_id, api_code, trx_uuid, trans_now, req_now, pin) => {
+    let apiResp = {
+        status: "success",
+        balance: (userbalance - debit_amount),
+        api_trans_code: api_id,
+        message: [{
+            "description": `${pin}`,
+            "code": "200",
+        }],
+        trans_id: sub_code + trx_id,
+        trans_code: `${api_code}-${trx_uuid}`,
+        trans_date: trans_now,
+        request_endtime: req_now
+    }
+
+    return apiResp
+}
+
 const failedResponse = async(userbalance, api_id, sub_code, trx_id, api_code, trx_uuid, trans_now, req_now) => {
     let apiResp = {
         status: "failed",
@@ -1818,12 +1836,12 @@ exports.recharge = async (req, res, next) => {
                     headers: {}
                 };
 
-                let msg = `PIN REQUEST | ${url}`
+                let msg = `PIN REQUEST | ${data.username} | ${url}`
                 rechargeOPPPINlogger.info(msg)
 
 
                 axios(config)
-                    .then(function (response) {
+                    .then(async function (response) {
                         let output = response.data;
                         var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                         console.log(stringXML);
@@ -1836,17 +1854,21 @@ exports.recharge = async (req, res, next) => {
                             console.log("FAILED");
                             let msg = `FAILED RESPONSE | ${JSON.stringify(stringXML)}`
                             rechargeOPPPINlogger.info(msg)
-                            res.json({
-                                msg: "OPP PIN TEST Failed"
-                            })
+                            const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
+                            const builtResponse = await failedResponse(userbalance, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now)
+                            console.log(builtResponse)
+                            logger.info(`${data.username} has attempted unsuccessfull recharge in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                            res.json(builtResponse)
                         } else {
-                            let Pin = xmlDoc.getElementsByTagName("Pin")[0].childNodes[0].nodeValue;
+                            let pin = xmlDoc.getElementsByTagName("Pin")[0].childNodes[0].nodeValue;
                             console.log("succeed")
+                            const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, percentvalue, user.uuid, transaction.uuid, trx_api_id, network.uuid)
                             let msg = `SUCCESS RESPONSE | ${JSON.stringify(stringXML)}`
                             rechargeOPPPINlogger.info(msg)
-                            res.json({
-                                msg: `PIN TEST SUCCEED ${Pin}`
-                            })
+                            const builtResponse = await successPinResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now, pin)
+                            console.log(builtResponse)
+                            logger.info(`${data.username} has recharged successfully in ${data.ui_number} for amount of ${data.plan_amount} with the api of ${api.code}. Attempted Device: ${req.get('device')}`)
+                            res.json(builtResponse)
                         }
                     })
                     .catch(function (error) {
