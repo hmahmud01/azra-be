@@ -288,22 +288,28 @@ exports.ezltry = async (req, res, next) => {
 }
 
 exports.oppPin = async (req, res, next) => {
+    const { rechargeOPPPINlogger } = require('../authsrc/middlewares.js');
     console.log("inside OPP PIN TEST")
     let type = "PinRequest"
     let terminal_id = "TESTOPP-1"
     let pass = "7AW85CL32R"
     let lang = "eng"
-    let recepiept = "25107-046"
-    let amount = 30
+    let recepiept = "24009-013"
+    let amount = "30"
     let clerk_id = 1
     let prodcode = "TSTSTC"
 
-    var url = `https://test.q3cloud.me:444/Web/Get?RequestXml=%3CRequestXml%3E%3CType%3E${type}%3C/Type%3E%3CTerminalId%3E${terminal_id}%3C/TerminalId%3E%3CPassword%3E${pass}%3C/Password%3E%3CLanguage%3E${lang}%3C/Language%3E%3CReceiptNo%3E${recepiept}%3C/ReceiptNo%3E%3CValueCode%3E${amount}%3C/ValueCode%3E%3CClerkId%3E${clerk_id}%3C/ClerkId%3E%3CRefNo%3E23005-059%3C/RefNo%3E%3CProdCode%3E${prodcode}%3C/ProdCode%3E%3C/RequestXml%3E`
+    // https://test.q3cloud.me:444/Web/Get?RequestXml=<RequestXml><Type>PinRequest</Type><TerminalId>TESTOPP-1</TerminalId><Password>7AW85CL32R</Password><Language>eng</Language><ReceiptNo>23005-059</ReceiptNo><ValueCode>30</ValueCode><ClerkId>1</ClerkId><RefNo>23005-059</RefNo><ProdCode>TSTSTC</ProdCode></RequestXml>    
+
+    var url = `https://test.q3cloud.me:444/Web/Get?RequestXml=%3CRequestXml%3E%3CType%3E${type}%3C/Type%3E%3CTerminalId%3E${terminal_id}%3C/TerminalId%3E%3CPassword%3E${pass}%3C/Password%3E%3CLanguage%3E${lang}%3C/Language%3E%3CReceiptNo%3E${recepiept}%3C/ReceiptNo%3E%3CValueCode%3E${amount}%3C/ValueCode%3E%3CClerkId%3E${clerk_id}%3C/ClerkId%3E%3CRefNo%3E${recepiept}%3C/RefNo%3E%3CProdCode%3E${prodcode}%3C/ProdCode%3E%3C/RequestXml%3E`
     var config = {
         method: 'get',
         url: url,
         headers: {}
     };
+
+    let msg = `PIN REQUEST | ${url}`
+    rechargeOPPPINlogger.info(msg)
 
     axios(config)
         .then(function (response) {
@@ -311,6 +317,7 @@ exports.oppPin = async (req, res, next) => {
             var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             console.log(stringXML);
             console.log(response.data);
+            console.log(JSON.stringify(stringXML))
 
             let parser = new DOMParser();
             let xmlDoc = parser.parseFromString(stringXML, "text/xml");
@@ -322,9 +329,13 @@ exports.oppPin = async (req, res, next) => {
                 res.json({
                     msg: "OPP PIN TEST Failed"
                 })
+                let msg = `FAILED RESPONSE | ${JSON.stringify(stringXML)}`
+                rechargeOPPPINlogger.info(msg)
             } else {
                 let Pin = xmlDoc.getElementsByTagName("Pin")[0].childNodes[0].nodeValue;
                 console.log("succeed")
+                let msg = `SUCCESS RESPONSE | ${JSON.stringify(stringXML)}`
+                rechargeOPPPINlogger.info(msg)
                 res.json({
                     msg: `PIN TEST SUCCEED ${Pin}`
                 })
@@ -1100,39 +1111,6 @@ exports.userGetPortalBalance = async (req, res, next) => {
     const { accessLog } = require('../authsrc/middlewares.js');
     accessLog.info(`GET PORTAL BALANCE|${JSON.stringify(req.body)}`)
     let username = req.body.username
-    // let mainBalance = 0.00;
-    // const user = await db.user.findOne({
-    //     where: {
-    //         phone: username
-    //     }
-    // })
-
-    // const agentTrx = await db.agenttransaction.findAll({
-    //     where: {
-    //         userId: user.uuid
-    //     }
-    // })
-
-    // for (let i = 0; i < agentTrx.length; i++) {
-    //     mainBalance = mainBalance + agentTrx[i].transferedAmount - agentTrx[i].dedcutedAmount
-    // }
-
-    // console.log(`main balance from trasaction calculation , ${mainBalance}`)
-    // const lockedbalances = await db.lockedbalance.findAll({
-    //     where: {
-    //         lockedStatus: true,
-    //         userId: user.uuid
-    //     }
-    // })
-
-    // let pendingRecharge = 0.00
-
-    // for (let i = 0; i < lockedbalances.length; i++) {
-    //     pendingRecharge += lockedbalances[i].amountLocked
-    // }
-
-    // console.log(`Pending Balance: ${pendingRecharge}`);
-    // let actualbalance = mainBalance - pendingRecharge
 
     const actualbalance = await this.userPortalBalance(username)
     console.log(actualbalance);
@@ -1459,7 +1437,7 @@ const failedResponse = async(userbalance, api_id, sub_code, trx_id, api_code, tr
 }
 
 exports.recharge = async (req, res, next) => {
-    const { logger, rechargeLivelogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
+    const { logger, rechargeLivelogger,rechargeOPPPINlogger, rechargeDulogger, rechargeETSlogger, rechargeEZLlogger, rechargeRDYlogger, numberLockLogger, accessLog } = require('../authsrc/middlewares.js');
     accessLog.info(`ACCESS RECHARGE API|${JSON.stringify(req.body)}`)
     let data = {
         username: req.body.username,
@@ -1736,7 +1714,7 @@ exports.recharge = async (req, res, next) => {
                     }
                 }
 
-                let loglivereq = `REQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(send_data)}`
+                let loglivereq = `LIVE REQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(send_data)}`
                 rechargeLivelogger.info(loglivereq)
 
                 console.log(`MSISDN : ${msisdn}`)
@@ -1751,7 +1729,7 @@ exports.recharge = async (req, res, next) => {
                 })
                     .then(response => response.json())
                     .then(async livedata => {
-                        let logliveres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(livedata)}`
+                        let logliveres = `LIVE RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(livedata)}`
                         rechargeLivelogger.info(logliveres)
                         console.log("data from live : ", livedata)
                         // const resp = await saveResponse(data, transaction.id);
@@ -1821,6 +1799,59 @@ exports.recharge = async (req, res, next) => {
                 console.log("Api ID: ", trx_api_id);
                 console.log("Transaction Status : ", trx_status);
 
+            } else if (api.code == "OPPPIN") {
+                let today = new Date().toISOString().split('T')[0]
+                console.log("inside OPP PIN TEST")
+                let type = "PinRequest"
+                let terminal_id = "TESTOPP-1"
+                let pass = "7AW85CL32R"
+                let lang = "eng"
+                let recepiept = today + transaction.id
+                let amount = debit_amount
+                let clerk_id = 1
+                let prodcode = plan.productcode
+
+                var url = `https://test.q3cloud.me:444/Web/Get?RequestXml=%3CRequestXml%3E%3CType%3E${type}%3C/Type%3E%3CTerminalId%3E${terminal_id}%3C/TerminalId%3E%3CPassword%3E${pass}%3C/Password%3E%3CLanguage%3E${lang}%3C/Language%3E%3CReceiptNo%3E${recepiept}%3C/ReceiptNo%3E%3CValueCode%3E${amount}%3C/ValueCode%3E%3CClerkId%3E${clerk_id}%3C/ClerkId%3E%3CRefNo%3E${recepiept}%3C/RefNo%3E%3CProdCode%3E${prodcode}%3C/ProdCode%3E%3C/RequestXml%3E`
+                var config = {
+                    method: 'get',
+                    url: url,
+                    headers: {}
+                };
+
+                let msg = `PIN REQUEST | ${url}`
+                rechargeOPPPINlogger.info(msg)
+
+
+                axios(config)
+                    .then(function (response) {
+                        let output = response.data;
+                        var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                        console.log(stringXML);
+
+                        let parser = new DOMParser();
+                        let xmlDoc = parser.parseFromString(stringXML, "text/xml");
+                        let statusCode = xmlDoc.getElementsByTagName("StatusCode")[0].childNodes[0].nodeValue;
+
+                        if (parseInt(statusCode) == 1) {
+                            console.log("FAILED");
+                            let msg = `FAILED RESPONSE | ${JSON.stringify(stringXML)}`
+                            rechargeOPPPINlogger.info(msg)
+                            res.json({
+                                msg: "OPP PIN TEST Failed"
+                            })
+                        } else {
+                            let Pin = xmlDoc.getElementsByTagName("Pin")[0].childNodes[0].nodeValue;
+                            console.log("succeed")
+                            let msg = `SUCCESS RESPONSE | ${JSON.stringify(stringXML)}`
+                            rechargeOPPPINlogger.info(msg)
+                            res.json({
+                                msg: `PIN TEST SUCCEED ${Pin}`
+                            })
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             } else if (api.code == "ETS") {
                 console.log("==================================")
                 console.log("inside ETS API FOR ONEPREPAY")
@@ -1848,7 +1879,7 @@ exports.recharge = async (req, res, next) => {
                     data: xml_data
                 };
 
-                let logetsreq1 = `RECHARGEINITILIZEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${xml_data}`
+                let logetsreq1 = `ETS RECHARGEINITILIZEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${xml_data}`
                 rechargeETSlogger.info(logetsreq1)
 
                 axios(config)
@@ -1857,7 +1888,7 @@ exports.recharge = async (req, res, next) => {
                         var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                         console.log(stringXML);
                         console.log(response.data);
-                        let logetsres1 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(stringXML)}`
+                        let logetsres1 = `ETS RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(stringXML)}`
                         rechargeETSlogger.info(logetsres1)
                         let parser = new DOMParser();
                         let xmlDoc = parser.parseFromString(stringXML, "text/xml");
@@ -1888,7 +1919,7 @@ exports.recharge = async (req, res, next) => {
                                 headers: {}
                             };
 
-                            let logetsreq2 = `RECHARGECONFIRMREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${config.url}}`
+                            let logetsreq2 = `ETS RECHARGECONFIRMREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${config.url}}`
                             rechargeETSlogger.info(logetsreq2)
 
                             await axios(config)
@@ -1898,7 +1929,7 @@ exports.recharge = async (req, res, next) => {
                                     console.log(stringXML);
                                     console.log(response.data);
 
-                                    let logetsres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}}`
+                                    let logetsres2 = `ETS RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}}`
                                     rechargeETSlogger.info(logetsres2)
 
                                     let parser = new DOMParser();
@@ -2005,7 +2036,7 @@ exports.recharge = async (req, res, next) => {
                     data: xml_data
                 };
 
-                let logdureq = `RECHARGEINITILIZEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${xml_data}`
+                let logdureq = `DU RECHARGEINITILIZEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${xml_data}`
                 rechargeDulogger.info(logdureq)
 
                 axios(config)
@@ -2014,7 +2045,7 @@ exports.recharge = async (req, res, next) => {
                         var stringXML = output.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                         console.log(stringXML);
                         console.log(response.data);
-                        let logdures = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}`
+                        let logdures = `DU RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}`
                         rechargeDulogger.info(logdures)
                         let parser = new DOMParser();
                         let xmlDoc = parser.parseFromString(stringXML, "text/xml");
@@ -2045,7 +2076,7 @@ exports.recharge = async (req, res, next) => {
                                 headers: {}
                             };
 
-                            let logdureq2 = `RECHARGECONFIRMREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${config.url}}`
+                            let logdureq2 = `DU RECHARGECONFIRMREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${config.url}}`
                             rechargeDulogger.info(logdureq2)
 
                             await axios(config)
@@ -2055,7 +2086,7 @@ exports.recharge = async (req, res, next) => {
                                     console.log(stringXML);
                                     console.log(response.data);
 
-                                    let logdures2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}}`
+                                    let logdures2 = `DU RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${stringXML}}`
                                     rechargeDulogger.info(logdures2)
 
                                     let parser = new DOMParser();
@@ -2182,7 +2213,7 @@ exports.recharge = async (req, res, next) => {
                     data: resData
                 };
 
-                let logrdreq = `RECHARGEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(resData)}`
+                let logrdreq = `RDY RECHARGEREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(resData)}`
                 rechargeRDYlogger.info(logrdreq)
 
                 const rdyapi = await axios.request(config)
@@ -2198,7 +2229,7 @@ exports.recharge = async (req, res, next) => {
                         "RESPTYPE": "JSON"
                     })
 
-                    let logrdres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(rdyapi.data)}`
+                    let logrdres = `RDY RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(rdyapi.data)}`
                     rechargeRDYlogger.info(logrdres)
 
                     let config2 = {
@@ -2211,7 +2242,7 @@ exports.recharge = async (req, res, next) => {
                         data: checkData
                     };
 
-                    let logrdreq2 = `TRXCHECKREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(checkData)}`
+                    let logrdreq2 = `RDY TRXCHECKREQUEST|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(checkData)}`
                     rechargeRDYlogger.info(logrdreq2)
 
                     const rdyapi2 = await axios.request(config2)
@@ -2220,7 +2251,7 @@ exports.recharge = async (req, res, next) => {
                         // {"STATUSCODE":"0","STATUSMSG":"Success","REFNO":"02RDYU2906","TRNID":28099563,"TRNSTATUS":1,"TRNSTATUSDESC":"Success","OPRID":"MHR2305291527260020"}
                         const respMsg = `StatusCode: ${rdyapi2.data.STATUSCODE}, StatusMSG: ${rdyapi2.data.STATUSMSG} , REFNO: ${rdyapi2.data.REFNO} , TRNID: ${rdyapi2.data.TRNID} , TRNSTATUS : ${rdyapi2.data.TRNSTATUS} , OPRID : ${rdyapi2.data.OPRID}`
                         // const resp = await saveResponse(respMsg, data.TRNID)
-                        let logrdres2 = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(rdyapi2.data)}`
+                        let logrdres2 = `RDY RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(rdyapi2.data)}`
                         rechargeRDYlogger.info(logrdres2)
                         if (rdyapi2.data.STATUSMSG == "Success") {
                             trx_data = {
@@ -2358,7 +2389,7 @@ exports.recharge = async (req, res, next) => {
                 };
 
 
-                let logezlreq = `RECHARGEREQUEST|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${querydata}`
+                let logezlreq = `EZL RECHARGEREQUEST|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${querydata}`
                 rechargeEZLlogger.info(logezlreq)
                 console.log("BILLING REQUEST : ", logezlreq)
 
@@ -2382,12 +2413,12 @@ exports.recharge = async (req, res, next) => {
                     console.log("RESPONSE : ", apicall.data)
                     console.log("STRINGIFY RESPONSE : ", JSON.stringify(apicall.data))
 
-                    let logezlres = `RESPONSE|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${JSON.stringify(apicall.data)}`
+                    let logezlres = `EZL RESPONSE|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${JSON.stringify(apicall.data)}`
                     rechargeEZLlogger.info(logezlres)
 
                     console.log(logezlres)
 
-                    let logezlreq2 = `TRXCHECKREQUEST|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${trxcheck}`
+                    let logezlreq2 = `EZL TRXCHECKREQUEST|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${trxcheck}`
                     rechargeEZLlogger.info(logezlreq2)
 
                     console.log("TRX CHECK REQUEST : ", trxcheck)
@@ -2420,7 +2451,7 @@ exports.recharge = async (req, res, next) => {
 
                         console.log("TRX CHECK RESPONSE : ", ezlCheck.data)
                         console.log("STRINGIFY RESPONSE : ", JSON.stringify(ezlCheck.data))
-                        let logezlres2 = `RESPONSE|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${JSON.stringify(ezlCheck.data)}`
+                        let logezlres2 = `EZL RESPONSE|${phonenumber}|${data.plan_amount}|${transaction.uuid}|${api.code}|${network.name}|${JSON.stringify(ezlCheck.data)}`
                         rechargeEZLlogger.info(logezlres2)
 
                         if (trx_status) {
@@ -2701,7 +2732,7 @@ exports.recharge = async (req, res, next) => {
                 }
 
 
-                let loglivereq = `REQUEST|${product_id}|${msisdn}|${transaction.uuid}|${api.code}|${JSON.stringify(dtsdata)}`
+                let loglivereq = `DTS REQUEST|${product_id}|${msisdn}|${transaction.uuid}|${api.code}|${JSON.stringify(dtsdata)}`
                 rechargeLivelogger.info(loglivereq)
 
                 console.log(`MSISDN : ${msisdn}`)
@@ -2739,7 +2770,7 @@ exports.recharge = async (req, res, next) => {
                                     //res.json({message : response.data.status.class.message})
 
 
-                                    let logliveres = `RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(response.data)}`
+                                    let logliveres = `DTS RESPONSE|${data.ui_number}|${data.plan_amount}|${transaction.uuid}|${api.code}|${JSON.stringify(response.data)}`
                                     rechargeLivelogger.info(logliveres)
                                     console.log("data from live : ", response.data)
 

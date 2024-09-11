@@ -171,6 +171,22 @@ const rechargeLivelogger = winston.createLogger({
   ]
 })
 
+const rechargeOPPPINlogger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `logs/recharge/${new Date().toISOString().split('T')[0]}-ApiOPPPin.log`
+    })
+  ]
+})
+
 const rechargeETSlogger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
@@ -275,6 +291,7 @@ module.exports = {
   transferApprovallogger,
   transferDeclinelogger,
   rechargeLivelogger,
+  rechargeOPPPINlogger,
   rechargeETSlogger,
   rechargeDulogger,
   rechargeRDYlogger,
