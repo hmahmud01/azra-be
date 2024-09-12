@@ -294,7 +294,7 @@ exports.oppPin = async (req, res, next) => {
     let terminal_id = "TESTOPP-1"
     let pass = "7AW85CL32R"
     let lang = "eng"
-    let recepiept = "24009-013"
+    let recepiept = "24009-014"
     let amount = "30"
     let clerk_id = 1
     let prodcode = "TSTSTC"

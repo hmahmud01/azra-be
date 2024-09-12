@@ -980,6 +980,7 @@ module.exports = app => {
     })
 
     authRoute.post('/apphome', async(req, res, next) => {
+        console.log("INSIDE APP HOME")
 
         // CLEAR ALL UUID FROM USER LOGIN
         let user_id = req.body.user_id
@@ -1068,6 +1069,8 @@ module.exports = app => {
             let countryServices = []
 
             const countries = await db.country.findAll()
+
+            console.log(`countries : ${countries}`)
             
             for (let i=0; i<countries.length; i++){
                 
@@ -1364,6 +1367,25 @@ module.exports = app => {
                     ]
                 }
 
+                let grouped_afghan = {
+                    "name":"Afghanistan",
+                    "group":"recharge",
+                    "category":"mobile",
+                    "type":"country",
+                    "logo":"AF",
+                    "service_code":"MR",
+                    "calling_code":[
+                       "93"
+                    ],
+                    "country_code":"AF",
+                    "data":[
+                       "Afghanistan",
+                       "Afghanistan",
+                       "AF",
+                       "10"
+                    ]
+                }
+
                 let grouped_int = {
                     "name":"International",
                     "group":"recharge",
@@ -1386,6 +1408,7 @@ module.exports = app => {
                 mobile_recharge.push(grouped_in)
                 mobile_recharge.push(grouped_pk)
                 mobile_recharge.push(grouped_bd)
+                mobile_recharge.push(grouped_afghan)
                 // networkdata.push(grouped_five_card)
                 // networkdata.push(grouped_hello_card)
                 // networkdata.push(grouped_int)
