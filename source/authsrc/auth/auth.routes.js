@@ -862,6 +862,63 @@ module.exports = app => {
                         ]
                     }
 
+                    let grouped_afghan = {
+                        "name":"Afghanistan",
+                        "group":"recharge",
+                        "category":"mobile",
+                        "type":"country",
+                        "logo":"AF",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "93"
+                        ],
+                        "country_code":"AF",
+                        "data":[
+                           "Afghanistan",
+                           "Afghanistan",
+                           "AF",
+                           "10"
+                        ]
+                    }
+    
+                    let grouped_lanka = {
+                        "name":"Srilanka",
+                        "group":"recharge",
+                        "category":"mobile",
+                        "type":"country",
+                        "logo":"LK",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "94"
+                        ],
+                        "country_code":"LK",
+                        "data":[
+                           "Srilanka",
+                           "Srilanka",
+                           "LK",
+                           "10"
+                        ]
+                    }
+    
+                    let grouped_nepal = {
+                        "name":"Nepal",
+                        "group":"recharge",
+                        "category":"mobile",
+                        "type":"country",
+                        "logo":"NP",
+                        "service_code":"MR",
+                        "calling_code":[
+                           "977"
+                        ],
+                        "country_code":"NP",
+                        "data":[
+                           "Nepal",
+                           "Nepal",
+                           "NP",
+                           "10"
+                        ]
+                    }
+
                     let grouped_int = {
                         "name":"International",
                         "group":"recharge",
@@ -884,6 +941,9 @@ module.exports = app => {
                     mobile_recharge.push(grouped_in)
                     mobile_recharge.push(grouped_pk)
                     mobile_recharge.push(grouped_bd)
+                    mobile_recharge.push(grouped_nepal)
+                    mobile_recharge.push(grouped_lanka)
+                    mobile_recharge.push(grouped_afghan)
                     // networkdata.push(grouped_five_card)
                     // networkdata.push(grouped_hello_card)
                     // networkdata.push(grouped_int)
