@@ -298,6 +298,7 @@ exports.oppPin = async (req, res, next) => {
     let amount = "30"
     let clerk_id = 1
     let prodcode = "TSTSTC"
+    // 49607
 
     // https://test.q3cloud.me:444/Web/Get?RequestXml=<RequestXml><Type>PinRequest</Type><TerminalId>TESTOPP-1</TerminalId><Password>7AW85CL32R</Password><Language>eng</Language><ReceiptNo>23005-059</ReceiptNo><ValueCode>30</ValueCode><ClerkId>1</ClerkId><RefNo>23005-059</RefNo><ProdCode>TSTSTC</ProdCode></RequestXml>    
 
@@ -1520,6 +1521,8 @@ exports.recharge = async (req, res, next) => {
         }
     })
 
+    console.log(`PLAN : ${plan}`)
+
     const plan_type = await db.plantypes.findOne({
         where: {
             operator_code: data.sub_operator_code
@@ -1540,6 +1543,8 @@ exports.recharge = async (req, res, next) => {
             uuid: plan.api_plan_id
         }
     })
+
+    console.log(`API : ${api}`)
 
     if (plan.is_range && plan.credit_currency == plan.debit_currency) {
         debit_amount = parseInt(data.plan_amount)
