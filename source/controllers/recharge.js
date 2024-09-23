@@ -1521,7 +1521,8 @@ exports.recharge = async (req, res, next) => {
         }
     })
 
-    console.log(`PLAN : ${plan}`)
+    console.log("======PLAN=====")
+    console.log(plan)
 
     const plan_type = await db.plantypes.findOne({
         where: {
@@ -1544,7 +1545,8 @@ exports.recharge = async (req, res, next) => {
         }
     })
 
-    console.log(`API : ${api}`)
+    console.log("========API=========")
+    console.log(api)
 
     if (plan.is_range && plan.credit_currency == plan.debit_currency) {
         debit_amount = parseInt(data.plan_amount)
