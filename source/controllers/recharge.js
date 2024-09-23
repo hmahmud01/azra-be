@@ -1686,7 +1686,9 @@ exports.recharge = async (req, res, next) => {
 
         console.log(`API NAME : ${api.name}`)
         const purchase = await db.purchase.findOne({
-            dist: api.name
+            where: {
+                dist: api.name
+            }
         })
 
         console.log("========PURCHASE INFO ==========")
