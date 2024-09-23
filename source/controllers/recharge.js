@@ -1684,9 +1684,13 @@ exports.recharge = async (req, res, next) => {
         let failed_bal = 0.000
         let api_profit = 0.000
 
+        console.log(`API NAME : ${api.name}`)
         const purchase = await db.purchase.findOne({
             dist: api.name
         })
+
+        console.log("========PURCHASE INFO ==========")
+        console.log(purchase)
 
         if (purchase) {
             api_bal = purchase.purchase
