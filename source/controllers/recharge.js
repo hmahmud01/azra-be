@@ -1945,7 +1945,7 @@ exports.recharge = async (req, res, next) => {
                             let pin = xmlDoc.getElementsByTagName("Pin")[0].childNodes[0].nodeValue;
                             console.log("succeed")
                             const successtrxresponse = await trxSuccess(purchase,debit_amount, api.name, trx_data, lockedNumber.id, lockedBalance.id, percentvalue, user.uuid, transaction.uuid, trx_api_id, network.uuid)
-                            let msg = `SUCCESS RESPONSE | PIN: ${pin} | ${JSON.stringify(stringXML)}`
+                            let msg = `SUCCESS RESPONSE | CUSTOMER: ${data.username} | PIN: ${pin} | ${JSON.stringify(stringXML)}`
                             rechargeOPPPINlogger.info(msg)
                             const builtResponse = await successPinResponse(userbalance, debit_amount, api.id, data.sub_operator_code, transaction.id, api.code, transaction.uuid, now, now, pin)
                             console.log(builtResponse)
