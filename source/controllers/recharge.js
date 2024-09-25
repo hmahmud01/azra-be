@@ -1428,7 +1428,7 @@ const successPinResponse = async(userbalance, debit_amount, api_id, sub_code, tr
         api_trans_code: api_id,
         message: [{
             "pin": true,
-            "description": `${pin}`,
+            "description": `Pin : ${pin}`,
             "code": "200",
         }],
         trans_id: sub_code + trx_id,
@@ -1697,6 +1697,74 @@ exports.recharge = async (req, res, next) => {
         if (purchase) {
             api_bal = purchase.purchase
             api_profit = parseFloat(debit_amount) / 100 * (purchase.commission - percentvalue)
+        } else {
+            console.log("********API BALANCE NOT PURCHASED************")
+            const logmsg = `Failed Recharge Has been made to ${mobile} by agent ${data.username} for the amount ${plan.credit_amount}`
+            const syslog = await db.systemlog.create({
+                type: "Recharge",
+                detail: logmsg
+            })
+
+            const upd_transaction = await db.transaction.update(
+                {
+                    rechargeStatus: false
+                },
+                {
+                    where: {
+                        id: transaction.id,
+                    }
+                })
+
+            const transfer = await db.agenttransaction.create({
+                userId: user.uuid,
+                transferedAmount: debit_amount,
+                dedcutedAmount: 0.00,
+                transactionId: transaction.uuid
+            })
+
+            console.log("transaction returned");
+
+            const updateNumber = await db.lockednumber.update(
+                {
+                    status: false,
+                    trx_id: transaction.uuid
+                },
+                {
+                    where: {
+                        id: lockedNumber.id
+                    }
+                }
+            )
+
+            const updateBalance = await db.lockedbalance.update(
+                {
+                    lockedStatus: false,
+                },
+                {
+                    where: {
+                        id: lockedBalance.id
+                    }
+                }
+            )
+            console.log("RETURN TRASACTION CREATED > NUMBER UNLOCKED > BALANCE RETURNED")
+            console.log("Balance Unavailable");
+
+            let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
+            numberLockLogger.info(lockinfo)
+            apiResp = {
+                status: "failed",
+                balance: userbalance,
+                api_trans_code: api.id,
+                message: [{
+                    "description": "No Purchase on this API",
+                    "code": "200",
+                }],
+                trans_id: data.sub_operator_code + transaction.id,
+                trans_code: `${api.code}-${transaction.uuid}`,
+                trans_date: now,
+                request_endtime: now
+            }
+            res.json(apiResp)
         }
 
         console.log("api balance : ", api_bal)
