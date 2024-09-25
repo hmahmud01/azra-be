@@ -1423,11 +1423,9 @@ const successResponse = async(userbalance, debit_amount, api_id, sub_code, trx_i
 const successPinResponse = async(userbalance, debit_amount, api_id, sub_code, trx_id, api_code, trx_uuid, trans_now, req_now, pin) => {
     let apiResp = {
         status: "success",
-        pin: true,
         balance: (userbalance - debit_amount),
         api_trans_code: api_id,
         message: [{
-            "pin": true,
             "description": `Pin : ${pin}`,
             "code": "200",
         }],
