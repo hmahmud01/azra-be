@@ -480,15 +480,15 @@ module.exports = app => {
 
             console.log(`CURRENT DEVICE : ${device_db}`)
 
-            if(device_db != device_id){
-                res.status(403).json({
-                    "status": false,
-                    "auth_id": "N/A",
-                    "desc": "Device Not Matched. Please Use your original Device You logged in with."
+            // if(device_db != device_id){
+            //     res.status(403).json({
+            //         "status": false,
+            //         "auth_id": "N/A",
+            //         "desc": "Device Not Matched. Please Use your original Device You logged in with."
                     
-                }) ;
-                throw new Error('Invalid DEVICE.');
-            }
+            //     }) ;
+            //     throw new Error('Invalid DEVICE.');
+            // }
 
             console.log("Device Matched");
 
