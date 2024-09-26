@@ -883,6 +883,8 @@ exports.resellerBalanceTransferHistory = async (req, res, next) => {
     })
     for (let user of users) {
         let total = 0.00
+        let credit_total = 0.00
+        let debit_total = 0.00
 
         const data = await db.useramountsettlement.findAll({
             where: {
@@ -893,8 +895,12 @@ exports.resellerBalanceTransferHistory = async (req, res, next) => {
 
         if (data.length > 0) {
             for (let settle of data) {
-                total += settle.credit
+                // total += settle.credit
+                debit_total += settle.debit
+                credit_total += settle.credit
             }
+
+            total = credit_total - debit_total
 
             let object = {
                 user_id: user.uuid,
