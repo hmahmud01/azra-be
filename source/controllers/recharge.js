@@ -1193,7 +1193,9 @@ exports.confirmRecharge = async (req, res, next) => {
     console.log(`Pending Balance: ${pendingRecharge}`);
     let actualbalance = mainBalance - pendingRecharge
 
-    if (actualbalance > debit_amount) {
+    console.log("actual balance: ", actualbalance)
+
+    if (actualbalance >= debit_amount) {
         response = {
             status: "success",
             message: [{
