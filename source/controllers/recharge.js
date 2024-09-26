@@ -1910,8 +1910,9 @@ exports.recharge = async (req, res, next) => {
                 let amount = debit_amount
                 let clerk_id = 1
                 let prodcode = plan.productcode
-
-                var url = `https://test.q3cloud.me:444/Web/Get?RequestXml=%3CRequestXml%3E%3CType%3E${type}%3C/Type%3E%3CTerminalId%3E${terminal_id}%3C/TerminalId%3E%3CPassword%3E${pass}%3C/Password%3E%3CLanguage%3E${lang}%3C/Language%3E%3CReceiptNo%3E${recepiept}%3C/ReceiptNo%3E%3CValueCode%3E${amount}%3C/ValueCode%3E%3CClerkId%3E${clerk_id}%3C/ClerkId%3E%3CRefNo%3E${recepiept}%3C/RefNo%3E%3CProdCode%3E${prodcode}%3C/ProdCode%3E%3C/RequestXml%3E`
+                
+                // var url = `https://test.q3cloud.me:444/Web/Get?RequestXml=%3CRequestXml%3E%3CType%3E${type}%3C/Type%3E%3CTerminalId%3E${terminal_id}%3C/TerminalId%3E%3CPassword%3E${pass}%3C/Password%3E%3CLanguage%3E${lang}%3C/Language%3E%3CReceiptNo%3E${recepiept}%3C/ReceiptNo%3E%3CValueCode%3E${amount}%3C/ValueCode%3E%3CClerkId%3E${clerk_id}%3C/ClerkId%3E%3CRefNo%3E${recepiept}%3C/RefNo%3E%3CProdCode%3E${prodcode}%3C/ProdCode%3E%3C/RequestXml%3E`
+                var url = `hhttps://uae.q3cloud.me:545/Web/Get?RequestXml=%3CRequestXml%3E%3CType%3E${type}%3C/Type%3E%3CTerminalId%3E${terminal_id}%3C/TerminalId%3E%3CPassword%3E${pass}%3C/Password%3E%3CLanguage%3E${lang}%3C/Language%3E%3CReceiptNo%3E${recepiept}%3C/ReceiptNo%3E%3CValueCode%3E${amount}%3C/ValueCode%3E%3CClerkId%3E${clerk_id}%3C/ClerkId%3E%3CRefNo%3E${recepiept}%3C/RefNo%3E%3CProdCode%3E${prodcode}%3C/ProdCode%3E%3C/RequestXml%3E`
                 var config = {
                     method: 'get',
                     url: url,
