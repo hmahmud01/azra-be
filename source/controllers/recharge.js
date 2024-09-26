@@ -282,8 +282,6 @@ exports.ezltry = async (req, res, next) => {
         res.json({
             msg: "CHECKING"
         })
-
-
     }
 }
 
