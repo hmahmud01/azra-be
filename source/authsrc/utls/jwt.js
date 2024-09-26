@@ -1,27 +1,34 @@
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken';
+
+const jwt = require("jsonwebtoken");
 
 function generateAccessToken(user) {
   console.log(process.env.JWT_ACCESS_SECRET);
-  return jwt.sign({ userId: user.id }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: '5m',
+  return jwt.sign({ userId: user.id }, "azraaccesstoken", {
+    expiresIn: '10m',
   });
 }
 
-export function generateRefreshToken(user, jti) {
+function generateRefreshToken(user, jti) {
   return jwt.sign({
     userId: user.id,
     jti
-  }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: '8h',
+  }, "refreshtoken", {
+    expiresIn: '24h',
   });
 }
 
-export function generateTokens(user, jti) {
+function generateTokens(user, jti) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user, jti);
-
+  // const refreshToken = generateRefreshToken(user);
+  console.log(`accesstoken ${accessToken} and refreshtoken ${refreshToken}`)
   return {
     accessToken,
     refreshToken,
   };
+}
+
+module.exports = {
+  generateTokens
 }
