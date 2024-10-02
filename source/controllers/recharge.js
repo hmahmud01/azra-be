@@ -1270,7 +1270,7 @@ const trxSuccess = async (apiamount, debit_amount, api_name, trx_data, lockednum
             },
             {
                 where: {
-                    dist: api_name
+                    api: api_name
                 }
             }
         )
