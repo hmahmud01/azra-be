@@ -1682,12 +1682,30 @@ exports.recharge = async (req, res, next) => {
         let failed_bal = 0.000
         let api_profit = 0.000
 
+
+        // Add a temporary api name handler
+        let api_purchase_name = ""
+
+        if (api.code == "ETS"){
+            api_purchase_name = "One-Prepay-Pin"
+        }else if(api.code == "DU"){
+            api_purchase_name = "One-Prepay-Pin"
+        }else {
+            api_purchase_name = api.name
+        }
+
         console.log(`API NAME : ${api.name}`)
         const purchase = await db.purchase.findOne({
             where: {
                 dist: api.name
             }
         })
+
+        // const purchase = await db.purchase.findOne({
+        //     where: {
+        //         dist: api_purchase_name
+        //     }
+        // })
 
         console.log("========PURCHASE INFO ==========")
         console.log(purchase)

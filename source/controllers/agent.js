@@ -253,7 +253,7 @@ exports.assignPercent = async (req, res, next) => {
         }
 
     )
-
+    console.log("**********************PERCNTG")
     console.log(percentAssign)
     // const percass = await AgentPercentage.create({
     //     userId: result,

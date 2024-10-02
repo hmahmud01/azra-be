@@ -190,30 +190,6 @@ exports.filterCollection = async(req, res, next) => {
 
 exports.purchaseReport = async(req, res, next) => {
     accessLog.info(`ACCESS PURCHASE REPORT`)
-    let data = [
-        {
-            date: "23-09-2023",
-            telco: "GP, BL, AIRTEL",
-            dist: "LIVE",
-            purchase: 15500,
-            payable: 15000,
-            commission: 3.33,
-            entrydate: "25-09-2023",
-            locale: "Local",
-            conv: 1
-        },
-        {
-            date: "24-09-2023",
-            telco: "ETS",
-            dist: "ETS",
-            purchase: 15500,
-            payable: 15000,
-            commission: 3.33,
-            entrydate: "24-09-2023",
-            locale: "International",
-            conv: 1.23
-        }
-    ]
 
     const purchaseList = await db.purchase.findAll()
     console.log("PURCHASE")
@@ -267,32 +243,62 @@ exports.salesReport = async(req, res, next) => {
 
 exports.revenueReport = async(req, res, next) => {
     accessLog.info(`ACCESS REVENUE REPORT`)
-    let data = [
-        {
-            amount: 100,
-            agent: "Mokhles",
-            number: "01797559955",
-            operator: "GP",
-            api: "LIVE",
-            time: "10-10-2023",
-            profit: .5
-        },
-        {
-            amount: 200,
-            agent: "Mokhles",
-            number: "01669559955",
-            operator: "AIRTEL",
-            api: "LIVE",
-            time: "10-10-2023",
-            profit: .5
-        }
-    ]
-
-
     const sales = await db.sales.findAll()
 
     res.json({
         data: sales
+    })
+}
+
+exports.addpurchaseapi = async(req, res, next) => {
+    accessLog.info(`PURCHASE API ENTRY|${JSON.stringify(req.body)}`)
+    let data = req.body
+    console.log(data)
+    let api = data.api
+    let purchase = data.purchase
+    let payable = data.payable
+    let entrydate = data.entryDate
+
+    const purchaseapihistoryentry = await db.purchaseapihistory.create({
+        api: api,
+        purchase: purchase,
+        amountpurchased: purchase,
+        payable: payable,
+        entrydate: entrydate
+    })
+
+    const existingapipurchase = await db.purchaseapi.findOne({
+        where: {
+            api: data.api
+        }
+    })
+
+    if (existingapipurchase != null){
+        let update_balance = parseFloat(existingapipurchase.purchase) +  parseFloat(purchase)
+
+        const upd_purchase = await db.purchaseapi.update(
+            {
+                purchase: update_balance,
+                payable: payable
+            },
+            {
+                where: {
+                    uuid: existingapipurchase.uuid
+                }
+            }
+        )
+    }else{
+        const entry = await db.purchaseapi.create({
+            api: api,
+            purchase: purchase,
+            amountpurchased: purchase,
+            payable: payable,
+            entrydate: entrydate
+        })
+    }
+    let queryData = `API: ${api},PURCHASE: ${purchase}, PAYABLE: ${payable}`
+    res.json({
+        data: queryData
     })
 }
 

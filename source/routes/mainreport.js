@@ -9,6 +9,7 @@ module.exports = app => {
     reportRoutes.get("/salesreport", controller.salesReport)
     reportRoutes.get("/revenuereport", controller.revenueReport)
     reportRoutes.post("/addpurchase", controller.addPurchase)
+    reportRoutes.post("/addpurchaseapi", controller.addpurchaseapi)
     reportRoutes.get("/collection", controller.collection)
     reportRoutes.post("/filtersummaryreport", controller.filterSummaryReport)
     reportRoutes.post("/filterpurchasereport", controller.filterPurchaseReport)

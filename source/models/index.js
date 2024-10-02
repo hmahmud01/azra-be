@@ -62,5 +62,7 @@ db.purchase = require("./reportpurchase.model.js")(sequelize, Sequelize);
 db.purchasehistory = require("./reportpurchasehistory.model.js")(sequelize, Sequelize);
 db.sales = require("./reportsales.model.js")(sequelize, Sequelize);
 db.agentcommission = require("./agentcommission.model.js")(sequelize, Sequelize);
+db.purchaseapi = require("./purchaseapi.model.js")(sequelize, Sequelize);
+db.purchaseapihistory = require("./purchaseapihistory.model.js")(sequelize, Sequelize);
 
 module.exports = db;
