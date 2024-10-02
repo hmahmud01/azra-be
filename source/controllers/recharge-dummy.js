@@ -1605,7 +1605,7 @@ exports.recharge = async (req, res, next) => {
             agent: data.username,
             number: data.ui_number,
             operator: network.name,
-            api: api.name,
+            api: api_purchase_name,
             profit: api_profit
         })
 
@@ -1645,7 +1645,7 @@ exports.recharge = async (req, res, next) => {
                         detail: logmsg
                     })
 
-                    const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api.name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
+                    const trxfailedresponse = await trxFailed(failed_bal, debit_amount, data.username, data.ui_number, network.name, api_purchase_name, api_profit, transaction.id, user.uuid, transaction.uuid, lockedNumber.id, lockedBalance.id)
                     let lockinfo = `LOCKEDSTATUS: ${mobile}|GOT UNLOCKED|${api.code}|RECHARGE FAILED`
                     numberLockLogger.info(lockinfo)
 

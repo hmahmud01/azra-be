@@ -93,7 +93,8 @@ exports.apiBalance = async (req, res, next) => {
     // db.purchase
 
     let total_api_balance = 0.00
-    const purchases = await db.purchase.findAll()
+    // const purchases = await db.purchase.findAll()
+    const purchases = await db.purchaseapi.findAll()
     for (let i = 0; i < purchases.length; i++) {
         total_api_balance += purchases[i].purchase
     }
