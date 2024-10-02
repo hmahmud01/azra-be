@@ -728,9 +728,30 @@ exports.apiList = async (req, res, next) => {
     let api_list = []
     const apis = await db.api.findAll()
 
-    const apipurchase = await db.purchase.findAll()
+    // const apipurchase = await db.purchase.findAll()
+    const apipurchase = await db.purchaseapi.findAll()
+    for (let purchase of apipurchase){
+        let obj = {
+            "id": purchase.id,
+            "uuid": purchase.uuid,
+            "telco": "",
+            "dist": purchase.api,
+            "purchase": purchase.purchase,
+            "amountpurchased": purchase.amountpurchased,
+            "payable": purchase.payable,
+            "commission": 0,
+            "entrydate": purchase.entrydate,
+            "locale": "",
+            "conv": 0,
+            "date": purchase.date,
+            "createdAt": purchase.createdAt,
+            "updatedAt": purchase.updatedAt
+        }
+
+        api_list.push(obj)
+    }
     res.json({
-        api_list: apipurchase
+        api_list: api_list
     })
 }
 
