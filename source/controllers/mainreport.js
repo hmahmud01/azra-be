@@ -302,6 +302,27 @@ exports.addpurchaseapi = async(req, res, next) => {
     })
 }
 
+exports.purchaseApiReport = async(req, res, next) => {
+    accessLog.info(`ACCESS PURCHASE REPORT`)
+
+    const purchaseList = await db.purchaseapi.findAll()
+    console.log("PURCHASE")
+    console.log(purchaseList)
+
+    res.json({
+        data: purchaseList
+    })
+}
+
+exports.purchaseApiHistoryReport = async(req, res, next) => {
+    const history = await db.purchaseapihistory.findAll()
+    console.log(`PURCHASE HOST ${history}`)
+    
+    res.json({
+        data: history
+    })
+}
+
 exports.addPurchase = async(req, res, next) => {
     accessLog.info(`ADD PURCHASE ENTRY|${JSON.stringify(req.body)}`)
     let data = req.body
