@@ -1,0 +1,33 @@
+module.exports = app => {
+    const express = require("express")
+    const controller = require("../controllers/masteradmin.js")
+    const { authMiddleWare } = require("../authsrc/auth/auth.services.js")
+
+    masterAdminRouter = express.Router();
+    masterAdminRouter.post('/sales-admin', controller.sales)
+    masterAdminRouter.post('/collection-admin', controller.collection)
+    masterAdminRouter.post('/earning-admin', controller.earning)
+    masterAdminRouter.post('/apibalance-admin', controller.apiBalance)
+    masterAdminRouter.post('/marketdue-admin', controller.marketDue)
+    masterAdminRouter.post('/remainingcredit-admin', controller.remainingCredit)
+    masterAdminRouter.post('/saleslist-admin', controller.salesList)
+    masterAdminRouter.post('/earninglist-admin', controller.earningList)
+    masterAdminRouter.post('/last-30-day-sales', controller.lastSales)
+    masterAdminRouter.post('/last-30-day-collection', controller.lastCollection)
+    masterAdminRouter.post('/last-30-day-collection-reseller', controller.lastCollectionResellers)
+    masterAdminRouter.post('/reseller-customer-sales', controller.resellerCustomerSalesList)
+    masterAdminRouter.post('/customer-last-sales', controller.customerLastSalesList) 
+    masterAdminRouter.post('/transferredlist-reseller', controller.transferredList)
+    masterAdminRouter.post('/reseller-due-list', controller.resellerDueList)
+    masterAdminRouter.post('/customer-due-list', controller.customerDueList)
+    masterAdminRouter.post('/collectionlist-admin', controller.collectionList)
+    masterAdminRouter.post('/apilist-admin', controller.apiList)
+    masterAdminRouter.post('/apidirectory-admin', controller.apiDirectory)
+    masterAdminRouter.post('/resellercollectionhistory-admin', controller.resellerCollectionHistory)
+    masterAdminRouter.post('/customercollectionhistory-admin', controller.customerCollectionHistory)
+    masterAdminRouter.post('/resellerbalancetransferhistory-admin', controller.resellerBalanceTransferHistory)
+    masterAdminRouter.post('/resellercustomerbalancetransferhistory-admin', controller.resellerCustomerBalanceTransferHistory)
+    masterAdminRouter.post('/resellerlist', controller.resellerList)
+
+    app.use(masterAdminRouter)
+}

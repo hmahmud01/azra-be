@@ -1,11 +1,10 @@
-import express from 'express';
-import controller from '../controllers/circle.js';
-const circleRoutes = express.Router();
+module.exports = app => {
+    const express = require("express");
+    const controller = require("../controllers/circle.js");
 
-circleRoutes.get('/circles', controller.getCircles);
-circleRoutes.get('/circle/:id', controller.getCircle);
-circleRoutes.delete('/circle/:id', controller.deleteCircle);
-circleRoutes.put('/circle/:id', controller.updateCircle);
-circleRoutes.post('/circle', controller.addCircle);
+    const circleRoutes = express.Router();
+    circleRoutes.post('/addcircle', controller.createCircle);
+    circleRoutes.get('/circlelist', controller.listCircle);
 
-export default circleRoutes;
+    app.use('/', circleRoutes);
+}

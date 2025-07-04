@@ -1,36 +1,55 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+const db = require("../models");
+const Op = db.Sequelize.Op;
+const Api = db.api;
+const ApiCountryPriority = db.apicountrypriority;
+const ApiPercent = db.apipercent;
+const Country = db.country;
+const Mobile = db.mobile;
 
-const getApis = async (req, res, next) => {
-    let result = await prisma.api.findMany();
+const { accessLog } = require("../authsrc/middlewares")
+
+
+exports.getApis = async (req, res, next) => {
+    
+    let result = await Api.findAll();
 
     res.status(200).json({
         message: result
     })
 }
 
-const getApi = async (req, res, next) => {
+exports.getApi = async (req, res, next) => {
+    accessLog.info(`${req.params.id}|GET API INFO`)
     let result = { id: 1, api: "ZOLO", code: "ZLO", status: true }
     let id = req.params.id
     console.log(`fetcing data for ${id}`)
 
+    const api = await Api.findOne({
+        where: {
+            uuid: id
+        }
+    })
+
     res.status(200).json({
         message: result
     })
 }
 
-const deActivateApi = async (req, res, next) => {
+exports.deActivateApi = async (req, res, next) => {
+    accessLog.info(`${req.params.id}|DEACTIVATE API`)
     let id = req.params.id
     console.log(`deactivating the api with id of ${id}`)
 
-    const updateapi = await prisma.api.update({
-        where: { 
-            uuid: id
-        },
-        data: {
+    const updateapi = await Api.update(
+        {
             status: false,
+        },
+        {
+            where: { 
+                uuid: id
+            }
         }
-    });
+    );
 
     console.log(updateapi);
     res.status(200).json({
@@ -39,15 +58,20 @@ const deActivateApi = async (req, res, next) => {
     })
 }
 
-const activateApi = async (req, res, next) => {
+exports.activateApi = async (req, res, next) => {
+    accessLog.info(`${req.params.id}|ACTIVATE API`)
     let id = req.params.id
     console.log(`activating the api with id of ${id}`)
-    const updateapi = await prisma.api.update({
-        where: { uuid: id },
-        data: {
+    const updateapi = await Api.update(
+        {
             status: true,
+        },
+        {
+            where: { 
+                uuid: id
+            }
         }
-    });
+    );
 
     console.log(updateapi);
     res.status(200).json({
@@ -56,7 +80,8 @@ const activateApi = async (req, res, next) => {
     })
 }
 
-const addApi = async (req, res, next) => {
+exports.addApi = async (req, res, next) => {
+    accessLog.info(`ADD AN API|${JSON.stringify(req.body)}`)
     console.log(req.body);
 
     let name = req.body.name;
@@ -70,9 +95,7 @@ const addApi = async (req, res, next) => {
         status: status
     }
 
-    const apiObj = await prisma.api.create({
-        data: data
-    })
+    const apiObj = await Api.create(data)
 
     console.log(`Api : ${api} & code : ${code} & status : ${status}`)
 
@@ -81,43 +104,36 @@ const addApi = async (req, res, next) => {
     })
 }
 
-const assignPriority = async (req, res, next) => {
+exports.assignPriority = async (req, res, next) => {
+    accessLog.info(`ASSIGN PRIORITY API|${JSON.stringify(req.body)}`)
     let data = req.body;
     let ctryId = data.ctry;
 
     for (let i = 0; i < data.apiPriority.length; i++) {
-        const existingData = await prisma.apiCountryPriority.findFirst({
+        console.log(data.apiPriority[i]);
+
+        let dataVal = {
+            apiId: data.apiPriority[i].apiId,
+            countryId: ctryId,
+            priority: data.apiPriority[i].priority
+        }
+
+        // const priority = await ApiCountryPriority.create(dataVal)
+        // console.log(priority)
+        const existingData = await ApiCountryPriority.findOne({
             where: {
-                ctry: {
-                    is: {
-                        id: ctryId
-                    }
-                },
-                api: {
-                    is: {
-                        id: data.apiPriority[i].apiId
-                    }
-                }
+                countryId: ctryId,
+                apiId: data.apiPriority[i].apiId
             }
         })
 
         if(existingData){
             console.log(`DATA EXISTING FOR ${ctryId} and ${data.apiPriority[i].apiId}`)
         }else{
-            const priority = await prisma.apiCountryPriority.create({
-                data: {
-                    ctry: {
-                        connect: {
-                            id: ctryId
-                        }
-                    },
-                    api: {
-                        connect: {
-                            id: data.apiPriority[i].apiId
-                        }
-                    },
-                    priority: data.apiPriority[i].priority
-                }
+            const priority = await ApiCountryPriority.create({
+                countryId: ctryId,
+                apiId: data.apiPriority[i].apiId,
+                priority: data.apiPriority[i].priority
             })
         }
     }
@@ -128,21 +144,20 @@ const assignPriority = async (req, res, next) => {
     })
 }
 
-const assingPercentage = async (req, res, next) => {
+exports.assingPercentage = async (req, res, next) => {
+    accessLog.info(`ASSIGN PERCENTAGE API|${JSON.stringify(req.body)}`)
     let msg = ""
     let status_code = 200
-    const existingData = await prisma.apiPercent.findFirst({
+
+    // const percent = await ApiPercent.create({
+    //     apiId: req.body.api,
+    //     mobileId: req.body.network,
+    //     percent: req.body.percentage
+    // })
+    const existingData = await ApiPercent.findOne({
         where: {    
-            api: {
-                is: {
-                    id: req.body.api
-                }
-            },
-            network: {
-                is:{
-                    id: req.body.network
-                }
-            }
+            apiId: req.body.api,
+            mobileId: req.body.network
         }
     })
 
@@ -151,20 +166,10 @@ const assingPercentage = async (req, res, next) => {
         msg = "Percentage Combination Already exists"
         status_code = 400
     }else {
-        const percent = await prisma.apiPercent.create({
-            data: {
-                api: {
-                    connect: {
-                        id: req.body.api
-                    }
-                },
-                network: {
-                    connect: {
-                        id: req.body.network
-                    }
-                },
-                percent: req.body.percentage
-            }
+        const percent = await ApiPercent.create({
+            apiId: req.body.api,
+            mobileId: req.body.network,
+            percent: req.body.percentage
         })
     
         console.log(percent);
@@ -178,27 +183,26 @@ const assingPercentage = async (req, res, next) => {
     })
 }
 
-const apiPriorityData = async (req, res, next) => {
-
+exports.apiPriorityData = async (req, res, next) => {
+    accessLog.info("ACCESS API PRIORITY REPORT | WEB ADMIN")
     console.log("inside priority Data");
     let data = []
-    let result = await prisma.apiCountryPriority.findMany({
-        include: {
-            api: true,
-            ctry: true,
-        }
-    });
+    let result = await ApiCountryPriority.findAll();
+
+    console.log(result)
 
     for (let i = 0; i < result.length; i++) {
+        let ctry = await Country.findOne({where: {uuid: result[i].countryId}})
+        let api = await Api.findOne({where: {uuid: result[i].apiId}})
         let store = {
             id: result[i].id,
             uuid: result[i].uuid,
             priority: result[i].priority,
             apiId: result[i].apiId,
-            api: result[i].api.name,
-            ctry: result[i].ctry.name,
-            short: result[i].ctry.short,
-            ctryId: result[i].nationId,
+            api: api.name,
+            ctry: ctry.name,
+            short: ctry.short,       
+            ctryId: result[i].countryId,
         }
         data.push(store);
     }
@@ -208,25 +212,25 @@ const apiPriorityData = async (req, res, next) => {
     })
 }
 
-const apiPercentageData = async (req, res, next) => {
+exports.apiPercentageData = async (req, res, next) => {
+    accessLog.info("ACCESS API PERCENTAGE REPORT | WEB ADMIN")
     console.log("inside Percentage Data");
     let data = []
-    let result = await prisma.apiPercent.findMany({
-        include: {
-            api: true,
-            network: true
-        }
-    });
+    let result = await ApiPercent.findAll();
+
+    console.log(result)
 
     for (let i = 0; i < result.length; i++) {
+        let network = await Mobile.findOne({where: {uuid: result[i].mobileId}})
+        let api = await Api.findOne({where: {uuid: result[i].apiId}})
         let store = {
             id: result[i].id,
             uuid: result[i].uuid,
             percent: result[i].percent,
             apiId: result[i].apiId,
-            api: result[i].api.name,
+            api: api.name,
             mobileId: result[i].mobileId,
-            networkName: result[i].network.name,
+            networkName: network.name,
         }
         data.push(store)
     }
@@ -236,34 +240,37 @@ const apiPercentageData = async (req, res, next) => {
 }
 
 
-const updatePercentage = async (req, res, next) => {
-    const percent = await prisma.apiPercent.update({
-        where: {
-            uuid: req.body.id
-        },
-        data: {
-            percent: req.body.percentage
+exports.updatePercentage = async (req, res, next) => {
+    accessLog.info(`ACCESS API PERCENTAGE UPDATE | ${req.body.id} | WEB ADMIN`)
+    const percent = await ApiPercent.update(
+        {
+        percent: req.body.percentage,
+        },{
+            where: {
+                uuid: req.body.id
+            }
         }
-    })
+    )
 
     res.status(200).json({
         message: percent
     })
 }
 
-const updatePriority = async (req, res, next) => {
-    const priority = await prisma.apiCountryPriority.update({
-        where: {
-            uuid: req.body.id
-        },
-        data: {
+exports.updatePriority = async (req, res, next) => {
+    accessLog.info(`ACCESS API PRIORITY UPDATE | ${req.body.id} | WEB ADMIN`)
+    const priority = await ApiCountryPriority.update(
+        {
             priority: req.body.priority
+        },
+        {
+            where: {
+                uuid: req.body.id
+            },
         }
-    })
+    )
 
     res.status(200).json({
         message: priority
     })
 }
-
-export default { addApi, getApis, getApi, deActivateApi, activateApi, assingPercentage, assignPriority, apiPriorityData, apiPercentageData, updatePercentage, updatePriority }

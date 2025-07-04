@@ -1,25 +1,19 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
 
-import calculator from './agentReportCalculators.js';
+// import calculator from './agentReportCalculators.js';
 
-const dealer = async(req, res, next) => {
+const db = require("../models");
+const calculator = require('./agentReportCalculators.js');
+
+const { accessLog } = require("../authsrc/middlewares.js")
+
+exports.dealer = async(req, res, next) => {
     // let result = []
-    const dealers = await prisma.user.findMany({
+    const dealers = await db.user.findAll({
         where: {
-            type: "dealer"
+            usertype: "dealer"
         },
-        select:{
-            id: true,
-            uuid: true,
-            email: true,
-            phone: true,
-            store: true,
-            createdAt: true,
-            updatedAt: true,
-            type: true,
-            status: true
-        }
     })
 
     res.status(200).json({
@@ -27,45 +21,21 @@ const dealer = async(req, res, next) => {
     })
 }
 
-const dealerSubDealerReport = async(req, res, next) => {
+exports.dealerSubDealerReport = async(req, res, next) => {
+    accessLog.info(`ACCESS SUB DEALER REPORT | ${req.params.uid}`)
     const uid = req.params.uid
     console.log(uid);
 
-    const user = await prisma.user.findFirst({
+    const user = await db.user.findOne({
         where: {
             uuid: uid
         }
     })
 
-    const subdealers = await prisma.userProfile.findMany({
+    const subdealers = await db.userprofile.findAll({
         where: {
-            connectedUserId: user.id
+            connectedUser: uid
         },
-        select:{
-            id: true, 
-            uuid: true, 
-            f_name: true, 
-            l_name: true, 
-            age: true, 
-            email: true, 
-            role: true, 
-            phone: true, 
-            address: true,
-            userId: true,
-            user: {
-                select:{
-                    id: true,
-                    uuid: true,
-                    email: true,
-                    phone: true,
-                    store: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    type: true,
-                    status: true
-                }
-            }
-        }
     })
 
     console.log(subdealers);
@@ -77,59 +47,116 @@ const dealerSubDealerReport = async(req, res, next) => {
     })
 }
 
-const dealersubDealerAgentReport = async(req, res, next) => {
-    const uid = req.params.uid
-    console.log("uid", uid);
+const getPagination = (page, size) => {
+    const limit = size? +size : 3;
+    const offset = page ? page * limit : 0;
+
+    return {limit, offset};
+}
+
+const getPagingData = (data, page, limit) => {
+    const {count: totalItems, rows: agents} = data;
+    const currentPage = page ? +page : 0;
+    const totalPages = Math.ceil(totalItems/limit);
+    return { totalItems, agents, totalPages, currentPage };
+}
+
+const calculateAgentData = async(uuid) => {
     let dueval = 0
     let saleval = 0
     let earnval = 0
     let balanceval = 0
+    await calculator.calculateDue(uuid).then(res => {dueval = res.total});
+    await calculator.calculateSale(uuid).then(res => {saleval = res.sale});
+    await calculator.calculateEarning(uuid).then(res => {earnval = res.earn});
+    await calculator.calculateBalance(uuid).then(res => {balanceval = res.balance});
+    return { dueval, saleval, earnval, balanceval };
+}
 
-    const user = await prisma.user.findFirst({
-        where: {
-            uuid: uid
-        }
-    })
 
-    console.log(user);
+exports.dealersubDealerAgentReportPaginated = async(req, res, next) => {
+    accessLog.info(`ACCESS AGENT REPORT | ${req.params.uid}`)
+    let result = [];
+    const uid = req.params.uid;
+    const {page, size, id} = req.query;
+    var condition = {
+        connectedUser: uid
+    }
 
-    const agents = await prisma.userProfile.findMany({
-        where: {
-            connectedUserId: user.id
-        },
-        select:{
-            id: true, 
-            uuid: true, 
-            f_name: true, 
-            l_name: true, 
-            age: true, 
-            email: true, 
-            role: true, 
-            phone: true, 
-            address: true,
-            userId: true,
-            user: {
-                select:{
-                    id: true,
-                    uuid: true,
-                    email: true,
-                    phone: true,
-                    store: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    type: true,
-                    status: true
-                }
+    const { limit, offset } = getPagination(page, size);
+
+    await db.userprofile.findAndCountAll({
+        where: condition, limit, offset
+    }).then(async data => {
+        const response = getPagingData(data, page, limit);
+        const agents = response.agents;
+
+        for (let i = 0; i<agents.length; i++){
+            const { dueval, saleval, earnval, balanceval } = await calculateAgentData(agents[i].uuid);
+            let data = {
+                recharge: 0,
+                dues: dueval,
+                sale: saleval,
+                earning: earnval,
+                balance: balanceval
             }
+            
+            agents[i].data = data;
+
+            const user = await db.user.findOne({
+                where: {
+                    uuid: agents[i].userId
+                }
+            })
+
+            let userData = {
+                id: agents[i].id,
+                uuid: agents[i].userId,
+                email: agents[i].email,
+                phone: agents[i].phone,
+                store: user.store,
+                createdAt: agents[i].createdAt,
+                updatedAt: agents[i].updatedAt,
+                type: agents[i].role,
+                status: user.status,
+                data: data
+            }
+
+            result.push(userData);
         }
+        response.agents = result
+
+        res.send(response);
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || "SOME ERROR"
+        })
+    })
+}
+
+
+exports.dealersubDealerAgentReport = async(req, res, next) => {
+    accessLog.info(`ACCESS AGENT REPORT | ${req.params.uid}`)
+    const uid = req.params.uid
+    let dueval = 0
+    let saleval = 0
+    let earnval = 0
+    let balanceval = 0
+    let result = []
+
+
+    const agents = await db.userprofile.findAll({
+        where: {
+            connectedUser: uid
+        },
     })
 
     console.log(agents);
     for(let i = 0; i<agents.length; i++){
-        await calculator.calculateDue(agents[i].user.uuid).then(res => {dueval = res.total});
-        await calculator.calculateSale(agents[i].user.uuid).then(res => {saleval = res.sale});
-        await calculator.calculateEarning(agents[i].user.uuid).then(res => {earnval = res.earn});
-        await calculator.calculateBalance(agents[i].user.uuid).then(res => {balanceval = res.balance});
+        await calculator.calculateDue(agents[i].userId).then(res => {dueval = res.total});
+        await calculator.calculateSale(agents[i].userId).then(res => {saleval = res.sale});
+        await calculator.calculateEarning(agents[i].userId).then(res => {earnval = res.earn});
+        await calculator.calculateBalance(agents[i].userId).then(res => {balanceval = res.balance});
         let data = {
             recharge: 0,
             dues: dueval,
@@ -139,12 +166,34 @@ const dealersubDealerAgentReport = async(req, res, next) => {
         }
 
         agents[i].data = data;
+
+        const user = await db.user.findOne({
+            where: {
+                uuid: agents[i].userId
+            }
+        })
+
+        let userData = {
+            id: agents[i].id,
+            uuid: agents[i].userId,
+            email: agents[i].email,
+            phone: agents[i].phone,
+            store: user.store,
+            createdAt: agents[i].createdAt,
+            updatedAt: agents[i].updatedAt,
+            type: agents[i].role,
+            status: user.status,
+            data: data
+        }
+
+        result.push(userData);
     }
 
     console.log("agent for subd")
+    console.log(result)
     res.status(200).json({
-        message: agents
+        message: result
     })  
 }
 
-export default { dealer, dealerSubDealerReport, dealersubDealerAgentReport }
+// export default { dealer, dealerSubDealerReport, dealersubDealerAgentReport }

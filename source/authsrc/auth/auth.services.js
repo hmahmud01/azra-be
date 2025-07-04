@@ -1,9 +1,33 @@
-import { db } from '../utls/db.js';
-import { hashToken } from '../utls/hashToken.js';
+// import { db } from '../utls/db.js';
+// import { hashToken } from '../utls/hashToken.js';
+const db = require("../../models");
+const { hashToken } = require("../utls/hashToken.js");
+const jwt = require("jsonwebtoken");
+
+const RefreshToken = db.refreshtoken;
+
+const authMiddleware = async (req, res, next) => {
+  const AuthId = req.get('AuthId')
+  console.log(`AuthId ${AuthId}`)
+
+  if(!AuthId) {
+      return res.status(401).json({success: false, message: "Session Not Available"})
+  }
+
+  try {
+      const decoded = jwt.verify(AuthId, "azraaccesstoken");
+      console.log(`decoded ${decoded}`)
+      req.user = decoded;
+      next()
+  } catch (err) {
+      console.log(err);
+      return res.status(401).json({ success: false, message: "Session Expired. Please Login again" });
+  }
+}
 
 // used when we create a refresh token.
-export function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
-  return db.refreshToken.create({
+function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
+  return RefreshToken.create({
     data: {
       // id: jti,
       hashedToken: hashToken(refreshToken),
@@ -13,8 +37,8 @@ export function addRefreshTokenToWhitelist({ jti, refreshToken, userId }) {
 }
 
 // used to check if the token sent by the client is in the database.
-export function findRefreshTokenById(id) {
-  return db.refreshToken.findUnique({
+function findRefreshTokenById(id) {
+  return RefreshToken.findOne({
     where: {
       id,
     },
@@ -22,8 +46,8 @@ export function findRefreshTokenById(id) {
 }
 
 // soft delete tokens after usage.
-export function deleteRefreshToken(id) {
-  return db.refreshToken.update({
+function deleteRefreshToken(id) {
+  return RefreshToken.update({
     where: {
       id,
     },
@@ -33,8 +57,8 @@ export function deleteRefreshToken(id) {
   });
 }
 
-export function revokeTokens(userId) {
-  return db.refreshToken.updateMany({
+function revokeTokens(userId) {
+  return RefreshToken.update({
     where: {
       userId
     },
@@ -42,4 +66,12 @@ export function revokeTokens(userId) {
       revoked: true
     }
   });
+}
+
+module.exports = {
+  authMiddleware,
+  addRefreshTokenToWhitelist,
+  findRefreshTokenById,
+  deleteRefreshToken,
+  revokeTokens
 }

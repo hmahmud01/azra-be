@@ -1,7 +1,12 @@
-import { createHash } from 'crypto';
+// import { createHash } from 'crypto';
+const { createHash } = require("crypto");
 
-export function hashToken(token) {
+function hashToken(token) {
   return createHash('sha512').update(token).digest('hex');
+}
+
+module.exports = {
+  hashToken
 }
 
 

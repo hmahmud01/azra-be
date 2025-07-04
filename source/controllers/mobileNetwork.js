@@ -1,48 +1,66 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
 
-const getNetworks = async(req, res, next) => {
+// const prisma = new PrismaClient();
 
+const db = require("../models");
+const Mobile = db.mobile;
+const Setting = db.mobilesetting;
+const Country = db.country;
+const Op = db.Sequelize.Op;
+
+const { accessLog } = require("../authsrc/middlewares")
+
+exports.getNetworks = async(req, res, next) => {
     let result = []
 
-    const networks = await prisma.mobile.findMany({ include: {nation: true} });
+    const networks = await Mobile.findAll();
     console.log(networks); 
 
     for (let i=0; i<networks.length; i++){
+        const country = await Country.findOne({
+            where: {
+                uuid: networks[i].countryId
+            }
+        })
         let data = {
             id: networks[i].id,
             name: networks[i].name,
+            uuid: networks[i].uuid,
             createAt: networks[i].createAt,
-            ctry: networks[i].nation.name,
-            short: networks[i].nation.short
+            ctryId: networks[i].countryId,
+            ctry: country.name,
+            short: country.short
         }
-
         result.push(data)
     }
 
+    res.status(200).json({
+        message: result
+    })
+}
+
+exports.filterNetwork = async(req, res, next) => {
+    const result = await Mobile.findAll({
+        where: {
+            countryId: req.params.id
+        }
+    })
 
     res.status(200).json({
         message: result
     })
 }
 
-const listNetwork = async(req, res, next) => {
-    let result = [
-        {id: 1, name: "GP", country: 1},
-        {id: 2, name: "Banglalink", country: 1},
-        {id: 3, name: "Airtel", country: 2},
-    ]
-
-    result = await prisma.mobile.findMany();
+exports.listNetwork = async(req, res, next) => {
+    const result = await Mobile.findAll();
 
     res.status(200).json({
         message: result
     })
 }
 
-const getNetwork = async(req, res, next) => {
+exports.getNetwork = async(req, res, next) => {
     let id = req.params.id
-    console.log(id)
     let result = {id: 2, mno: "Banglalink", ctry: "BD"}
 
     res.status(200).json({
@@ -50,7 +68,7 @@ const getNetwork = async(req, res, next) => {
     })
 }
 
-const updateNetwork = async(req, res, next) => {
+exports.updateNetwork = async(req, res, next) => {
     let id = req.params.id
     msg = `updating data for id ${id}`
 
@@ -60,7 +78,7 @@ const updateNetwork = async(req, res, next) => {
     })
 }
 
-const deleteNetwork = async(req, res, next) => {
+exports.deleteNetwork = async(req, res, next) => {
     let id = req.params.id
     msg = `Deleting data for id ${id}`
 
@@ -70,38 +88,86 @@ const deleteNetwork = async(req, res, next) => {
     })
 }
 
-const addNetwork = async(req, res, next) => {
+exports.addNetwork = async(req, res, next) => {
+    accessLog.info(`ADD MOBILE NETWORK|${JSON.stringify(req.body)}`)
     let mno = req.body.mno
     let ctry = req.body.country
 
-    const country = await prisma.nation.findFirst({
-        where: {
-            id: parseInt(ctry)
-        }
-    })
+    let data = {
+        name: mno,
+        countryId: ctry
+    }
 
-    console.log(country);
-
-    console.log("mno : ", mno, "ctry : ", ctry);
-    let response = `data creating for ${mno}`
-
-    const network = await prisma.mobile.create({
-        data: {
-            name: mno,
-            nation: {
-                connect: {
-                    id: parseInt(ctry)
-                }
-            }
-        },
-        include: { nation: true}
-    })
-
-    console.log(network, {depth: Infinity})
+    const network = await Mobile.create(data)
 
     res.status(200).json({
         message: `Network Created ${network.name}`
     })
 }
 
-export default { getNetworks, listNetwork, getNetwork, updateNetwork, deleteNetwork, addNetwork };
+exports.mobileSetting = async(req, res, next) => {
+    accessLog.info(`ADD MOBILE SETTING DATA|${JSON.stringify(req.body)}`)
+    let data = {
+        mobileId: req.body.mobileId,
+        logo: req.body.logo,
+        serviceCode: req.body.serviceCode,
+        callingCode: req.body.callingCode,
+        startsWith: req.body.startsWith,
+        max_length: req.body.max_length,
+        api_code: req.body.api_code,
+        regex: req.body.regex,
+        denominationStep: req.body.denominationStep,
+    }
+
+    const setting = await Setting.create(data);
+    console.log(setting);
+
+    res.status(200).json({
+        message: `added data: ${setting}`
+    })
+}
+
+exports.findMobileSetting = async(req, res, next) => {
+    let id = req.params.id;
+    accessLog.info(`FIND A MOBILE SETTING | ${id} | WEB ADMIN`)
+
+    const setting = await Setting.findOne({
+        where: {
+            uuid: id
+        }
+    })
+
+    res.status(200).json({
+        setting: setting
+    })
+}
+
+exports.mobileSettingList = async(req, res, next) => {
+    accessLog.info(`ACCESS MOBILE SETTING LIST | WEB ADMIN`)
+    const settinglist = await Setting.findAll()
+
+    let list = []
+
+    for (let i = 0; i<settinglist.length; i++){
+        const mobile = await db.mobile.findOne({
+            where : {
+                uuid: settinglist[i].mobileId
+            }
+        })
+
+        let data = {
+            api_code: settinglist[i].api_code,
+            callingCode: settinglist[i].callingCode,
+            denominationStep: settinglist[i].denominationStep,
+            logo: settinglist[i].logo,
+            mobileId: mobile.name,
+            regex: settinglist[i].regex,
+            serviceCode: settinglist[i].serviceCode,
+            startsWith: settinglist[i].startsWith,
+        }
+
+        list.push(data)
+    }
+
+    res.status(200).json(list)
+}

@@ -1,0 +1,22 @@
+module.exports = app => {
+    const express = require("express")
+    const controller = require("../controllers/userprofile.js");
+    const { authMiddleware } = require("../authsrc/auth/auth.services.js");
+
+    profileRouter = express.Router();
+    profileRouter.post('/user-redeem-earning', controller.userRedeemEarning);
+    profileRouter.post('/user-redeem-history', controller.redeemHistory);
+    profileRouter.post('/user-redeem-amounts', controller.redeemAmounts);
+    profileRouter.post('/user-dashboard',authMiddleware, controller.userDashboard);
+    profileRouter.post('/user-wallet-history', controller.walletHistory);
+    profileRouter.post('/order-history', authMiddleware, controller.orderHistory);
+    profileRouter.post('/salesman-dashboard', controller.salesDashboard);
+    profileRouter.post('/get-all-users', controller.getAllUsers);
+    profileRouter.post('/salesman-transaction-history', controller.salesmanTransactionHistory);
+    profileRouter.post('/salesman-wallet-history', controller.salesmanWalletHistory);
+    profileRouter.post('/send-balance-to-sales', controller.sendBalanceToSales);
+    profileRouter.post('/subreseller-dashboard', controller.resellerDashboard);
+    profileRouter.post('/transfer-list', controller.transferList);
+
+    app.use(profileRouter);
+}

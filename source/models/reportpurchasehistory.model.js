@@ -1,0 +1,27 @@
+module.exports = (sequelize, Sequelize) => {
+    const Purchasehistory = sequelize.define("purchasehistory", {
+        uuid: {
+            type: Sequelize.UUID,
+            defaultValue: Sequelize.UUIDV4
+        },
+        telco: Sequelize.STRING,
+        dist: Sequelize.STRING,
+        purchase: Sequelize.FLOAT,
+        amountpurchased: {
+            type: Sequelize.FLOAT,
+            allowNull: true
+        },
+        payable: Sequelize.FLOAT,
+        commission: Sequelize.FLOAT,
+        entrydate: Sequelize.STRING,
+        locale: Sequelize.STRING,
+        conv: Sequelize.FLOAT,
+        date: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            defaultValue: Sequelize.NOW
+        },
+    })
+
+    return Purchasehistory
+}
